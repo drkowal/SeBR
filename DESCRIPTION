@@ -1,0 +1,33 @@
+Package: SeBR
+Type: Package
+Title: Semiparametric Bayesian Regression Analysis
+Version: 0.1.0
+Author: Dan Kowal <daniel.r.kowal@gmail.com>
+Maintainer: Dan Kowal <daniel.r.kowal@gmail.com>
+Description: Monte Carlo and MCMC sampling algorithms for
+    semiparametric Bayesian regression analysis. These models
+    feature a nonparametric (unknown) transformation of the data
+    paired with widely-used regression models including 
+    linear regression, spline regression, quantile regression,
+    and Gaussian processes. The transformation enables broader
+    applicability of these key models, including for real-valued,
+    positive, and compactly-supported data with challenging 
+    distributional features. The samplers prioritize computational
+    scalability and, for most cases, Monte Carlo (not MCMC)
+    sampling for greater efficiency.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.3
+Imports:
+	coda,
+	fields,
+	GpGp,
+	MASS,
+	quantreg,
+	spikeSlabGAM,
+	statmod
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
