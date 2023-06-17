@@ -31,3 +31,5 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+URL: https://github.com/drkowal/SeBR
+BugReports: https://github.com/drkowal/SeBR/issues
