@@ -1,9 +1,9 @@
 ---
 title: "SeBR: Semiparametric Bayesian Regression"
 author: "Dan Kowal"
-date: "June 2023"
-output: pdf_document  
-#output: github_document
+#date: "June 2023"
+#output: pdf_document  
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -15,31 +15,30 @@ knitr::opts_chunk$set(echo = TRUE)
 Data transformations are a useful companion for parametric regression models. A well-chosen or learned transformation can greatly enhance the applicability of a given model, especially for data with irregular marginal features (e.g., multimodality, skewness) or various data domains (e.g., real-valued, positive, or compactly-supported data). 
 
 We are interested in providing fully Bayesian inference for
-*semiparametric regression models* that incorporate (1) an unknown
-data transformation and (2) a useful parametric regression model. For paired data $\{x_i, y_i\}_{i=1}^n$ with $x_i \in \mathbb{R}^p$ and $y \in \mathcal{Y} \subseteq \mathbb{R}$, consider the following class of models:
-\begin{align}
-    \label{trans}
-    g(y_i) &= z_i\\
-    \label{mod}
-    z_i & \stackrel{indep}{\sim} P_{Z \mid \theta, X = x_i}
-\end{align}
+*semiparametric regression models* that incorporate (1) an unknown data transformation and (2) a useful parametric regression model. For paired data $\{x_i, y_i\}_{i=1}^n$ with $x_i \in \mathbb{R}^p$ and $y \in \mathcal{Y} \subseteq \mathbb{R}$, consider the following class of models:
+$$
+g(y_i) = z_i
+$$
+$$
+z_i  \stackrel{indep}{\sim} P_{Z \mid \theta, X = x_i}
+$$
 Here, $g$ is a (monotone increasing) data transformation to be learned, while $P_{Z \mid \theta, X}$ may be considered the *core* parametric regression model indexed by unknown parameters $\theta$. 
 
-**Examples.** We focus on the following important special cases of \eqref{mod}:
+**Examples.** We focus on the following important special cases of $P_{Z \mid \theta, X}$:
 
 1. The **linear model** is a natural starting point:
-\begin{equation}\label{lm}
+$$
 z_i = x_i'\theta + \epsilon_i, \quad \epsilon_i \stackrel{iid}{\sim} N(0, \sigma_\epsilon^2)
-\end{equation}
-The transformation \eqref{trans} broadens the applicability of this useful class of models, including for positive or compactly-supported data (see below), while \eqref{mod} corresponds to $P_{Z \mid \theta, X=x} = N(x'\theta, \sigma_\epsilon^2)$. 
+$$
+The transformation $g$ broadens the applicability of this useful class of models, including for positive or compactly-supported data (see below), while $P_{Z \mid \theta, X=x} = N(x'\theta, \sigma_\epsilon^2)$. 
 
-2. The **quantile regression model** replaces the Gaussian assumption in \eqref{lm} with an *asymmetric Laplace* distribution (ALD) to target the $\tau$th quantile of $z$ at $x$, or equivalently, the $g^{-1}(\tau)$th quantile of $y$ at $x$. The ALD is quite often a very poor model for real data, especially when $\tau$ is near zero or one. The transformation \eqref{trans} offers a pathway to significantly improve the model adequacy, while still targeting the desired quantile of the data. 
+2. The **quantile regression model** replaces the Gaussian assumption in the linear model with an *asymmetric Laplace* distribution (ALD) to target the $\tau$th quantile of $z$ at $x$, or equivalently, the $g^{-1}(\tau)$th quantile of $y$ at $x$. The ALD is quite often a very poor model for real data, especially when $\tau$ is near zero or one. The transformation $g$ offers a pathway to significantly improve the model adequacy, while still targeting the desired quantile of the data. 
 
-3. The **Gaussian process (GP) model** generalizes \eqref{lm} to include a nonparametric regression function,
-\begin{equation} \label{GP}
+3. The **Gaussian process (GP) model** generalizes the linear model to include a nonparametric regression function,
+$$
 z_i = f_\theta(x_i) + \epsilon_i, \quad  \epsilon_i \stackrel{iid}{\sim} N(0, \sigma_\epsilon^2)
-\end{equation}
-where $f_\theta$ is a GP and $\theta$ parameterizes the mean and covariance functions. Although GPs offer substantial flexibility for the regression function $f_\theta$, the model \eqref{GP} may be inadequate when the $y$ has irregular marginal features or a restricted domain (e.g., positive or compact). 
+$$
+where $f_\theta$ is a GP and $\theta$ parameterizes the mean and covariance functions. Although GPs offer substantial flexibility for the regression function $f_\theta$, this model may be inadequate when the $y$ has irregular marginal features or a restricted domain (e.g., positive or compact). 
 
 
 **Challenges:** The goal is to provide fully Bayesian posterior inference for the unknowns $(g, \theta)$ and posterior predictive inference for future/unobserved data $\tilde y(x)$. We seek a model and algorithm that provide both (i) flexible modeling of $g$ and 
@@ -47,8 +46,8 @@ where $f_\theta$ is a GP and $\theta$ parameterizes the mean and covariance func
 
 **Innovations:** We specify a *nonparametric* model for $g$, yet also provide *Monte Carlo* (not MCMC) sampling for the target posterior and predictive distributions. As a result, we control the approximation accuracy via the number of simulations, but do *not* require the lengthy runs, burn-in periods, convergence diagnostics, or inefficiency factors that accompany MCMC. 
 
-# Using \texttt{SeBR}
-The \texttt{R} package \texttt{SeBR} is installed and loaded as follows:
+# Using `SeBR`
+The `R` package `SeBR` is installed and loaded as follows:
 
 ```{r install}
 
@@ -58,24 +57,23 @@ library(SeBR)
 
 ```
 
-The main functions in \texttt{SeBR} are:
+The main functions in `SeBR` are:
 
-- \texttt{sblm}: Monte Carlo sampling for posterior and predictive inference with the *semiparametric Bayesian linear model* \eqref{trans}--\eqref{lm};
+- `sblm`: Monte Carlo sampling for posterior and predictive inference with the *semiparametric Bayesian linear model*;
 
-- \texttt{sbsm}: Monte Carlo sampling for posterior and predictive inference with the *semiparametric Bayesian spline model*, which replaces \eqref{lm} with a spline for nonlinear modeling of $x \in \mathbb{R}$;
+- `sbsm`: Monte Carlo sampling for posterior and predictive inference with the *semiparametric Bayesian spline model*, which replaces the linear model with a spline for nonlinear modeling of $x \in \mathbb{R}$;
 
-- \texttt{sbqr}: blocked Gibbs sampling for posterior and predictive inference with the *semiparametric Bayesian quantile regression*, which replaces the Gaussian distribution in \eqref{lm} with an ALD to target the $\tau$th quantile of the data; and
+- `sbqr`: blocked Gibbs sampling for posterior and predictive inference with the *semiparametric Bayesian quantile regression*; and
 
-- \texttt{sbgp}: Monte Carlo sampling for predictive inference with the *semiparametric Bayesian Gaussian process model* \eqref{trans}--\eqref{mod} and \eqref{GP}. 
+- `sbgp`: Monte Carlo sampling for predictive inference with the *semiparametric Bayesian Gaussian process model*. 
 
+Each function returns a point estimate of $\theta$ (`coefficients`), posterior samples of the transformation $g$ (`post_g`), and posterior predictive samples of $\tilde y(x)$ at some specified testing points $X_{test}$ (`post_ytilde`), as well as other function-specific quantities (e.g., posterior draws of $\theta$, `post_theta`).
 
-Each function returns a point estimate of $\theta$ (\texttt{coefficients}), posterior samples of the transformation $g$ (\texttt{post\_g}), and posterior predictive samples of $\tilde y(x)$ at some specified testing points $X_{test}$ (\texttt{post\_ytilde}), as well as other function-specific quantities (e.g., posterior draws of $\theta$, \texttt{post\_theta}).
+**Note:** The package also includes Box-Cox variants of these functions, i.e., restricting $g$ to the (signed) Box-Cox parametric family $g(t; \lambda) = \{\mbox{sign}(t) \vert t \vert^\lambda - 1\}/\lambda$ with known or unknown $\lambda$. The parametric transformation is less flexible, especially for irregular marginals or restricted domains, and requires MCMC sampling. These functions (e.g., `blm_bc`, etc.) are primarily for benchmarking. 
 
-**Note:** The package also includes Box-Cox variants of these functions, i.e., restricting $g$ to the (signed) Box-Cox parametric family $g(t; \lambda) = \{\mbox{sign}(t) \vert t \vert^\lambda - 1\}/\lambda$ with known or unknown $\lambda$. The parametric transformation is less flexible, especially for irregular marginals or restricted domains, and requires MCMC sampling. These functions (e.g., \texttt{blm\_bc}, etc.) are primarily for benchmarking. 
+# Semiparametric Bayesian linear models with `sblm`
 
-# Semiparametric Bayesian linear models with \texttt{sblm}
-
-We simulate data from \eqref{trans}--\eqref{mod}:
+We simulate data from a transformed linear model:
 
 ```{r sims}
 
@@ -94,7 +92,7 @@ y_test = dat$y_test; X_test = dat$X_test
 
 ```
 
-\texttt{sblm} quickly produces Monte Carlo samples of $(\theta, g, \tilde y(X_{test}))$ under the semiparametric Bayesian linear model \eqref{trans}--\eqref{lm}:
+`sblm` quickly produces Monte Carlo samples of $(\theta, g, \tilde y(X_{test}))$ under the semiparametric Bayesian linear model:
 
 ```{r sblm}
 
@@ -108,7 +106,7 @@ names(fit) # what is returned
 
 These are Monte Carlo (not MCMC) samples, so we do not require further algorithm diagnostics.
 
-First, we check for model adequacy using posterior predictive diagnostics. Specifically, we compute the empirical CDF on both \texttt{y\_test} and each simulated testing predictive dataset from \texttt{post\_ytilde}. 
+First, we check for model adequacy using posterior predictive diagnostics. Specifically, we compute the empirical CDF on both `y_test` and each simulated testing predictive dataset from `post_ytilde`. 
 
 ```{r ppd}
 
@@ -132,9 +130,9 @@ lines(y0, ecdf(y_test)(y0),  # ECDF of testing data
 
 Despite the challenging features of this marginal distribution, the proposed model appears to be adequate.
 
-**Remark:** Posterior predictive diagnostics do not require training/testing splits and are typically performed in-sample. If \texttt{X\_test} is left unspecified in \texttt{sblm}, then the posterior predictive draws are given at \texttt{X} and can be compared to \texttt{y}. Naturally, the out-of-sample diagnostics above offer a more rigorous check. 
+**Remark:** Posterior predictive diagnostics do not require training/testing splits and are typically performed in-sample. If `X_test` is left unspecified in `sblm`, then the posterior predictive draws are given at `X` and can be compared to `y`. Naturally, the out-of-sample diagnostics above offer a more rigorous check. 
 
-Next, we evaluate the predictive ability on the testing dataset by computing and plotting the out-of-sample prediction intervals at \texttt{X\_test} and comparing them to \texttt{y\_test}:
+Next, we evaluate the predictive ability on the testing dataset by computing and plotting the out-of-sample prediction intervals at `X_test` and comparing them to `y_test`:
 
 ```{r pi}
 
@@ -182,14 +180,14 @@ cor(dat$beta_true[-1],
 
 The posterior distribution of $g$ accurately matches the true transformation. The regression coefficients are also recovered.
 
-**Remark:** The location-scale of the data-generating process and model \eqref{trans}--\eqref{lm} may not match exactly. Thus, we use correlations to compare the regression coefficients $\theta$ (while omitting the intercept) and apply location-scale shifts of the transformations $g$ to ensure comparability. This is only a byproduct of the simulated data setting and does not matter for real data analysis. 
+**Remark:** The location-scale of the data-generating process and model may not match exactly. Thus, we use correlations to compare the regression coefficients $\theta$ (while omitting the intercept) and apply location-scale shifts of the transformations $g$ to ensure comparability. This is only a byproduct of the simulated data setting and does not matter for real data analysis. 
 
-**Note:** Try repeating this exercise with \texttt{blm\_bc} in place of \texttt{sblm}. The Box-Cox transformation cannot recover the transformation accurately, the model diagnostics are alarming, and the predictions deteriorate substantially.
+**Note:** Try repeating this exercise with `blm_bc` in place of `sblm`. The Box-Cox transformation cannot recover the transformation accurately, the model diagnostics are alarming, and the predictions deteriorate substantially.
 
 
-# Semiparametric Bayesian quantile regression with \texttt{sbqr}
+# Semiparametric Bayesian quantile regression with `sbqr`
 
-We now consider Bayesian quantile regression, which specifies a linear model for \eqref{mod} with ALD errors. First, we simulate data from a heteroskedastic linear model. Heteroskedasticity often produces conclusions that differ from traditional mean regression. Here, we do *not* include a transformation, so the data-generating process does not implicitly favor our approach over traditional Bayesian quantile regression (i.e., with $g(t) = t$ the identity). 
+We now consider Bayesian quantile regression, which specifies a linear model with ALD errors. First, we simulate data from a heteroskedastic linear model. Heteroskedasticity often produces conclusions that differ from traditional mean regression. Here, we do *not* include a transformation, so the data-generating process does not implicitly favor our approach over traditional Bayesian quantile regression (i.e., with $g(t) = t$ the identity). 
 
 ```{r sims-qr}
 
@@ -207,7 +205,7 @@ y_test = dat$y_test; X_test = dat$X_test
 
 ```
 
-Now, we fit two Bayesian quantile regression models: the traditional version without a transformation (\texttt{bqr}) and the proposed alternative via \eqref{trans}--\eqref{mod} (\texttt{sbqr}). We target the $\tau = 0.05$ quantile.
+Now, we fit two Bayesian quantile regression models: the traditional version without a transformation (`bqr`) and the proposed alternative (`sbqr`). We target the $\tau = 0.05$ quantile.
 
 ```{r fit-qr}
 
@@ -234,7 +232,7 @@ names(fit) # what is returned
 
 ```
 
-For both model fits, we evaluate the same posterior predictive diagnostics as before. Specifically, we compute the empirical CDF on both \texttt{y\_test} and each simulated testing predictive dataset from \texttt{post\_ytilde}. 
+For both model fits, we evaluate the same posterior predictive diagnostics as before. Specifically, we compute the empirical CDF on both `y_test` and each simulated testing predictive dataset from `post_ytilde`. 
 
 ```{r ppd-bqr}
 
@@ -264,7 +262,7 @@ lines(y0, ecdf(y_test)(y0),  # ECDF of testing data
 
 Without the transformation, the Bayesian quantile regression model is *not* a good model for the data. The learned transformation completely resolves this model inadequacy---even though there was no transformation present in the data-generating process.
 
-Finally, we can asses the quantile estimates on the testing data. First, consider \texttt{bqr}:
+Finally, we can asses the quantile estimates on the testing data. First, consider `bqr`:
 
 ```{r bqr-test}
 
@@ -281,11 +279,11 @@ q_hat_bqr = fitted(fit_bqr)
 
 ```
 
-Recall that these are *quantile* regression models at $\tau$, so we expect them to be asymmetric about \texttt{y\_test}. 
+Recall that these are *quantile* regression models at $\tau$, so we expect them to be asymmetric about `y_test`. 
 
 The out-of-sample empirical quantile is `r emp_quant_bqr` (the target is $\tau = 0.05$) and the 90\% prediction interval coverage is `r emp_cov_bqr`. 
 
-Repeat this evaluation for \texttt{sbqr}:
+Repeat this evaluation for `sbqr`:
 
 ```{r sbqr-test}
 
@@ -302,11 +300,11 @@ q_hat = fitted(fit)
 
 ```
 
-Now the out-of-sample empirical quantile is `r emp_quant_sbqr` and the 90\% prediction interval coverage is `r emp_cov_sbqr`. \texttt{sbqr} is better calibrated to $\tau$, while both methods are slightly overconservative in the prediction interval coverage. However, \texttt{sbqr} produce significantly smaller prediction intervals while maintaining this conservative coverage, and thus provides more powerful and precise inference. 
+Now the out-of-sample empirical quantile is `r emp_quant_sbqr` and the 90\% prediction interval coverage is `r emp_cov_sbqr`. `sbqr` is better calibrated to $\tau$, while both methods are slightly overconservative in the prediction interval coverage. However, `sbqr` produce significantly smaller prediction intervals while maintaining this conservative coverage, and thus provides more powerful and precise inference. 
 
 **Note:** try this again for other quantiles, such as $\tau \in\{0.25, 0.5\}$. As $\tau$ approaches 0.5 (i.e., median regression), the problem becomes easier and the models are better calibrated. 
 
-# Semiparametric Bayesian Gaussian processes with \texttt{sbgp}
+# Semiparametric Bayesian Gaussian processes with `sbgp`
 
 Consider a challenging scenario with (i) a nonlinear regression function of $x \in \mathbb{R}$ and (ii) Beta marginals, so the support is $\mathcal{Y} = [0,1]$. Simulate data accordingly:
 
@@ -425,9 +423,9 @@ lines(x_test, y_hat, lwd = 3) # fitted values
 
 ```
 
-Unlike the Box-Cox version, \texttt{sbgp} respects the support of the data $\mathcal{Y} = [0,1]$, captures the trend, and provides much narrower intervals (average widths are `r round(width, 3)` compared to `r round(width_bc,3)`) with about the same coverage (`r emp_cov` for \texttt{sbgp} and `r emp_cov_bc` for Box-Cox). 
+Unlike the Box-Cox version, `sbgp` respects the support of the data $\mathcal{Y} = [0,1]$, captures the trend, and provides narrower intervals (average widths are `r round(width, 3)` compared to `r round(width_bc,3)`) with better coverage (`r emp_cov` for `sbgp` and `r emp_cov_bc` for Box-Cox). 
 
-Despite the significant complexities in the data, \texttt{sbgp} performs quite well out-of-the-box: 
+Despite the significant complexities in the data, `sbgp` performs quite well out-of-the-box: 
 
 - the nonlinearity is modeled adequately;
 
@@ -437,5 +435,5 @@ Despite the significant complexities in the data, \texttt{sbgp} performs quite w
 
 - the computations are fast. 
 
-**Note:** \texttt{sbgp} also applies for $x \in \mathbb{R}^p$ with $p >1$, such as spatial or spatio-temporal data. Such cases may require more careful consideration of the mean and covariance functions: the default mean function is a linear regression with the intercept only, while the default covariance function is an isotropic Matern function. However, many other options are available (inherited from the \texttt{GpGp} package).
+**Note:** `sbgp` also applies for $x \in \mathbb{R}^p$ with $p >1$, such as spatial or spatio-temporal data. Such cases may require more careful consideration of the mean and covariance functions: the default mean function is a linear regression with the intercept only, while the default covariance function is an isotropic Matern function. However, many other options are available (inherited from the `GpGp` package).
 
