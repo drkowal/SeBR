@@ -41,7 +41,9 @@ $P_{Z \mid \theta, X=x} = N(x'\theta, \sigma_\epsilon^2)$.
 
 $$
 z_i = x_i'\theta + \epsilon_i, \quad \epsilon_i \stackrel{iid}{\sim} ALD(\tau)
-$$ to target the $\tau$th quantile of $z$ at $x$, or equivalently, the
+$$
+
+to target the $\tau$th quantile of $z$ at $x$, or equivalently, the
 $g^{-1}(\tau)$th quantile of $y$ at $x$. The ALD is quite often a very
 poor model for real data, especially when $\tau$ is near zero or one.
 The transformation $g$ offers a pathway to significantly improve the
