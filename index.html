@@ -91,7 +91,7 @@
 </h1></div>
 <p><strong>Overview.</strong> Data transformations are a useful companion for parametric regression models. A well-chosen or learned transformation can greatly enhance the applicability of a given model, especially for data with irregular marginal features (e.g., multimodality, skewness) or various data domains (e.g., real-valued, positive, or compactly-supported data).</p>
 <p>Given paired data <span class="math inline">(<em>x</em><sub><em>i</em></sub>,<em>y</em><sub><em>i</em></sub>)</span> for <span class="math inline"><em>i</em> = 1, …, <em>n</em></span>, <code>SeBR</code> implements efficient and fully Bayesian inference for <em>semiparametric regression models</em> that incorporate (1) an unknown data transformation</p>
-<p><span class="math display"><em>g</em>(<em>y</em><sub><em>i</em></sub>) = <em>z</em><sub><em>i</em></sub>,  <em>i</em> = 1, …, <em>n</em></span></p>
+<p><span class="math display"><em>g</em>(<em>y</em><sub><em>i</em></sub>) = <em>z</em><sub><em>i</em></sub></span></p>
 <p>and (2) a useful parametric regression model</p>
 <p><span class="math display">$$
 z_i  \stackrel{indep}{\sim} P_{Z \mid \theta, X = x_i}
@@ -99,14 +99,20 @@ $$</span></p>
 <p>with unknown parameters <span class="math inline"><em>θ</em></span>.</p>
 <p><strong>Examples.</strong> We focus on the following important special cases of <span class="math inline"><em>P</em><sub><em>Z</em> ∣ <em>θ</em>, <em>X</em></sub></span>:</p>
 <ol style="list-style-type: decimal">
-<li><p>The <strong>linear model</strong> is a natural starting point: <span class="math display">$$
-z_i = x_i'\theta + \epsilon_i, \quad \epsilon_i \stackrel{iid}{\sim} N(0, \sigma_\epsilon^2)
-$$</span> The transformation <span class="math inline"><em>g</em></span> broadens the applicability of this useful class of models, including for positive or compactly-supported data, while <span class="math inline"><em>P</em><sub><em>Z</em> ∣ <em>θ</em>, <em>X</em> = <em>x</em></sub> = <em>N</em>(<em>x</em>′<em>θ</em>,<em>σ</em><sub><em>ϵ</em></sub><sup>2</sup>)</span>.</p></li>
-<li><p>The <strong>quantile regression model</strong> replaces the Gaussian assumption in the linear model with an <em>asymmetric Laplace</em> distribution (ALD) to target the <span class="math inline"><em>τ</em></span>th quantile of <span class="math inline"><em>z</em></span> at <span class="math inline"><em>x</em></span>, or equivalently, the <span class="math inline"><em>g</em><sup>−1</sup>(<em>τ</em>)</span>th quantile of <span class="math inline"><em>y</em></span> at <span class="math inline"><em>x</em></span>. The ALD is quite often a very poor model for real data, especially when <span class="math inline"><em>τ</em></span> is near zero or one. The transformation <span class="math inline"><em>g</em></span> offers a pathway to significantly improve the model adequacy, while still targeting the desired quantile of the data.</p></li>
-<li><p>The <strong>Gaussian process (GP) model</strong> generalizes the linear model to include a nonparametric regression function, <span class="math display">$$
-z_i = f_\theta(x_i) + \epsilon_i, \quad  \epsilon_i \stackrel{iid}{\sim} N(0, \sigma_\epsilon^2)
-$$</span> where <span class="math inline"><em>f</em><sub><em>θ</em></sub></span> is a GP and <span class="math inline"><em>θ</em></span> parameterizes the mean and covariance functions. Although GPs offer substantial flexibility for the regression function <span class="math inline"><em>f</em><sub><em>θ</em></sub></span>, this model may be inadequate when <span class="math inline"><em>y</em></span> has irregular marginal features or a restricted domain (e.g., positive or compact).</p></li>
+<li>The <strong>linear model</strong> is a natural starting point:</li>
 </ol>
+<p><span class="math display">$$
+z_i = x_i'\theta + \epsilon_i, \quad \epsilon_i \stackrel{iid}{\sim} N(0, \sigma_\epsilon^2)
+$$</span></p>
+<p>The transformation <span class="math inline"><em>g</em></span> broadens the applicability of this useful class of models, including for positive or compactly-supported data, while <span class="math inline"><em>P</em><sub><em>Z</em> ∣ <em>θ</em>, <em>X</em> = <em>x</em></sub> = <em>N</em>(<em>x</em>′<em>θ</em>,<em>σ</em><sub><em>ϵ</em></sub><sup>2</sup>)</span>.</p>
+<ol start="2" style="list-style-type: decimal">
+<li><p>The <strong>quantile regression model</strong> replaces the Gaussian assumption in the linear model with an <em>asymmetric Laplace</em> distribution (ALD) to target the <span class="math inline"><em>τ</em></span>th quantile of <span class="math inline"><em>z</em></span> at <span class="math inline"><em>x</em></span>, or equivalently, the <span class="math inline"><em>g</em><sup>−1</sup>(<em>τ</em>)</span>th quantile of <span class="math inline"><em>y</em></span> at <span class="math inline"><em>x</em></span>. The ALD is quite often a very poor model for real data, especially when <span class="math inline"><em>τ</em></span> is near zero or one. The transformation <span class="math inline"><em>g</em></span> offers a pathway to significantly improve the model adequacy, while still targeting the desired quantile of the data.</p></li>
+<li><p>The <strong>Gaussian process (GP) model</strong> generalizes the linear model to include a nonparametric regression function,</p></li>
+</ol>
+<p><span class="math display">$$
+z_i = f_\theta(x_i) + \epsilon_i, \quad  \epsilon_i \stackrel{iid}{\sim} N(0, \sigma_\epsilon^2)
+$$</span></p>
+<p>where <span class="math inline"><em>f</em><sub><em>θ</em></sub></span> is a GP and <span class="math inline"><em>θ</em></span> parameterizes the mean and covariance functions. Although GPs offer substantial flexibility for the regression function <span class="math inline"><em>f</em><sub><em>θ</em></sub></span>, this model may be inadequate when <span class="math inline"><em>y</em></span> has irregular marginal features or a restricted domain (e.g., positive or compact).</p>
 <p><strong>Challenges:</strong> The goal is to provide fully Bayesian posterior inference for the unknowns <span class="math inline">(<em>g</em>,<em>θ</em>)</span> and posterior predictive inference for future/unobserved data <span class="math inline"><em>ỹ</em>(<em>x</em>)</span>. We prefer a model and algorithm that provide both (i) flexible modeling of <span class="math inline"><em>g</em></span> and (ii) efficient posterior and predictive computations.</p>
 <p><strong>Innovations:</strong> Our approach (<a href="https://arxiv.org/abs/2306.05498" class="external-link uri">https://arxiv.org/abs/2306.05498</a>) specifies a <em>nonparametric</em> model for <span class="math inline"><em>g</em></span>, yet also provide <em>Monte Carlo</em> (not MCMC) sampling for the target posterior and predictive distributions. As a result, we control the approximation accuracy via the number of simulations, but do <em>not</em> require the lengthy runs, burn-in periods, convergence diagnostics, or inefficiency factors that accompany MCMC.</p>
 </div>
