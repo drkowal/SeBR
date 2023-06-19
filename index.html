@@ -90,8 +90,8 @@
 <div class="page-header"><h1 id="sebr-semiparametric-bayesian-regression">SeBR: Semiparametric Bayesian Regression<a class="anchor" aria-label="anchor" href="#sebr-semiparametric-bayesian-regression"></a>
 </h1></div>
 <p><strong>Overview.</strong> Data transformations are a useful companion for parametric regression models. A well-chosen or learned transformation can greatly enhance the applicability of a given model, especially for data with irregular marginal features (e.g., multimodality, skewness) or various data domains (e.g., real-valued, positive, or compactly-supported data).</p>
-<p>Given paired data <span class="math inline">{<em>x</em><sub><em>i</em></sub>, <em>y</em><sub><em>i</em></sub>}<sub><em>i</em> = 1</sub><sup><em>n</em></sup></span>, the package <code>SeBR</code> implements efficient and fully Bayesian inference for <em>semiparametric regression models</em> that incorporate (1) an unknown data transformation</p>
-<p><span class="math display"><em>g</em>(<em>y</em><sub><em>i</em></sub>) = <em>z</em><sub><em>i</em></sub></span></p>
+<p>Given paired data <span class="math inline">(<em>x</em><sub><em>i</em></sub>,<em>y</em><sub><em>i</em></sub>)</span> for <span class="math inline"><em>i</em> = 1, …, <em>n</em></span>, <code>SeBR</code> implements efficient and fully Bayesian inference for <em>semiparametric regression models</em> that incorporate (1) an unknown data transformation</p>
+<p><span class="math display"><em>g</em>(<em>y</em><sub><em>i</em></sub>) = <em>z</em><sub><em>i</em></sub>,  <em>i</em> = 1, …, <em>n</em></span></p>
 <p>and (2) a useful parametric regression model</p>
 <p><span class="math display">$$
 z_i  \stackrel{indep}{\sim} P_{Z \mid \theta, X = x_i}
