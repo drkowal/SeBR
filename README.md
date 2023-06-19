@@ -12,7 +12,7 @@ efficient and fully Bayesian inference for *semiparametric regression
 models* that incorporate (1) an unknown data transformation
 
 $$
-g(y_i) = z_i, \quad i=1,\ldots,n
+g(y_i) = z_i
 $$
 
 and (2) a useful parametric regression model
@@ -26,11 +26,15 @@ with unknown parameters $\theta$.
 **Examples.** We focus on the following important special cases of
 $P_{Z \mid \theta, X}$:
 
-1.  The **linear model** is a natural starting point: $$
-    z_i = x_i'\theta + \epsilon_i, \quad \epsilon_i \stackrel{iid}{\sim} N(0, \sigma_\epsilon^2)
-    $$ The transformation $g$ broadens the applicability of this useful
-    class of models, including for positive or compactly-supported data,
-    while $P_{Z \mid \theta, X=x} = N(x'\theta, \sigma_\epsilon^2)$.
+1.  The **linear model** is a natural starting point:
+
+$$
+z_i = x_i'\theta + \epsilon_i, \quad \epsilon_i \stackrel{iid}{\sim} N(0, \sigma_\epsilon^2)
+$$
+
+The transformation $g$ broadens the applicability of this useful class
+of models, including for positive or compactly-supported data, while
+$P_{Z \mid \theta, X=x} = N(x'\theta, \sigma_\epsilon^2)$.
 
 2.  The **quantile regression model** replaces the Gaussian assumption
     in the linear model with an *asymmetric Laplace* distribution (ALD)
@@ -42,13 +46,17 @@ $P_{Z \mid \theta, X}$:
     quantile of the data.
 
 3.  The **Gaussian process (GP) model** generalizes the linear model to
-    include a nonparametric regression function, $$
-    z_i = f_\theta(x_i) + \epsilon_i, \quad  \epsilon_i \stackrel{iid}{\sim} N(0, \sigma_\epsilon^2)
-    $$ where $f_\theta$ is a GP and $\theta$ parameterizes the mean and
-    covariance functions. Although GPs offer substantial flexibility for
-    the regression function $f_\theta$, this model may be inadequate
-    when $y$ has irregular marginal features or a restricted domain
-    (e.g., positive or compact).
+    include a nonparametric regression function,
+
+$$
+z_i = f_\theta(x_i) + \epsilon_i, \quad  \epsilon_i \stackrel{iid}{\sim} N(0, \sigma_\epsilon^2)
+$$
+
+where $f_\theta$ is a GP and $\theta$ parameterizes the mean and
+covariance functions. Although GPs offer substantial flexibility for the
+regression function $f_\theta$, this model may be inadequate when $y$
+has irregular marginal features or a restricted domain (e.g., positive
+or compact).
 
 **Challenges:** The goal is to provide fully Bayesian posterior
 inference for the unknowns $(g, \theta)$ and posterior predictive
