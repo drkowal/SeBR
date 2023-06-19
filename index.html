@@ -58,6 +58,12 @@
 <li class="nav-item">
   <a class="nav-link" href="reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="articles/Intro-SeBR.html">Introduction to SeBR</a>
+  </div>
+</li>
 <li class="nav-item">
   <a class="nav-link" href="news/index.html">Changelog</a>
 </li>
@@ -83,33 +89,32 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="sebr-semiparametric-bayesian-regression">SeBR: Semiparametric Bayesian Regression<a class="anchor" aria-label="anchor" href="#sebr-semiparametric-bayesian-regression"></a>
 </h1></div>
-<p>Dan Kowal</p>
-</div>
-<div class="section level1">
-<h1 id="background-semiparametric-regression-via-data-transformations">Background: semiparametric regression via data transformations<a class="anchor" aria-label="anchor" href="#background-semiparametric-regression-via-data-transformations"></a>
-</h1>
-<p>Data transformations are a useful companion for parametric regression models. A well-chosen or learned transformation can greatly enhance the applicability of a given model, especially for data with irregular marginal features (e.g., multimodality, skewness) or various data domains (e.g., real-valued, positive, or compactly-supported data).</p>
-<p>We are interested in providing fully Bayesian inference for <em>semiparametric regression models</em> that incorporate (1) an unknown data transformation and (2) a useful parametric regression model. For paired data <span class="math inline">{<em>x</em><sub><em>i</em></sub>, <em>y</em><sub><em>i</em></sub>}<sub><em>i</em> = 1</sub><sup><em>n</em></sup></span> with <span class="math inline"><em>x</em><sub><em>i</em></sub> ∈ ℝ<sup><em>p</em></sup></span> and <span class="math inline"><em>y</em> ∈ 𝒴 ⊆ ℝ</span>, consider the following class of models: <span class="math display"><em>g</em>(<em>y</em><sub><em>i</em></sub>) = <em>z</em><sub><em>i</em></sub></span> <span class="math display">$$
+<p><strong>Overview.</strong> Data transformations are a useful companion for parametric regression models. A well-chosen or learned transformation can greatly enhance the applicability of a given model, especially for data with irregular marginal features (e.g., multimodality, skewness) or various data domains (e.g., real-valued, positive, or compactly-supported data).</p>
+<p>Given paired data <span class="math inline">{<em>x</em><sub><em>i</em></sub>, <em>y</em><sub><em>i</em></sub>}<sub><em>i</em> = 1</sub><sup><em>n</em></sup></span>, the package <code>SeBR</code> implements efficient and fully Bayesian inference for <em>semiparametric regression models</em> that incorporate (1) an unknown data transformation</p>
+<p><span class="math display"><em>g</em>(<em>y</em><sub><em>i</em></sub>) = <em>z</em><sub><em>i</em></sub></span></p>
+<p>and (2) a useful parametric regression model</p>
+<p><span class="math display">$$
 z_i  \stackrel{indep}{\sim} P_{Z \mid \theta, X = x_i}
-$$</span> Here, <span class="math inline"><em>g</em></span> is a (monotone increasing) data transformation to be learned, while <span class="math inline"><em>P</em><sub><em>Z</em> ∣ <em>θ</em>, <em>X</em></sub></span> may be considered the <em>core</em> parametric regression model indexed by unknown parameters <span class="math inline"><em>θ</em></span>.</p>
+$$</span></p>
+<p>with unknown parameters <span class="math inline"><em>θ</em></span>.</p>
 <p><strong>Examples.</strong> We focus on the following important special cases of <span class="math inline"><em>P</em><sub><em>Z</em> ∣ <em>θ</em>, <em>X</em></sub></span>:</p>
 <ol style="list-style-type: decimal">
 <li><p>The <strong>linear model</strong> is a natural starting point: <span class="math display">$$
 z_i = x_i'\theta + \epsilon_i, \quad \epsilon_i \stackrel{iid}{\sim} N(0, \sigma_\epsilon^2)
-$$</span> The transformation <span class="math inline"><em>g</em></span> broadens the applicability of this useful class of models, including for positive or compactly-supported data (see below), while <span class="math inline"><em>P</em><sub><em>Z</em> ∣ <em>θ</em>, <em>X</em> = <em>x</em></sub> = <em>N</em>(<em>x</em>′<em>θ</em>,<em>σ</em><sub><em>ϵ</em></sub><sup>2</sup>)</span>.</p></li>
+$$</span> The transformation <span class="math inline"><em>g</em></span> broadens the applicability of this useful class of models, including for positive or compactly-supported data, while <span class="math inline"><em>P</em><sub><em>Z</em> ∣ <em>θ</em>, <em>X</em> = <em>x</em></sub> = <em>N</em>(<em>x</em>′<em>θ</em>,<em>σ</em><sub><em>ϵ</em></sub><sup>2</sup>)</span>.</p></li>
 <li><p>The <strong>quantile regression model</strong> replaces the Gaussian assumption in the linear model with an <em>asymmetric Laplace</em> distribution (ALD) to target the <span class="math inline"><em>τ</em></span>th quantile of <span class="math inline"><em>z</em></span> at <span class="math inline"><em>x</em></span>, or equivalently, the <span class="math inline"><em>g</em><sup>−1</sup>(<em>τ</em>)</span>th quantile of <span class="math inline"><em>y</em></span> at <span class="math inline"><em>x</em></span>. The ALD is quite often a very poor model for real data, especially when <span class="math inline"><em>τ</em></span> is near zero or one. The transformation <span class="math inline"><em>g</em></span> offers a pathway to significantly improve the model adequacy, while still targeting the desired quantile of the data.</p></li>
 <li><p>The <strong>Gaussian process (GP) model</strong> generalizes the linear model to include a nonparametric regression function, <span class="math display">$$
 z_i = f_\theta(x_i) + \epsilon_i, \quad  \epsilon_i \stackrel{iid}{\sim} N(0, \sigma_\epsilon^2)
-$$</span> where <span class="math inline"><em>f</em><sub><em>θ</em></sub></span> is a GP and <span class="math inline"><em>θ</em></span> parameterizes the mean and covariance functions. Although GPs offer substantial flexibility for the regression function <span class="math inline"><em>f</em><sub><em>θ</em></sub></span>, this model may be inadequate when the <span class="math inline"><em>y</em></span> has irregular marginal features or a restricted domain (e.g., positive or compact).</p></li>
+$$</span> where <span class="math inline"><em>f</em><sub><em>θ</em></sub></span> is a GP and <span class="math inline"><em>θ</em></span> parameterizes the mean and covariance functions. Although GPs offer substantial flexibility for the regression function <span class="math inline"><em>f</em><sub><em>θ</em></sub></span>, this model may be inadequate when <span class="math inline"><em>y</em></span> has irregular marginal features or a restricted domain (e.g., positive or compact).</p></li>
 </ol>
-<p><strong>Challenges:</strong> The goal is to provide fully Bayesian posterior inference for the unknowns <span class="math inline">(<em>g</em>,<em>θ</em>)</span> and posterior predictive inference for future/unobserved data <span class="math inline"><em>ỹ</em>(<em>x</em>)</span>. We seek a model and algorithm that provide both (i) flexible modeling of <span class="math inline"><em>g</em></span> and (ii) efficient posterior and predictive computations.</p>
-<p><strong>Innovations:</strong> We specify a <em>nonparametric</em> model for <span class="math inline"><em>g</em></span>, yet also provide <em>Monte Carlo</em> (not MCMC) sampling for the target posterior and predictive distributions. As a result, we control the approximation accuracy via the number of simulations, but do <em>not</em> require the lengthy runs, burn-in periods, convergence diagnostics, or inefficiency factors that accompany MCMC.</p>
+<p><strong>Challenges:</strong> The goal is to provide fully Bayesian posterior inference for the unknowns <span class="math inline">(<em>g</em>,<em>θ</em>)</span> and posterior predictive inference for future/unobserved data <span class="math inline"><em>ỹ</em>(<em>x</em>)</span>. We prefer a model and algorithm that provide both (i) flexible modeling of <span class="math inline"><em>g</em></span> and (ii) efficient posterior and predictive computations.</p>
+<p><strong>Innovations:</strong> Our approach (<a href="https://arxiv.org/abs/2306.05498" class="external-link uri">https://arxiv.org/abs/2306.05498</a>) specifies a <em>nonparametric</em> model for <span class="math inline"><em>g</em></span>, yet also provide <em>Monte Carlo</em> (not MCMC) sampling for the target posterior and predictive distributions. As a result, we control the approximation accuracy via the number of simulations, but do <em>not</em> require the lengthy runs, burn-in periods, convergence diagnostics, or inefficiency factors that accompany MCMC.</p>
 </div>
 <div class="section level1">
 <h1 id="using-sebr">Using <code>SeBR</code>
 <a class="anchor" aria-label="anchor" href="#using-sebr"></a>
 </h1>
-<p>The <code>R</code> package <code>SeBR</code> is installed and loaded as follows:</p>
+<p>The package <code>SeBR</code> is installed and loaded as follows:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
 <span><span class="co"># devtools::install_github("drkowal/SeBR")</span></span>
@@ -123,333 +128,6 @@ $$</span> where <span class="math inline"><em>f</em><sub><em>θ</em></sub></span
 </ul>
 <p>Each function returns a point estimate of <span class="math inline"><em>θ</em></span> (<code>coefficients</code>), posterior samples of the transformation <span class="math inline"><em>g</em></span> (<code>post_g</code>), and posterior predictive samples of <span class="math inline"><em>ỹ</em>(<em>x</em>)</span> at some specified testing points <span class="math inline"><em>X</em><sub><em>t</em><em>e</em><em>s</em><em>t</em></sub></span> (<code>post_ytilde</code>), as well as other function-specific quantities (e.g., posterior draws of <span class="math inline"><em>θ</em></span>, <code>post_theta</code>).</p>
 <p><strong>Note:</strong> The package also includes Box-Cox variants of these functions, i.e., restricting <span class="math inline"><em>g</em></span> to the (signed) Box-Cox parametric family <span class="math inline"><em>g</em>(<em>t</em>;<em>λ</em>) = {sign(<em>t</em>)|<em>t</em>|<sup><em>λ</em></sup> − 1}/<em>λ</em></span> with known or unknown <span class="math inline"><em>λ</em></span>. The parametric transformation is less flexible, especially for irregular marginals or restricted domains, and requires MCMC sampling. These functions (e.g., <code>blm_bc</code>, etc.) are primarily for benchmarking.</p>
-</div>
-<div class="section level1">
-<h1 id="semiparametric-bayesian-linear-models-with-sblm">Semiparametric Bayesian linear models with <code>sblm</code>
-<a class="anchor" aria-label="anchor" href="#semiparametric-bayesian-linear-models-with-sblm"></a>
-</h1>
-<p>We simulate data from a transformed linear model:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span> <span class="co"># for reproducibility</span></span>
-<span></span>
-<span><span class="co"># Simulate data from a transformed linear model:</span></span>
-<span><span class="va">dat</span> <span class="op">=</span> <span class="fu"><a href="reference/simulate_tlm.html">simulate_tlm</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">200</span>,  <span class="co"># number of observations</span></span>
-<span>                   p <span class="op">=</span> <span class="fl">10</span>,   <span class="co"># number of covariates </span></span>
-<span>                   g_type <span class="op">=</span> <span class="st">'step'</span> <span class="co"># type of transformation (here, positive data)</span></span>
-<span>                   <span class="op">)</span></span>
-<span><span class="co"># Training data:</span></span>
-<span><span class="va">y</span> <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">y</span>; <span class="va">X</span> <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">X</span> </span>
-<span></span>
-<span><span class="co"># Testing data:</span></span>
-<span><span class="va">y_test</span> <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">y_test</span>; <span class="va">X_test</span> <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">X_test</span> </span></code></pre></div>
-<p><code>sblm</code> quickly produces Monte Carlo samples of <span class="math inline">(<em>θ</em>,<em>g</em>,<em>ỹ</em>(<em>X</em><sub><em>t</em><em>e</em><em>s</em><em>t</em></sub>))</span> under the semiparametric Bayesian linear model:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Fit the semiparametric Bayesian linear model:</span></span>
-<span><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="reference/sblm.html">sblm</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, </span>
-<span>           X <span class="op">=</span> <span class="va">X</span>, </span>
-<span>           X_test <span class="op">=</span> <span class="va">X_test</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "5 seconds remaining"</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "4 seconds remaining"</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "2 seconds remaining"</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "Total time:  5 seconds"</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="co"># what is returned</span></span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="do">##  [1] "coefficients"  "post_theta"    "post_ytilde"   "post_g"       </span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="do">##  [5] "model"         "y"             "X"             "X_test"       </span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="do">##  [9] "psi"           "approx_g"      "sigma_epsilon"</span></span></code></pre></div>
-<p>These are Monte Carlo (not MCMC) samples, so we do not require further algorithm diagnostics.</p>
-<p>First, we check for model adequacy using posterior predictive diagnostics. Specifically, we compute the empirical CDF on both <code>y_test</code> and each simulated testing predictive dataset from <code>post_ytilde</code>.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Posterior predictive checks on testing data: empirical CDF</span></span>
-<span></span>
-<span><span class="co"># Construct a plot w/ the unique testing values:</span></span>
-<span><span class="va">y0</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">y_test</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">y0</span>, <span class="va">y0</span>, type<span class="op">=</span><span class="st">'n'</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span>,</span>
-<span>     xlab<span class="op">=</span><span class="st">'y'</span>, ylab<span class="op">=</span><span class="st">'F_y'</span>, main <span class="op">=</span> <span class="st">'Posterior predictive ECDF: testing data'</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Add the ECDF of each simulated predictive dataset</span></span>
-<span><span class="va">temp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_ytilde</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">y0</span>, <span class="fu"><a href="https://rdrr.io/r/stats/ecdf.html" class="external-link">ecdf</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_ytilde</span><span class="op">[</span><span class="va">s</span>,<span class="op">]</span><span class="op">)</span><span class="op">(</span><span class="va">y0</span><span class="op">)</span>, </span>
-<span>        col<span class="op">=</span><span class="st">'gray'</span>, type <span class="op">=</span><span class="st">'s'</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Add the ECDF for the observed testing data</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">y0</span>, <span class="fu"><a href="https://rdrr.io/r/stats/ecdf.html" class="external-link">ecdf</a></span><span class="op">(</span><span class="va">y_test</span><span class="op">)</span><span class="op">(</span><span class="va">y0</span><span class="op">)</span>,  <span class="co"># ECDF of testing data</span></span>
-<span>     col<span class="op">=</span><span class="st">'black'</span>, type <span class="op">=</span> <span class="st">'s'</span>, lwd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
-<p><img src="README_files/figure-gfm/ppd-1.png"><!-- --></p>
-<p>Despite the challenging features of this marginal distribution, the proposed model appears to be adequate.</p>
-<p><strong>Remark:</strong> Posterior predictive diagnostics do not require training/testing splits and are typically performed in-sample. If <code>X_test</code> is left unspecified in <code>sblm</code>, then the posterior predictive draws are given at <code>X</code> and can be compared to <code>y</code>. Naturally, the out-of-sample diagnostics above offer a more rigorous check.</p>
-<p>Next, we evaluate the predictive ability on the testing dataset by computing and plotting the out-of-sample prediction intervals at <code>X_test</code> and comparing them to <code>y_test</code>:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Evaluate posterior predictive means and intervals on the testing data:</span></span>
-<span><span class="fu"><a href="reference/plot_pptest.html">plot_pptest</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_ytilde</span>, </span>
-<span>            <span class="va">y_test</span>, </span>
-<span>            alpha_level <span class="op">=</span> <span class="fl">0.10</span><span class="op">)</span> <span class="co"># coverage should be &gt;= 90% </span></span></code></pre></div>
-<p><img src="README_files/figure-gfm/pi-1.png"><!-- --></p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 0.929</span></span></code></pre></div>
-<p>The out-of-sample predictive distributions are well-calibrated.</p>
-<p>Finally, we summarize the posterior inference for the transformation <span class="math inline"><em>g</em></span> and the regression coefficients <span class="math inline"><em>θ</em></span> and compare to the ground truth values:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Summarize the transformation:</span></span>
-<span></span>
-<span><span class="co"># post_g contains draws of g evaluated at the sorted and unique y-values:</span></span>
-<span><span class="va">y0</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span> </span>
-<span></span>
-<span><span class="co"># Construct a plot:</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">y0</span>, <span class="va">fit</span><span class="op">$</span><span class="va">post_g</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span>, type<span class="op">=</span><span class="st">'n'</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_g</span><span class="op">)</span>,</span>
-<span>     xlab <span class="op">=</span> <span class="st">'y'</span>, ylab <span class="op">=</span> <span class="st">'g(y)'</span>, main <span class="op">=</span> <span class="st">"Posterior draws of the transformation"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Add the posterior draws of g:</span></span>
-<span><span class="va">temp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_g</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">y0</span>, <span class="va">fit</span><span class="op">$</span><span class="va">post_g</span><span class="op">[</span><span class="va">s</span>,<span class="op">]</span>, col<span class="op">=</span><span class="st">'gray'</span><span class="op">)</span><span class="op">)</span> <span class="co"># posterior draws</span></span>
-<span></span>
-<span><span class="co"># Add the posterior mean of g:</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">y0</span>, <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_g</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="co"># posterior mean</span></span>
-<span></span>
-<span><span class="co"># Add the true transformation, rescaled for easier comparisons:</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">y</span>, </span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">g_true</span><span class="op">)</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_g</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_g</span><span class="op">)</span><span class="op">)</span>, </span>
-<span>      type<span class="op">=</span><span class="st">'p'</span>, pch<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">'bottomright'</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Truth'</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="co"># annotate the true transformation</span></span></code></pre></div>
-<p><img src="README_files/figure-gfm/comp-1.png"><!-- --></p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Check: correlation with true coefficients</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">beta_true</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="co"># excluding the intercept</span></span></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 0.9431343</span></span></code></pre></div>
-<p>The posterior distribution of <span class="math inline"><em>g</em></span> accurately matches the true transformation. The regression coefficients are also recovered.</p>
-<p><strong>Remark:</strong> The location-scale of the data-generating process and model may not match exactly. Thus, we use correlations to compare the regression coefficients <span class="math inline"><em>θ</em></span> (while omitting the intercept) and apply location-scale shifts of the transformations <span class="math inline"><em>g</em></span> to ensure comparability. This is only a byproduct of the simulated data setting and does not matter for real data analysis.</p>
-<p><strong>Note:</strong> Try repeating this exercise with <code>blm_bc</code> in place of <code>sblm</code>. The Box-Cox transformation cannot recover the transformation accurately, the model diagnostics are alarming, and the predictions deteriorate substantially.</p>
-</div>
-<div class="section level1">
-<h1 id="semiparametric-bayesian-quantile-regression-with-sbqr">Semiparametric Bayesian quantile regression with <code>sbqr</code>
-<a class="anchor" aria-label="anchor" href="#semiparametric-bayesian-quantile-regression-with-sbqr"></a>
-</h1>
-<p>We now consider Bayesian quantile regression, which specifies a linear model with ALD errors. First, we simulate data from a heteroskedastic linear model. Heteroskedasticity often produces conclusions that differ from traditional mean regression. Here, we do <em>not</em> include a transformation, so the data-generating process does not implicitly favor our approach over traditional Bayesian quantile regression (i.e., with <span class="math inline"><em>g</em>(<em>t</em>) = <em>t</em></span> the identity).</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Simulate data from a heteroskedastic linear model (no transformation):</span></span>
-<span><span class="va">dat</span> <span class="op">=</span> <span class="fu"><a href="reference/simulate_tlm.html">simulate_tlm</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">200</span>,  <span class="co"># number of observations</span></span>
-<span>                   p <span class="op">=</span> <span class="fl">10</span>,   <span class="co"># number of covariates </span></span>
-<span>                   g_type <span class="op">=</span> <span class="st">'box-cox'</span>, lambda <span class="op">=</span> <span class="fl">1</span>, <span class="co"># no transformation</span></span>
-<span>                   heterosked <span class="op">=</span> <span class="cn">TRUE</span> <span class="co"># heteroskedastic errors</span></span>
-<span>                   <span class="op">)</span></span>
-<span><span class="co"># Training data:</span></span>
-<span><span class="va">y</span> <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">y</span>; <span class="va">X</span> <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">X</span> </span>
-<span></span>
-<span><span class="co"># Testing data:</span></span>
-<span><span class="va">y_test</span> <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">y_test</span>; <span class="va">X_test</span> <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">X_test</span> </span></code></pre></div>
-<p>Now, we fit two Bayesian quantile regression models: the traditional version without a transformation (<code>bqr</code>) and the proposed alternative (<code>sbqr</code>). We target the <span class="math inline"><em>τ</em> = 0.05</span> quantile.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Quantile to target:</span></span>
-<span><span class="va">tau</span> <span class="op">=</span> <span class="fl">0.05</span></span>
-<span></span>
-<span><span class="co"># (Traditional) Bayesian quantile regression:</span></span>
-<span><span class="va">fit_bqr</span> <span class="op">=</span> <span class="fu"><a href="reference/bqr.html">bqr</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, </span>
-<span>           X <span class="op">=</span> <span class="va">X</span>, </span>
-<span>           tau <span class="op">=</span> <span class="va">tau</span>, </span>
-<span>           X_test <span class="op">=</span> <span class="va">X_test</span>,</span>
-<span>           verbose <span class="op">=</span> <span class="cn">FALSE</span>  <span class="co"># omit printout</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Semiparametric Bayesian quantile regression:</span></span>
-<span><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="reference/sbqr.html">sbqr</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, </span>
-<span>           X <span class="op">=</span> <span class="va">X</span>, </span>
-<span>           tau <span class="op">=</span> <span class="va">tau</span>, </span>
-<span>           X_test <span class="op">=</span> <span class="va">X_test</span>,</span>
-<span>           verbose <span class="op">=</span> <span class="cn">FALSE</span> <span class="co"># omit printout</span></span>
-<span><span class="op">)</span></span>
-<span>      </span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="co"># what is returned</span></span></code></pre></div>
-<div class="sourceCode" id="cb15"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="do">##  [1] "coefficients"  "fitted.values" "post_theta"    "post_ytilde"  </span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="do">##  [5] "post_qtau"     "post_g"        "model"         "y"            </span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="do">##  [9] "X"             "X_test"        "psi"           "approx_g"     </span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="do">## [13] "tau"</span></span></code></pre></div>
-<p>For both model fits, we evaluate the same posterior predictive diagnostics as before. Specifically, we compute the empirical CDF on both <code>y_test</code> and each simulated testing predictive dataset from <code>post_ytilde</code>.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Posterior predictive checks on testing data: empirical CDF</span></span>
-<span></span>
-<span><span class="co"># Construct a plot w/ the unique testing values:</span></span>
-<span><span class="va">y0</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">y_test</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">y0</span>, <span class="va">y0</span>, type<span class="op">=</span><span class="st">'n'</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span>,</span>
-<span>     xlab<span class="op">=</span><span class="st">'y'</span>, ylab<span class="op">=</span><span class="st">'F_y'</span>, </span>
-<span>     main <span class="op">=</span> <span class="st">'Posterior predictive ECDF: testing data (black) \n bqr (red) vs. sbqr (gray)'</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Add the ECDF of each simulated predictive (bqr) dataset</span></span>
-<span><span class="va">temp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">fit_bqr</span><span class="op">$</span><span class="va">post_ytilde</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">y0</span>, <span class="fu"><a href="https://rdrr.io/r/stats/ecdf.html" class="external-link">ecdf</a></span><span class="op">(</span><span class="va">fit_bqr</span><span class="op">$</span><span class="va">post_ytilde</span><span class="op">[</span><span class="va">s</span>,<span class="op">]</span><span class="op">)</span><span class="op">(</span><span class="va">y0</span><span class="op">)</span>, </span>
-<span>        col<span class="op">=</span><span class="st">'red'</span>, type <span class="op">=</span><span class="st">'s'</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Same, for sbqr:</span></span>
-<span><span class="va">temp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_ytilde</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">y0</span>, <span class="fu"><a href="https://rdrr.io/r/stats/ecdf.html" class="external-link">ecdf</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_ytilde</span><span class="op">[</span><span class="va">s</span>,<span class="op">]</span><span class="op">)</span><span class="op">(</span><span class="va">y0</span><span class="op">)</span>, </span>
-<span>        col<span class="op">=</span><span class="st">'gray'</span>, type <span class="op">=</span><span class="st">'s'</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Add the ECDF for the observed testing data</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">y0</span>, <span class="fu"><a href="https://rdrr.io/r/stats/ecdf.html" class="external-link">ecdf</a></span><span class="op">(</span><span class="va">y_test</span><span class="op">)</span><span class="op">(</span><span class="va">y0</span><span class="op">)</span>,  <span class="co"># ECDF of testing data</span></span>
-<span>     col<span class="op">=</span><span class="st">'black'</span>, type <span class="op">=</span> <span class="st">'s'</span>, lwd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
-<p><img src="README_files/figure-gfm/ppd-bqr-1.png"><!-- --></p>
-<p>Without the transformation, the Bayesian quantile regression model is <em>not</em> a good model for the data. The learned transformation completely resolves this model inadequacy—even though there was no transformation present in the data-generating process.</p>
-<p>Finally, we can asses the quantile estimates on the testing data. First, consider <code>bqr</code>:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Quantile point estimates:</span></span>
-<span><span class="va">q_hat_bqr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted</a></span><span class="op">(</span><span class="va">fit_bqr</span><span class="op">)</span> </span>
-<span></span>
-<span><span class="co"># Empirical quantiles on testing data:</span></span>
-<span><span class="op">(</span><span class="va">emp_quant_bqr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">q_hat_bqr</span> <span class="op">&gt;=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb18"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 0.025</span></span></code></pre></div>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Evaluate posterior predictive means and intervals on the testing data:</span></span>
-<span><span class="op">(</span><span class="va">emp_cov_bqr</span> <span class="op">=</span> <span class="fu"><a href="reference/plot_pptest.html">plot_pptest</a></span><span class="op">(</span><span class="va">fit_bqr</span><span class="op">$</span><span class="va">post_ytilde</span>, </span>
-<span>                           <span class="va">y_test</span>, </span>
-<span>                           alpha_level <span class="op">=</span> <span class="fl">0.10</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="README_files/figure-gfm/bqr-test-1.png"><!-- --></p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 0.976</span></span></code></pre></div>
-<p>Recall that these are <em>quantile</em> regression models at <span class="math inline"><em>τ</em></span>, so we expect them to be asymmetric about <code>y_test</code>.</p>
-<p>The out-of-sample empirical quantile is 0.025 (the target is <span class="math inline"><em>τ</em> = 0.05</span>) and the 90% prediction interval coverage is 0.976.</p>
-<p>Repeat this evaluation for <code>sbqr</code>:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Quantile point estimates:</span></span>
-<span><span class="va">q_hat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> </span>
-<span></span>
-<span><span class="co"># Empirical quantiles on testing data:</span></span>
-<span><span class="op">(</span><span class="va">emp_quant_sbqr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">q_hat</span> <span class="op">&gt;=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb22"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 0.034</span></span></code></pre></div>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Evaluate posterior predictive means and intervals on the testing data:</span></span>
-<span><span class="op">(</span><span class="va">emp_cov_sbqr</span> <span class="op">=</span> <span class="fu"><a href="reference/plot_pptest.html">plot_pptest</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_ytilde</span>, </span>
-<span>                            <span class="va">y_test</span>, </span>
-<span>                            alpha_level <span class="op">=</span> <span class="fl">0.10</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="README_files/figure-gfm/sbqr-test-1.png"><!-- --></p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 0.968</span></span></code></pre></div>
-<p>Now the out-of-sample empirical quantile is 0.034 and the 90% prediction interval coverage is 0.968. <code>sbqr</code> is better calibrated to <span class="math inline"><em>τ</em></span>, while both methods are slightly overconservative in the prediction interval coverage. However, <code>sbqr</code> produce significantly smaller prediction intervals while maintaining this conservative coverage, and thus provides more powerful and precise inference.</p>
-<p><strong>Note:</strong> try this again for other quantiles, such as <span class="math inline"><em>τ</em> ∈ {0.25, 0.5}</span>. As <span class="math inline"><em>τ</em></span> approaches 0.5 (i.e., median regression), the problem becomes easier and the models are better calibrated.</p>
-</div>
-<div class="section level1">
-<h1 id="semiparametric-bayesian-gaussian-processes-with-sbgp">Semiparametric Bayesian Gaussian processes with <code>sbgp</code>
-<a class="anchor" aria-label="anchor" href="#semiparametric-bayesian-gaussian-processes-with-sbgp"></a>
-</h1>
-<p>Consider a challenging scenario with (i) a nonlinear regression function of <span class="math inline"><em>x</em> ∈ ℝ</span> and (ii) Beta marginals, so the support is <span class="math inline">𝒴 = [0,1]</span>. Simulate data accordingly:</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Training data:</span></span>
-<span><span class="va">n</span> <span class="op">=</span> <span class="fl">200</span> <span class="co"># sample size</span></span>
-<span><span class="va">x</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, length <span class="op">=</span> <span class="va">n</span><span class="op">)</span> <span class="co"># observation points</span></span>
-<span></span>
-<span><span class="co"># Testing data:</span></span>
-<span><span class="va">n_test</span> <span class="op">=</span> <span class="fl">1000</span> </span>
-<span><span class="va">x_test</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, length <span class="op">=</span> <span class="va">n_test</span><span class="op">)</span> </span>
-<span></span>
-<span><span class="co"># True inverse transformation:</span></span>
-<span><span class="va">g_inv_true</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">z</span><span class="op">)</span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">qbeta</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">pnorm</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span>, </span>
-<span>        shape1 <span class="op">=</span> <span class="fl">0.5</span>, </span>
-<span>        shape2 <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span> <span class="co"># approx Beta(0.5, 0.1) marginals</span></span>
-<span></span>
-<span><span class="co"># Training observations:</span></span>
-<span><span class="va">y</span> <span class="op">=</span> <span class="fu">g_inv_true</span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="fl">2</span><span class="op">*</span><span class="va">pi</span><span class="op">*</span><span class="va">x</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="fl">4</span><span class="op">*</span><span class="va">pi</span><span class="op">*</span><span class="va">x</span><span class="op">)</span> <span class="op">+</span> <span class="fl">.25</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
-<span>             <span class="op">)</span> </span>
-<span></span>
-<span><span class="co"># Testing observations:</span></span>
-<span><span class="va">y_test</span> <span class="op">=</span> <span class="fu">g_inv_true</span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="fl">2</span><span class="op">*</span><span class="va">pi</span><span class="op">*</span><span class="va">x_test</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="fl">4</span><span class="op">*</span><span class="va">pi</span><span class="op">*</span><span class="va">x_test</span><span class="op">)</span> <span class="op">+</span> <span class="fl">.25</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
-<span>             <span class="op">)</span> </span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x_test</span>, <span class="va">y_test</span>, </span>
-<span>     xlab <span class="op">=</span> <span class="st">'x'</span>, ylab <span class="op">=</span> <span class="st">'y'</span>,</span>
-<span>     main <span class="op">=</span> <span class="st">"Training (gray) and testing (black) data"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, type<span class="op">=</span><span class="st">'p'</span>, col<span class="op">=</span><span class="st">'gray'</span>, pch <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="README_files/figure-gfm/sim-gp-1.png"><!-- --></p>
-<p>To highlight the challenges in this problem, we first consider a Box-Cox-transformed GP and evaluate the out-of-sample predictive performance:</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Fit the Box-Cox Gaussian process model:</span></span>
-<span><span class="va">fit_bc</span> <span class="op">=</span> <span class="fu"><a href="reference/bgp_bc.html">bgp_bc</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, </span>
-<span>           locs <span class="op">=</span> <span class="va">x</span>,</span>
-<span>           locs_test <span class="op">=</span> <span class="va">x_test</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb27"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "Initial GP fit..."</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "Updated GP fit..."</span></span></code></pre></div>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Fitted values and on the testing data:</span></span>
-<span><span class="va">y_hat_bc</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">fit_bc</span><span class="op">$</span><span class="va">post_ytilde</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># 90% prediction intervals on the testing data:</span></span>
-<span><span class="va">pi_y_bc</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">fit_bc</span><span class="op">$</span><span class="va">post_ytilde</span>, <span class="fl">2</span>, <span class="va">quantile</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">.95</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> </span>
-<span></span>
-<span><span class="co"># Average PI width:</span></span>
-<span><span class="op">(</span><span class="va">width_bc</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">pi_y_bc</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">pi_y_bc</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb29"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 0.2668767</span></span></code></pre></div>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Empirical PI coverage:</span></span>
-<span><span class="op">(</span><span class="va">emp_cov_bc</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">pi_y_bc</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span> <span class="op">&lt;=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">*</span><span class="op">(</span><span class="va">pi_y_bc</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span> <span class="op">&gt;=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb31"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 0.894</span></span></code></pre></div>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Plot these together with the actual testing points:</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x_test</span>, <span class="va">y_test</span>, type<span class="op">=</span><span class="st">'n'</span>, </span>
-<span>     ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">pi_y_bc</span>, <span class="va">y_test</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="st">'x'</span>, ylab <span class="op">=</span> <span class="st">'y'</span>, </span>
-<span>     main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">'Fitted values and prediction intervals: \n Box-Cox Gaussian process'</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Add the intervals:</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/polygon.html" class="external-link">polygon</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">x_test</span>, <span class="fu"><a href="https://rdrr.io/r/base/rev.html" class="external-link">rev</a></span><span class="op">(</span><span class="va">x_test</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">pi_y_bc</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/rev.html" class="external-link">rev</a></span><span class="op">(</span><span class="va">pi_y_bc</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>        col<span class="op">=</span><span class="st">'gray'</span>, border<span class="op">=</span><span class="cn">NA</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">x_test</span>, <span class="va">y_test</span>, type<span class="op">=</span><span class="st">'p'</span><span class="op">)</span> <span class="co"># actual values</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">x_test</span>, <span class="va">y_hat_bc</span>, lwd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="co"># fitted values</span></span></code></pre></div>
-<p><img src="README_files/figure-gfm/fit-bc-1.png"><!-- --></p>
-<p>The Box-Cox transformation adds some flexibility to the GP, but is insufficient for these data. The prediction intervals are unnecessarily wide and do not respect the support <span class="math inline">𝒴 = [0,1]</span>, while the estimated mean function does not fully capture the trend in the data.</p>
-<p>Now fit the semiparametric Bayesian GP model:</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Fit the semiparametric Gaussian process model:</span></span>
-<span><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="reference/sbgp.html">sbgp</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, </span>
-<span>           locs <span class="op">=</span> <span class="va">x</span>,</span>
-<span>           locs_test <span class="op">=</span> <span class="va">x_test</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb34"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "Initial GP fit..."</span></span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "Updated GP fit..."</span></span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "Sampling..."</span></span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "Done!"</span></span></code></pre></div>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="co"># what is returned</span></span></code></pre></div>
-<div class="sourceCode" id="cb36"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "coefficients"  "fit_gp"        "post_ytilde"   "post_g"       </span></span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="do">## [5] "model"         "y"             "X"             "approx_g"     </span></span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="do">## [9] "sigma_epsilon"</span></span></code></pre></div>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="co"># estimated regression coefficients (here, just an intercept)</span></span></code></pre></div>
-<div class="sourceCode" id="cb38"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 0.02256606</span></span></code></pre></div>
-<p>Evaluate the out-of-sample predictive performance on the testing data:</p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Fitted values and on the testing data:</span></span>
-<span><span class="va">y_hat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_ytilde</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># 90% prediction intervals on the testing data:</span></span>
-<span><span class="va">pi_y</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_ytilde</span>, <span class="fl">2</span>, <span class="va">quantile</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">.95</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> </span>
-<span></span>
-<span><span class="co"># Average PI width:</span></span>
-<span><span class="op">(</span><span class="va">width</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">pi_y</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">pi_y</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb40"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 0.2150783</span></span></code></pre></div>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Empirical PI coverage:</span></span>
-<span><span class="op">(</span><span class="va">emp_cov</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">pi_y</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span> <span class="op">&lt;=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">*</span><span class="op">(</span><span class="va">pi_y</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span> <span class="op">&gt;=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb42"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 0.955</span></span></code></pre></div>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Plot these together with the actual testing points:</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x_test</span>, <span class="va">y_test</span>, type<span class="op">=</span><span class="st">'n'</span>, </span>
-<span>     ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">pi_y</span>, <span class="va">y_test</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="st">'x'</span>, ylab <span class="op">=</span> <span class="st">'y'</span>, </span>
-<span>     main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">'Fitted values and prediction intervals: \n semiparametric Gaussian process'</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Add the intervals:</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/polygon.html" class="external-link">polygon</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">x_test</span>, <span class="fu"><a href="https://rdrr.io/r/base/rev.html" class="external-link">rev</a></span><span class="op">(</span><span class="va">x_test</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">pi_y</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/rev.html" class="external-link">rev</a></span><span class="op">(</span><span class="va">pi_y</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>        col<span class="op">=</span><span class="st">'gray'</span>, border<span class="op">=</span><span class="cn">NA</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">x_test</span>, <span class="va">y_test</span>, type<span class="op">=</span><span class="st">'p'</span><span class="op">)</span> <span class="co"># actual values</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">x_test</span>, <span class="va">y_hat</span>, lwd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="co"># fitted values</span></span></code></pre></div>
-<p><img src="README_files/figure-gfm/oos-gp-1.png"><!-- --></p>
-<p>Unlike the Box-Cox version, <code>sbgp</code> respects the support of the data <span class="math inline">𝒴 = [0,1]</span>, captures the trend, and provides narrower intervals (average widths are 0.215 compared to 0.267) with better coverage (0.955 for <code>sbgp</code> and 0.894 for Box-Cox).</p>
-<p>Despite the significant complexities in the data, <code>sbgp</code> performs quite well out-of-the-box:</p>
-<ul>
-<li><p>the nonlinearity is modeled adequately;</p></li>
-<li><p>the support of the data is enforced automatically;</p></li>
-<li><p>the out-of-sample prediction intervals are sharp and calibrated; and</p></li>
-<li><p>the computations are fast.</p></li>
-</ul>
-<p><strong>Note:</strong> <code>sbgp</code> also applies for <span class="math inline"><em>x</em> ∈ ℝ<sup><em>p</em></sup></span> with <span class="math inline"><em>p</em> &gt; 1</span>, such as spatial or spatio-temporal data. Such cases may require more careful consideration of the mean and covariance functions: the default mean function is a linear regression with the intercept only, while the default covariance function is an isotropic Matern function. However, many other options are available (inherited from the <code>GpGp</code> package).</p>
 </div>
 
   </main><aside class="col-md-3"><div class="links">
