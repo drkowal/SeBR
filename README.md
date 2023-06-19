@@ -7,12 +7,12 @@ enhance the applicability of a given model, especially for data with
 irregular marginal features (e.g., multimodality, skewness) or various
 data domains (e.g., real-valued, positive, or compactly-supported data).
 
-Given paired data $\{x_i, y_i\}_{i=1}^n$, the package `SeBR` implements
+Given paired data $(x_i,y_i)$ for $i=1,\ldots,n$, `SeBR` implements
 efficient and fully Bayesian inference for *semiparametric regression
 models* that incorporate (1) an unknown data transformation
 
 $$
-g(y_i) = z_i
+g(y_i) = z_i, \quad i=1,\ldots,n
 $$
 
 and (2) a useful parametric regression model
