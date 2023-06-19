@@ -38,12 +38,14 @@ $P_{Z \mid \theta, X=x} = N(x'\theta, \sigma_\epsilon^2)$.
 
 2.  The **quantile regression model** replaces the Gaussian assumption
     in the linear model with an *asymmetric Laplace* distribution (ALD)
-    to target the $\tau$th quantile of $z$ at $x$, or equivalently, the
-    $g^{-1}(\tau)$th quantile of $y$ at $x$. The ALD is quite often a
-    very poor model for real data, especially when $\tau$ is near zero
-    or one. The transformation $g$ offers a pathway to significantly
-    improve the model adequacy, while still targeting the desired
-    quantile of the data.
+
+$$
+z_i = x_i'\theta + \epsilon_i, \quad \epsilon_i \stackrel{iid}{\sim} ALD(\tau)
+$$ to target the $\tau$th quantile of $z$ at $x$, or equivalently, the
+$g^{-1}(\tau)$th quantile of $y$ at $x$. The ALD is quite often a very
+poor model for real data, especially when $\tau$ is near zero or one.
+The transformation $g$ offers a pathway to significantly improve the
+model adequacy, while still targeting the desired quantile of the data.
 
 3.  The **Gaussian process (GP) model** generalizes the linear model to
     include a nonparametric regression function,
