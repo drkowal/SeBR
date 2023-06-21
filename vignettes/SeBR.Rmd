@@ -1,8 +1,8 @@
 ---
-title: "SeBR"
+title: "Introduction to SeBR"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{SeBR}
+  %\VignetteIndexEntry{Introduction to SeBR}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
