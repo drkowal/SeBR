@@ -28,7 +28,7 @@ for the regression coefficients."><!-- mathjax --><script src="https://cdnjs.clo
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/Intro-SeBR.html">Introduction to SeBR</a>
+    <a class="dropdown-item" href="../articles/Intro-SeBR.html">SeBR</a>
   </div>
 </li>
 <li class="nav-item">
@@ -164,7 +164,7 @@ Monte Carlo, not MCMC sampling) in <code><a href="sblm.html">sblm</a></code>.</p
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Fit the Bayesian linear model with a Box-Cox transformation:</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">=</span> <span class="fu">blm_bc</span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, X <span class="op">=</span> <span class="va">X</span>, X_test <span class="op">=</span> <span class="va">X_test</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "0 seconds remaining"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "1 seconds remaining"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Total time:  1 seconds"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="co"># what is returned</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "coefficients" "post_theta"   "post_ytilde"  "post_g"       "post_lambda" </span>
@@ -172,7 +172,7 @@ Monte Carlo, not MCMC sampling) in <code><a href="sblm.html">sblm</a></code>.</p
 <span class="r-out co"><span class="r-pr">#&gt;</span> [11] "psi"         </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_lambda</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span> <span class="co"># summary of unknown Box-Cox parameter</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    0%   25%   50%   75%  100% </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.000 0.002 0.004 0.008 0.041 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.000 0.001 0.003 0.007 0.036 </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

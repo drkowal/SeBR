@@ -61,7 +61,7 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="articles/Intro-SeBR.html">Introduction to SeBR</a>
+    <a class="dropdown-item" href="articles/Intro-SeBR.html">SeBR</a>
   </div>
 </li>
 <li class="nav-item">
@@ -133,13 +133,13 @@ $$</span></p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/drkowal/SeBR" class="external-link">SeBR</a></span><span class="op">)</span> </span></code></pre></div>
 <p>The main functions in <code>SeBR</code> are:</p>
 <ul>
-<li><p><code>sblm</code>: Monte Carlo sampling for posterior and predictive inference with the <em>semiparametric Bayesian linear model</em>;</p></li>
-<li><p><code>sbsm</code>: Monte Carlo sampling for posterior and predictive inference with the <em>semiparametric Bayesian spline model</em>, which replaces the linear model with a spline for nonlinear modeling of <span class="math inline"><em>x</em> ∈ ℝ</span>;</p></li>
-<li><p><code>sbqr</code>: blocked Gibbs sampling for posterior and predictive inference with the <em>semiparametric Bayesian quantile regression</em>; and</p></li>
-<li><p><code>sbgp</code>: Monte Carlo sampling for predictive inference with the <em>semiparametric Bayesian Gaussian process model</em>.</p></li>
+<li><p><code><a href="reference/sblm.html">sblm()</a></code>: Monte Carlo sampling for posterior and predictive inference with the <em>semiparametric Bayesian linear model</em>;</p></li>
+<li><p><code><a href="reference/sbsm.html">sbsm()</a></code>: Monte Carlo sampling for posterior and predictive inference with the <em>semiparametric Bayesian spline model</em>, which replaces the linear model with a spline for nonlinear modeling of <span class="math inline"><em>x</em> ∈ ℝ</span>;</p></li>
+<li><p><code><a href="reference/sbqr.html">sbqr()</a></code>: blocked Gibbs sampling for posterior and predictive inference with the <em>semiparametric Bayesian quantile regression</em>; and</p></li>
+<li><p><code><a href="reference/sbgp.html">sbgp()</a></code>: Monte Carlo sampling for predictive inference with the <em>semiparametric Bayesian Gaussian process model</em>.</p></li>
 </ul>
 <p>Each function returns a point estimate of <span class="math inline"><em>θ</em></span> (<code>coefficients</code>), posterior samples of the transformation <span class="math inline"><em>g</em></span> (<code>post_g</code>), and posterior predictive samples of <span class="math inline"><em>ỹ</em>(<em>x</em>)</span> at some specified testing points <span class="math inline"><em>X</em><sub><em>t</em><em>e</em><em>s</em><em>t</em></sub></span> (<code>post_ytilde</code>), as well as other function-specific quantities (e.g., posterior draws of <span class="math inline"><em>θ</em></span>, <code>post_theta</code>).</p>
-<p><strong>Note:</strong> The package also includes Box-Cox variants of these functions, i.e., restricting <span class="math inline"><em>g</em></span> to the (signed) Box-Cox parametric family <span class="math inline"><em>g</em>(<em>t</em>;<em>λ</em>) = {sign(<em>t</em>)|<em>t</em>|<sup><em>λ</em></sup> − 1}/<em>λ</em></span> with known or unknown <span class="math inline"><em>λ</em></span>. The parametric transformation is less flexible, especially for irregular marginals or restricted domains, and requires MCMC sampling. These functions (e.g., <code>blm_bc</code>, etc.) are primarily for benchmarking.</p>
+<p><strong>Note:</strong> The package also includes Box-Cox variants of these functions, i.e., restricting <span class="math inline"><em>g</em></span> to the (signed) Box-Cox parametric family <span class="math inline"><em>g</em>(<em>t</em>;<em>λ</em>) = {sign(<em>t</em>)|<em>t</em>|<sup><em>λ</em></sup> − 1}/<em>λ</em></span> with known or unknown <span class="math inline"><em>λ</em></span>. The parametric transformation is less flexible, especially for irregular marginals or restricted domains, and requires MCMC sampling. These functions (e.g., <code><a href="reference/blm_bc.html">blm_bc()</a></code>, etc.) are primarily for benchmarking.</p>
 </div>
 
   </main><aside class="col-md-3"><div class="links">
