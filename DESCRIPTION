@@ -13,8 +13,9 @@ Description: Monte Carlo and MCMC sampling algorithms for
     applicability of these key models, including for real-valued,
     positive, and compactly-supported data with challenging 
     distributional features. The samplers prioritize computational
-    scalability and, for most cases, Monte Carlo (not MCMC)
-    sampling for greater efficiency.
+    scalability and, for most cases, Monte Carlo (not MCMC) 
+    sampling for greater efficiency. Details of the methods and algorthms are 
+    provided in <arXiv:2306.05498>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
