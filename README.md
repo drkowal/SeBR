@@ -65,16 +65,16 @@ or compact).
 **Challenges:** The goal is to provide fully Bayesian posterior
 inference for the unknowns $(g, \theta)$ and posterior predictive
 inference for future/unobserved data $\tilde y(x)$. We prefer a model
-and algorithm that provide both (i) flexible modeling of $g$ and (ii)
+and algorithm that offer both (i) flexible modeling of $g$ and (ii)
 efficient posterior and predictive computations.
 
 **Innovations:** Our approach (<https://arxiv.org/abs/2306.05498>)
-specifies a *nonparametric* model for $g$, yet also provide *Monte
-Carlo* (not MCMC) sampling for the target posterior and predictive
+specifies a *nonparametric* model for $g$, yet also provides *Monte
+Carlo* (not MCMC) sampling for the posterior and predictive
 distributions. As a result, we control the approximation accuracy via
 the number of simulations, but do *not* require the lengthy runs,
 burn-in periods, convergence diagnostics, or inefficiency factors that
-accompany MCMC.
+accompany MCMC. The Monte Carlo sampling is typically quite fast.
 
 # Using `SeBR`
 
