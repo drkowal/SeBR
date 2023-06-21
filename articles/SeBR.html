@@ -134,16 +134,17 @@ or compact).</p></li>
 posterior inference for the unknowns <span class="math inline">\((g,
 \theta)\)</span> and posterior predictive inference for
 future/unobserved data <span class="math inline">\(\tilde y(x)\)</span>.
-We prefer a model and algorithm that provide both (i) flexible modeling
-of <span class="math inline">\(g\)</span> and (ii) efficient posterior
-and predictive computations.</p>
+We prefer a model and algorithm that offer both (i) flexible modeling of
+<span class="math inline">\(g\)</span> and (ii) efficient posterior and
+predictive computations.</p>
 <p><strong>Innovations:</strong> Our approach (<a href="https://arxiv.org/abs/2306.05498" class="external-link uri">https://arxiv.org/abs/2306.05498</a>) specifies a
 <em>nonparametric</em> model for <span class="math inline">\(g\)</span>,
 yet also provides <em>Monte Carlo</em> (not MCMC) sampling for the
-target posterior and predictive distributions. As a result, we control
-the approximation accuracy via the number of simulations, but do
+posterior and predictive distributions. As a result, we control the
+approximation accuracy via the number of simulations, but do
 <em>not</em> require the lengthy runs, burn-in periods, convergence
-diagnostics, or inefficiency factors that accompany MCMC.</p>
+diagnostics, or inefficiency factors that accompany MCMC. The Monte
+Carlo sampling is typically quite fast.</p>
 </div>
 <div class="section level2">
 <h2 id="using-sebr">Using <code>SeBR</code><a class="anchor" aria-label="anchor" href="#using-sebr"></a>
