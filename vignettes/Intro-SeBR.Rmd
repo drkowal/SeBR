@@ -1,8 +1,8 @@
 ---
-title: "Introduction to SeBR"
+title: "SeBR"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Introduction to SeBR}
+  %\VignetteIndexEntry{SeBR}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -60,17 +60,17 @@ library(SeBR)
 
 The main functions in `SeBR` are:
 
-- `sblm`: Monte Carlo sampling for posterior and predictive inference with the *semiparametric Bayesian linear model*;
+- `sblm()`: Monte Carlo sampling for posterior and predictive inference with the *semiparametric Bayesian linear model*;
 
-- `sbsm`: Monte Carlo sampling for posterior and predictive inference with the *semiparametric Bayesian spline model*, which replaces the linear model with a spline for nonlinear modeling of $x \in \mathbb{R}$;
+- `sbsm()`: Monte Carlo sampling for posterior and predictive inference with the *semiparametric Bayesian spline model*, which replaces the linear model with a spline for nonlinear modeling of $x \in \mathbb{R}$;
 
-- `sbqr`: blocked Gibbs sampling for posterior and predictive inference with the *semiparametric Bayesian quantile regression*; and
+- `sbqr()`: blocked Gibbs sampling for posterior and predictive inference with the *semiparametric Bayesian quantile regression*; and
 
-- `sbgp`: Monte Carlo sampling for predictive inference with the *semiparametric Bayesian Gaussian process model*. 
+- `sbgp()`: Monte Carlo sampling for predictive inference with the *semiparametric Bayesian Gaussian process model*. 
 
 Each function returns a point estimate of $\theta$ (`coefficients`), posterior samples of the transformation $g$ (`post_g`), and posterior predictive samples of $\tilde y(x)$ at some specified testing points $X_{test}$ (`post_ytilde`), as well as other function-specific quantities (e.g., posterior draws of $\theta$, `post_theta`).
 
-**Note:** The package also includes Box-Cox variants of these functions, i.e., restricting $g$ to the (signed) Box-Cox parametric family $g(t; \lambda) = \{\mbox{sign}(t) \vert t \vert^\lambda - 1\}/\lambda$ with known or unknown $\lambda$. The parametric transformation is less flexible, especially for irregular marginals or restricted domains, and requires MCMC sampling. These functions (e.g., `blm_bc`, etc.) are primarily for benchmarking. 
+**Note:** The package also includes Box-Cox variants of these functions, i.e., restricting $g$ to the (signed) Box-Cox parametric family $g(t; \lambda) = \{\mbox{sign}(t) \vert t \vert^\lambda - 1\}/\lambda$ with known or unknown $\lambda$. The parametric transformation is less flexible, especially for irregular marginals or restricted domains, and requires MCMC sampling. These functions (e.g., `blm_bc()`, etc.) are primarily for benchmarking. 
 
 # Semiparametric Bayesian linear models with `sblm`
 
@@ -91,7 +91,7 @@ y = dat$y; X = dat$X
 y_test = dat$y_test; X_test = dat$X_test 
 ```
 
-`sblm` quickly produces Monte Carlo samples of $(\theta, g, \tilde y(X_{test}))$ under the semiparametric Bayesian linear model:
+`sblm()` quickly produces Monte Carlo samples of $(\theta, g, \tilde y(X_{test}))$ under the semiparametric Bayesian linear model:
 
 ```{r sblm}
 # Fit the semiparametric Bayesian linear model:
@@ -177,7 +177,7 @@ cor(dat$beta_true[-1],
 
 **Remark:** The location-scale of the data-generating process and model may not match exactly. Thus, we use correlations to compare the regression coefficients $\theta$ (while omitting the intercept) and apply location-scale shifts of the transformations $g$ to ensure comparability. This is only a byproduct of the simulated data setting and does not matter for real data analysis. 
 
-**Note:** Try repeating this exercise with `blm_bc` in place of `sblm`. The Box-Cox transformation cannot recover the transformation accurately, the model diagnostics are alarming, and the predictions deteriorate substantially.
+**Note:** Try repeating this exercise with `blm_bc()` in place of `sblm()`. The Box-Cox transformation cannot recover the transformation accurately, the model diagnostics are alarming, and the predictions deteriorate substantially.
 
 
 # Semiparametric Bayesian quantile regression with `sbqr`
@@ -198,7 +198,7 @@ y = dat$y; X = dat$X
 y_test = dat$y_test; X_test = dat$X_test 
 ```
 
-Now, we fit two Bayesian quantile regression models: the traditional version without a transformation (`bqr`) and the proposed alternative (`sbqr`). We target the $\tau = 0.05$ quantile.
+Now, we fit two Bayesian quantile regression models: the traditional version without a transformation (`bqr()`) and the proposed alternative (`sbqr()`). We target the $\tau = 0.05$ quantile.
 
 ```{r fit-qr}
 # Quantile to target:

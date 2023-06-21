@@ -88,18 +88,18 @@ library(SeBR)
 
 The main functions in `SeBR` are:
 
-- `sblm`: Monte Carlo sampling for posterior and predictive inference
+- `sblm()`: Monte Carlo sampling for posterior and predictive inference
   with the *semiparametric Bayesian linear model*;
 
-- `sbsm`: Monte Carlo sampling for posterior and predictive inference
+- `sbsm()`: Monte Carlo sampling for posterior and predictive inference
   with the *semiparametric Bayesian spline model*, which replaces the
   linear model with a spline for nonlinear modeling of
   $x \in \mathbb{R}$;
 
-- `sbqr`: blocked Gibbs sampling for posterior and predictive inference
-  with the *semiparametric Bayesian quantile regression*; and
+- `sbqr()`: blocked Gibbs sampling for posterior and predictive
+  inference with the *semiparametric Bayesian quantile regression*; and
 
-- `sbgp`: Monte Carlo sampling for predictive inference with the
+- `sbgp()`: Monte Carlo sampling for predictive inference with the
   *semiparametric Bayesian Gaussian process model*.
 
 Each function returns a point estimate of $\theta$ (`coefficients`),
@@ -113,5 +113,5 @@ i.e., restricting $g$ to the (signed) Box-Cox parametric family
 $g(t; \lambda) = \{\mbox{sign}(t) \vert t \vert^\lambda - 1\}/\lambda$
 with known or unknown $\lambda$. The parametric transformation is less
 flexible, especially for irregular marginals or restricted domains, and
-requires MCMC sampling. These functions (e.g., `blm_bc`, etc.) are
+requires MCMC sampling. These functions (e.g., `blm_bc()`, etc.) are
 primarily for benchmarking.
