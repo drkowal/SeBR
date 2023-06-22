@@ -124,6 +124,7 @@ i.e., save every (nskip + 1)th draw</p></dd>
     
 
 <p>a list with the following elements:</p><ul><li><p><code>coefficients</code> the posterior mean of the regression coefficients</p></li>
+<li><p><code>fitted.values</code> the posterior predictive mean at the test points <code>X_test</code></p></li>
 <li><p><code>post_theta</code>: <code>nsave x p</code> samples from the posterior distribution
 of the regression coefficients</p></li>
 <li><p><code>post_ytilde</code>: <code>nsave x n_test</code> samples
@@ -164,12 +165,12 @@ Monte Carlo, not MCMC sampling) in <code><a href="sblm.html">sblm</a></code>.</p
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "1 seconds remaining"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Total time:  1 seconds"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="co"># what is returned</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "coefficients" "post_theta"   "post_ytilde"  "post_g"       "post_lambda" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6] "post_sigma"   "model"        "y"            "X"            "X_test"      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [11] "psi"         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "coefficients"  "fitted.values" "post_theta"    "post_ytilde"  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "post_g"        "post_lambda"   "post_sigma"    "model"        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "y"             "X"             "X_test"        "psi"          </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_lambda</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span> <span class="co"># summary of unknown Box-Cox parameter</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    0%   25%   50%   75%  100% </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.000 0.001 0.003 0.005 0.031 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.000 0.001 0.003 0.006 0.028 </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

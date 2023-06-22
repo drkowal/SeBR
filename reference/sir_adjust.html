@@ -133,8 +133,8 @@ can significantly slow down this function.</p>
 <span class="r-in"><span><span class="co"># Prediction: unadjusted vs. adjusted?</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Point estimates:</span></span></span>
-<span class="r-in"><span><span class="va">y_hat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_ytilde</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">y_hat_sir</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">fit_sir</span><span class="op">$</span><span class="va">post_ytilde</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">y_hat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">y_hat_sir</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted</a></span><span class="op">(</span><span class="va">fit_sir</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">y_hat</span>, <span class="va">y_hat_sir</span><span class="op">)</span> <span class="co"># similar</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Interval estimates:</span></span></span>
