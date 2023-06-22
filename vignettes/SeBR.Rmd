@@ -68,7 +68,7 @@ The main functions in `SeBR` are:
 
 - `sbgp()`: Monte Carlo sampling for predictive inference with the *semiparametric Bayesian Gaussian process model*. 
 
-Each function returns a point estimate of $\theta$ (`coefficients`), posterior samples of the transformation $g$ (`post_g`), and posterior predictive samples of $\tilde y(x)$ at some specified testing points $X_{test}$ (`post_ytilde`), as well as other function-specific quantities (e.g., posterior draws of $\theta$, `post_theta`).
+Each function returns a point estimate of $\theta$ (`coefficients`), point predictions at some specified testing points  (`fitted.values`), posterior samples of the transformation $g$ (`post_g`), and posterior predictive samples of $\tilde y(x)$ at the testing points (`post_ytilde`), as well as other function-specific quantities (e.g., posterior draws of $\theta$, `post_theta`). The  calls `coef()` and `fitted()` extract the point estimates and point predictions, respectively. 
 
 **Note:** The package also includes Box-Cox variants of these functions, i.e., restricting $g$ to the (signed) Box-Cox parametric family $g(t; \lambda) = \{\mbox{sign}(t) \vert t \vert^\lambda - 1\}/\lambda$ with known or unknown $\lambda$. The parametric transformation is less flexible, especially for irregular marginals or restricted domains, and requires MCMC sampling. These functions (e.g., `blm_bc()`, etc.) are primarily for benchmarking. 
 
@@ -124,7 +124,7 @@ lines(y0, ecdf(y_test)(y0),  # ECDF of testing data
      col='black', type = 's', lwd = 3)
 ```
 
-Despite the challenging features of this marginal distribution, the proposed model appears to be adequate.
+Despite the challenging features of this marginal distribution, the proposed model appears to be adequate. Although the gray lines are not clearly visible at zero or one, the posterior predictive distribution does indeed match the support of the observed data. 
 
 **Remark:** Posterior predictive diagnostics do not require training/testing splits and are typically performed in-sample. If `X_test` is left unspecified in `sblm`, then the posterior predictive draws are given at `X` and can be compared to `y`. Naturally, the out-of-sample diagnostics above offer a more rigorous check. 
 
@@ -167,17 +167,32 @@ legend('bottomright', c('Truth'), pch = 2) # annotate the true transformation
 
 The posterior distribution of $g$ accurately matches the true transformation. 
 
-The regression coefficients are also recovered:
+Next, we compute point and interval summaries for $\theta$ and compare them to the ground truth:
 
 ```{r comp-theta}
+
+# Summarize the parameters (regression coefficients):
+
+# Posterior means:
+coef(fit)
+
 # Check: correlation with true coefficients
 cor(dat$beta_true[-1],
     coef(fit)[-1]) # excluding the intercept
+
+# 95% credible intervals:
+theta_ci = t(apply(fit$post_theta, 2, quantile, c(.025, 0.975)))
+
+# Check: agreement on nonzero coefficients?
+which(theta_ci[,1] >= 0 | theta_ci[,2] <=0) # 95% CI excludes zero
+which(dat$beta_true != 0) # truly nonzero
 ```
+The point estimates of $\theta$ closely track the ground truth, and inference based on the 95\% credible intervals correctly selects the truly nonzero regression coefficients. 
 
-**Remark:** The location-scale of the data-generating process and model may not match exactly. Thus, we use correlations to compare the regression coefficients $\theta$ (while omitting the intercept) and apply location-scale shifts of the transformations $g$ to ensure comparability. This is only a byproduct of the simulated data setting and does not matter for real data analysis. 
 
-**Note:** Try repeating this exercise with `blm_bc()` in place of `sblm()`. The Box-Cox transformation cannot recover the transformation accurately, the model diagnostics are alarming, and the predictions deteriorate substantially.
+**Remark:** The location-scale of the data-generating process and the model may not match exactly. Thus, we use correlations to compare the regression coefficients $\theta$ (while omitting the intercept) and apply location-scale shifts of the transformations $g$ to ensure comparability. This is only a byproduct of the simulated data setting and does not matter for real data analysis (or for variable selection). 
+
+**Note:** Try repeating this exercise with `blm_bc()` in place of `sblm()`. The Box-Cox transformation cannot recover the transformation $g$ or the coefficients $\theta$ accurately, the model diagnostics are alarming, and the predictions deteriorate substantially.
 
 
 # Semiparametric Bayesian quantile regression with `sbqr`
@@ -286,6 +301,8 @@ q_hat = fitted(fit)
 
 Now the out-of-sample empirical quantile is `r emp_quant_sbqr` and the 90\% prediction interval coverage is `r emp_cov_sbqr`. `sbqr` is better calibrated to $\tau$, while both methods are slightly overconservative in the prediction interval coverage. However, `sbqr` produce significantly smaller prediction intervals while maintaining this conservative coverage, and thus provides more powerful and precise inference. 
 
+**Remark:** point and interval estimates for the quantile regression coefficients $\theta$ may be computed exactly as in the `sblm()` example. 
+
 **Note:** try this again for other quantiles, such as $\tau \in\{0.25, 0.5\}$. As $\tau$ approaches 0.5 (i.e., median regression), the problem becomes easier and the models are better calibrated. 
 
 # Semiparametric Bayesian Gaussian processes with `sbgp`
@@ -331,8 +348,8 @@ fit_bc = bgp_bc(y = y,
            locs = x,
            locs_test = x_test)
 
-# Fitted values and on the testing data:
-y_hat_bc = colMeans(fit_bc$post_ytilde)
+# Fitted values on the testing data:
+y_hat_bc = fitted(fit_bc)
 
 # 90% prediction intervals on the testing data:
 pi_y_bc = t(apply(fit_bc$post_ytilde, 2, quantile, c(0.05, .95))) 
@@ -374,8 +391,8 @@ coef(fit) # estimated regression coefficients (here, just an intercept)
 Evaluate the out-of-sample predictive performance on the testing data:
 
 ```{r oos-gp}
-# Fitted values and on the testing data:
-y_hat = colMeans(fit$post_ytilde)
+# Fitted values on the testing data:
+y_hat = fitted(fit)
 
 # 90% prediction intervals on the testing data:
 pi_y = t(apply(fit$post_ytilde, 2, quantile, c(0.05, .95))) 

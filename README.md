@@ -103,10 +103,13 @@ The main functions in `SeBR` are:
   *semiparametric Bayesian Gaussian process model*.
 
 Each function returns a point estimate of $\theta$ (`coefficients`),
+point predictions at some specified testing points (`fitted.values`),
 posterior samples of the transformation $g$ (`post_g`), and posterior
-predictive samples of $\tilde y(x)$ at some specified testing points
-$X_{test}$ (`post_ytilde`), as well as other function-specific
-quantities (e.g., posterior draws of $\theta$, `post_theta`).
+predictive samples of $\tilde y(x)$ at the testing points
+(`post_ytilde`), as well as other function-specific quantities (e.g.,
+posterior draws of $\theta$, `post_theta`). The calls `coef()` and
+`fitted()` extract the point estimates and point predictions,
+respectively.
 
 **Note:** The package also includes Box-Cox variants of these functions,
 i.e., restricting $g$ to the (signed) Box-Cox parametric family

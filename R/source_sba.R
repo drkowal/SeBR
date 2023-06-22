@@ -23,6 +23,7 @@
 #' @return a list with the following elements:
 #' \itemize{
 #' \item \code{coefficients} the posterior mean of the regression coefficients
+#' \item \code{fitted.values} the posterior predictive mean at the test points \code{X_test}
 #' \item \code{post_theta}: \code{nsave x p} samples from the posterior distribution
 #' of the regression coefficients
 #' \item \code{post_ytilde}: \code{nsave x n_test} samples
@@ -297,6 +298,7 @@ sblm = function(y, X, X_test = X,
 
   return(list(
     coefficients = colMeans(post_theta),
+    fitted.values = colMeans(post_ytilde),
     post_theta = post_theta,
     post_ytilde = post_ytilde,
     post_g = post_g,
@@ -324,6 +326,7 @@ sblm = function(y, X, X_test = X,
 #' @return a list with the following elements:
 #' \itemize{
 #' \item \code{coefficients} the posterior mean of the regression coefficients
+#' \item \code{fitted.values} the posterior predictive mean at the test points \code{x_test}
 #' \item \code{post_theta}: \code{nsave x p} samples from the posterior distribution
 #' of the regression coefficients
 #' \item \code{post_ytilde}: \code{nsave x n_test} samples
@@ -366,7 +369,7 @@ sblm = function(y, X, X_test = X,
 #'      xlab = 'x', ylab = 'y', main = paste('Fitted values and prediction intervals'))
 #' polygon(c(x, rev(x)),c(pi_y[,2], rev(pi_y[,1])),col='gray', border=NA)
 #' lines(x, y, type='p')
-#' lines(x, colMeans(fit$post_ytilde), lwd = 3)
+#' lines(x, fitted(fit), lwd = 3)
 #'
 #' @importFrom spikeSlabGAM sm
 #' @export
@@ -602,6 +605,7 @@ sbsm = function(y, x = NULL,
 
   return(list(
     coefficients = colMeans(post_theta),
+    fitted.values = colMeans(post_ytilde),
     post_theta = post_theta,
     post_ytilde = post_ytilde,
     post_g = post_g,  post_psi = post_psi,
@@ -632,6 +636,7 @@ sbsm = function(y, x = NULL,
 #' @return a list with the following elements:
 #' \itemize{
 #' \item \code{coefficients} the estimated regression coefficients
+#' \item \code{fitted.values} the posterior predictive mean at the test points \code{locs_test}
 #' \item \code{fit_gp} the fitted \code{GpGp_fit} object, which includes
 #' covariance parameter estimates and other model information
 #' \item \code{post_ytilde}: \code{nsave x ntest} samples
@@ -678,7 +683,7 @@ sbsm = function(y, x = NULL,
 #'      xlab = 'x', ylab = 'y', main = paste('Fitted values and prediction intervals'))
 #' polygon(c(x, rev(x)),c(pi_y[,2], rev(pi_y[,1])),col='gray', border=NA)
 #' lines(x, y, type='p')
-#' lines(x, colMeans(fit$post_ytilde), lwd = 3)
+#' lines(x, fitted(fit), lwd = 3)
 #'
 #' @import GpGp fields
 #' @export
@@ -933,6 +938,7 @@ sbgp = function(y, locs,
 
   return(list(
     coefficients = theta,
+    fitted.values = colMeans(post_ytilde),
     fit_gp = fit_gp,
     post_ytilde = post_ytilde,
     post_g = post_g,
@@ -1302,8 +1308,8 @@ sbqr = function(y, X, tau = 0.5,
 #' # Prediction: unadjusted vs. adjusted?
 #'
 #' # Point estimates:
-#' y_hat = colMeans(fit$post_ytilde)
-#' y_hat_sir = colMeans(fit_sir$post_ytilde)
+#' y_hat = fitted(fit)
+#' y_hat_sir = fitted(fit_sir)
 #' cor(y_hat, y_hat_sir) # similar
 #'
 #' # Interval estimates:

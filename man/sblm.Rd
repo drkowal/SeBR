@@ -43,6 +43,7 @@ approximation for the transformation}
 a list with the following elements:
 \itemize{
 \item \code{coefficients} the posterior mean of the regression coefficients
+\item \code{fitted.values} the posterior predictive mean at the test points \code{X_test}
 \item \code{post_theta}: \code{nsave x p} samples from the posterior distribution
 of the regression coefficients
 \item \code{post_ytilde}: \code{nsave x n_test} samples

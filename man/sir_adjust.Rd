@@ -67,8 +67,8 @@ fit_sir = sir_adjust(fit)
 # Prediction: unadjusted vs. adjusted?
 
 # Point estimates:
-y_hat = colMeans(fit$post_ytilde)
-y_hat_sir = colMeans(fit_sir$post_ytilde)
+y_hat = fitted(fit)
+y_hat_sir = fitted(fit_sir)
 cor(y_hat, y_hat_sir) # similar
 
 # Interval estimates:

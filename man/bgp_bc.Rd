@@ -57,6 +57,7 @@ i.e., save every (nskip + 1)th draw}
 a list with the following elements:
 \itemize{
 \item \code{coefficients} the posterior mean of the regression coefficients
+\item \code{fitted.values} the posterior predictive mean at the test points \code{locs_test}
 \item \code{fit_gp} the fitted \code{GpGp_fit} object, which includes
 covariance parameter estimates and other model information
 \item \code{post_ytilde}: \code{nsave x n_test} samples
@@ -109,6 +110,6 @@ plot(x, y, type='n', ylim = range(pi_y,y),
      xlab = 'x', ylab = 'y', main = paste('Fitted values and prediction intervals'))
 polygon(c(x, rev(x)),c(pi_y[,2], rev(pi_y[,1])),col='gray', border=NA)
 lines(x, y, type='p')
-lines(x, colMeans(fit$post_ytilde), lwd = 3)
+lines(x, fitted(fit), lwd = 3)
 
 }
