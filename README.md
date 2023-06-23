@@ -118,3 +118,6 @@ with known or unknown $\lambda$. The parametric transformation is less
 flexible, especially for irregular marginals or restricted domains, and
 requires MCMC sampling. These functions (e.g., `blm_bc()`, etc.) are
 primarily for benchmarking.
+
+Detailed documentation and examples are available at
+<https://drkowal.github.io/SeBR/>.
