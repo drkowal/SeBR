@@ -160,14 +160,14 @@ Monte Carlo, not MCMC sampling) in <code><a href="sbsm.html">sbsm</a></code>.</p
 <span class="r-in"><span><span class="co"># Fit the Bayesian spline model with a Box-Cox transformation:</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">=</span> <span class="fu">bsm_bc</span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, x <span class="op">=</span> <span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "1 seconds remaining"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Total time:  2 seconds"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Total time:  1 seconds"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="co"># what is returned</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "coefficients"  "fitted.values" "post_theta"    "post_ytilde"  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "post_g"        "post_lambda"   "model"         "y"            </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "X"             "psi"          </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_lambda</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span> <span class="co"># summary of unknown Box-Cox parameter</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    0%   25%   50%   75%  100% </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.539 0.601 0.618 0.634 0.691 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.562 0.609 0.626 0.643 0.701 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the model predictions (point and interval estimates):</span></span></span>
 <span class="r-in"><span><span class="va">pi_y</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_ytilde</span>, <span class="fl">2</span>, <span class="va">quantile</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">.95</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="co"># 90% PI</span></span></span>
