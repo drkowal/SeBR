@@ -31,4 +31,5 @@ g_bc(1:5, lambda = 0); log(1:5)
 
 # Square-root transformation: note the shift and scaling
 g_bc(1:5, lambda = 1/2); sqrt(1:5)
+
 }

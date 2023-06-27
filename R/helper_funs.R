@@ -130,6 +130,17 @@ simulate_tlm = function(n, p,
 #' @return plot of the testing data, point and interval predictions,
 #' and a summary of the empirical coverage
 #'
+#' @examples
+#' # Simulate some data:
+#' dat = simulate_tlm(n = 200, p = 10, g_type = 'step')
+#'
+#' # Fit a semiparametric Bayesian linear model:
+#' fit = sblm(y = dat$y, X = dat$X, X_test = dat$X_test)
+#'
+#' # Evaluate posterior predictive means and intervals on the testing data:
+#' plot_pptest(fit$post_ytilde, dat$y_test,
+#'             alpha_level = 0.10) # coverage should be about 90%
+#'
 #' @importFrom graphics abline arrows lines
 #' @export
 plot_pptest = function(post_ytilde,
@@ -186,6 +197,7 @@ plot_pptest = function(post_ytilde,
 #'
 #' # Square-root transformation: note the shift and scaling
 #' g_bc(1:5, lambda = 1/2); sqrt(1:5)
+#'
 #' @export
 g_bc = function(t, lambda) {
   if(lambda == 0) {
@@ -216,6 +228,7 @@ g_bc = function(t, lambda) {
 #'
 #' # (Inverse) square-root transformation: note the shift and scaling
 #' g_inv_bc(1:5, lambda = 1/2); (1:5)^2
+#'
 #' @export
 g_inv_bc = function(s, lambda) {
   if(lambda == 0) {
@@ -236,6 +249,21 @@ g_inv_bc = function(s, lambda) {
 #' @param y \code{n x 1} response vector
 #' @param X \code{n x p} matrix of predictors (should not include an intercept!)
 #' @return the estimated linear coefficients
+#'
+#' @examples
+#' # Simulate some data:
+#' dat = simulate_tlm(n = 200, p = 10, g_type = 'step')
+#'
+#' # Point estimates for the linear coefficients:
+#' theta_hat = suppressWarnings(
+#'   rank_approx(y = dat$y,
+#'               X = dat$X[,-1]) # remove intercept
+#' ) # warnings occur from glm.fit (fitted probabilities 0 or 1)
+#'
+#' # Check: correlation with true coefficients
+#' cor(dat$beta_true[-1], # excluding the intercept
+#'     theta_hat)
+#'
 #' @importFrom stats glm
 #' @export
 rank_approx = function(y, X){
@@ -293,28 +321,4 @@ computeTimeRemaining = function(nsi, timer0, nsims, nrep=1000){
       } else print(paste(round(secRemaining), "seconds remaining"))
     }
   }
-}
-#----------------------------------------------------------------------------
-#' Summarize effective sample size
-#'
-#' Compute the summary statistics for the effective sample size (ESS) across
-#' posterior samples for possibly many variables
-#'
-#' @param postX An array of arbitrary dimension \code{(nsims x ... x ...)}, where \code{nsims} is the number of posterior samples
-#' @return Table of summary statistics using the function \code{summary()}.
-#'
-#' @examples
-#' # ESS for iid simulations:
-#' rand_iid = rnorm(n = 10^4)
-#' getEffSize(rand_iid)
-#'
-#' # ESS for several AR(1) simulations with coefficients 0.1, 0.2,...,0.9:
-#' rand_ar1 = sapply(seq(0.1, 0.9, by = 0.1), function(x) arima.sim(n = 10^4, list(ar = x)))
-#' getEffSize(rand_ar1)
-#'
-#' @import coda
-#' @export
-getEffSize = function(postX) {
-  if(is.null(dim(postX))) return(effectiveSize(postX))
-  summary(effectiveSize(as.mcmc(array(postX, c(dim(postX)[1], prod(dim(postX)[-1]))))))
 }

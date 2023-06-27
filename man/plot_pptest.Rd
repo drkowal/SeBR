@@ -23,3 +23,15 @@ Given posterior predictive samples at \code{X_test},
 plot the point and interval estimates and compare
 to the actual testing data \code{y_test}.
 }
+\examples{
+# Simulate some data:
+dat = simulate_tlm(n = 200, p = 10, g_type = 'step')
+
+# Fit a semiparametric Bayesian linear model:
+fit = sblm(y = dat$y, X = dat$X, X_test = dat$X_test)
+
+# Evaluate posterior predictive means and intervals on the testing data:
+plot_pptest(fit$post_ytilde, dat$y_test,
+            alpha_level = 0.10) # coverage should be about 90\%
+
+}
