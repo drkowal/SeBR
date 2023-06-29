@@ -54,7 +54,7 @@ from the posterior predictive distribution at test points \code{X_test}
 evaluated at the unique \code{y} values
 \item \code{post_lambda} \code{nsave} posterior samples of lambda
 \item \code{post_sigma} \code{nsave} posterior samples of sigma
-\item \code{model}: the model fit (here, \code{sblm_bc})
+\item \code{model}: the model fit (here, \code{blm_bc})
 }
 as well as the arguments passed in.
 }

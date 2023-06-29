@@ -32,7 +32,7 @@
 #' evaluated at the unique \code{y} values
 #' \item \code{post_lambda} \code{nsave} posterior samples of lambda
 #' \item \code{post_sigma} \code{nsave} posterior samples of sigma
-#' \item \code{model}: the model fit (here, \code{sblm_bc})
+#' \item \code{model}: the model fit (here, \code{blm_bc})
 #' }
 #' as well as the arguments passed in.
 #'
@@ -214,7 +214,7 @@ blm_bc = function(y, X, X_test = X,
     post_theta = post_theta,
     post_ypred = post_ypred,
     post_g = post_g, post_lambda = post_lambda, post_sigma = post_sigma,
-    model = 'sblm_bc', y = y, X = X, X_test = X_test, psi = psi))
+    model = 'blm_bc', y = y, X = X, X_test = X_test, psi = psi))
 }
 #' Bayesian spline model with a Box-Cox transformation
 #'
@@ -490,7 +490,7 @@ bsm_bc = function(y, x = NULL,
 #' \item \code{post_g}: \code{nsave} posterior samples of the transformation
 #' evaluated at the unique \code{y} values
 #' \item \code{post_lambda} \code{nsave} posterior samples of lambda
-#' \item \code{model}: the model fit (here, \code{sbgp_bc})
+#' \item \code{model}: the model fit (here, \code{bgp_bc})
 #' }
 #' as well as the arguments passed in.
 #'
@@ -507,8 +507,9 @@ bsm_bc = function(y, x = NULL,
 #' Monte Carlo, not MCMC sampling) in \code{\link{sbgp}}.
 #'
 #' @examples
+#' \dontrun{
 #' # Simulate some data:
-#' n = 100 # sample size
+#' n = 200 # sample size
 #' x = seq(0, 1, length = n) # observation points
 #'
 #' # Transform a noisy, periodic function:
@@ -517,7 +518,7 @@ bsm_bc = function(y, x = NULL,
 #'              lambda = .5) # Signed square-root transformation
 #'
 #' # Fit a Bayesian Gaussian process with Box-Cox transformation:
-#' fit = bgp_bc(y = y, locs = x) # small sim for illustration
+#' fit = bgp_bc(y = y, locs = x)
 #' names(fit) # what is returned
 #' coef(fit) # estimated regression coefficients (here, just an intercept)
 #' class(fit$fit_gp) # the GpGp object is also returned
@@ -530,6 +531,7 @@ bsm_bc = function(y, x = NULL,
 #' polygon(c(x, rev(x)),c(pi_y[,2], rev(pi_y[,1])),col='gray', border=NA)
 #' lines(x, y, type='p')
 #' lines(x, fitted(fit), lwd = 3)
+#' }
 #'
 #' @import GpGp fields
 #' @export
@@ -745,7 +747,7 @@ bgp_bc = function(y, locs,
     fit_gp = fit_gp,
     post_ypred = post_ypred,
     post_g = post_g, post_lambda = post_lambda,
-    model = 'sbgp_bc', y = y, X = X))
+    model = 'bgp_bc', y = y, X = X))
 }
 #' Bayesian quantile regression
 #'

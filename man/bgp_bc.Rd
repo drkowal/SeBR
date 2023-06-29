@@ -65,7 +65,7 @@ from the posterior predictive distribution at \code{locs_test}
 \item \code{post_g}: \code{nsave} posterior samples of the transformation
 evaluated at the unique \code{y} values
 \item \code{post_lambda} \code{nsave} posterior samples of lambda
-\item \code{model}: the model fit (here, \code{sbgp_bc})
+\item \code{model}: the model fit (here, \code{bgp_bc})
 }
 as well as the arguments passed in.
 }
@@ -88,8 +88,9 @@ in general we recommend the nonparametric transformation (with
 Monte Carlo, not MCMC sampling) in \code{\link{sbgp}}.
 }
 \examples{
+\dontrun{
 # Simulate some data:
-n = 100 # sample size
+n = 200 # sample size
 x = seq(0, 1, length = n) # observation points
 
 # Transform a noisy, periodic function:
@@ -98,7 +99,7 @@ y = g_inv_bc(
              lambda = .5) # Signed square-root transformation
 
 # Fit a Bayesian Gaussian process with Box-Cox transformation:
-fit = bgp_bc(y = y, locs = x) # small sim for illustration
+fit = bgp_bc(y = y, locs = x)
 names(fit) # what is returned
 coef(fit) # estimated regression coefficients (here, just an intercept)
 class(fit$fit_gp) # the GpGp object is also returned
@@ -111,5 +112,6 @@ plot(x, y, type='n', ylim = range(pi_y,y),
 polygon(c(x, rev(x)),c(pi_y[,2], rev(pi_y[,1])),col='gray', border=NA)
 lines(x, y, type='p')
 lines(x, fitted(fit), lwd = 3)
+}
 
 }

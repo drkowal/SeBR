@@ -81,8 +81,9 @@ from this term is often negligible compared to the observation errors, and the
 transformation serves as an additional layer of robustness.
 }
 \examples{
+\dontrun{
 # Simulate some data:
-n = 100 # sample size
+n = 200 # sample size
 x = seq(0, 1, length = n) # observation points
 
 # Transform a noisy, periodic function:
@@ -91,7 +92,7 @@ y = g_inv_bc(
              lambda = .5) # Signed square-root transformation
 
 # Fit the semiparametric Bayesian Gaussian process:
-fit = sbgp(y = y, locs = x, nsave = 100) # small sim for illustration
+fit = sbgp(y = y, locs = x)
 names(fit) # what is returned
 coef(fit) # estimated regression coefficients (here, just an intercept)
 class(fit$fit_gp) # the GpGp object is also returned
@@ -103,5 +104,5 @@ plot(x, y, type='n', ylim = range(pi_y,y),
 polygon(c(x, rev(x)),c(pi_y[,2], rev(pi_y[,1])),col='gray', border=NA)
 lines(x, y, type='p')
 lines(x, fitted(fit), lwd = 3)
-
+}
 }
