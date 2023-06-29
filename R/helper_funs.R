@@ -35,7 +35,7 @@
 #'
 #' @examples
 #' # Simulate data:
-#' dat = simulate_tlm(n = 100, p = 10, g_type = 'beta')
+#' dat = simulate_tlm(n = 200, p = 10, g_type = 'beta')
 #' names(dat) # what is returned
 #' hist(dat$y, breaks = 25) # marginal distribution
 #'
@@ -123,7 +123,7 @@ simulate_tlm = function(n, p,
 #' plot the point and interval estimates and compare
 #' to the actual testing data \code{y_test}.
 #'
-#' @param post_ytilde \code{nsave x n_test} samples
+#' @param post_ypred \code{nsave x n_test} samples
 #' from the posterior predictive distribution at test points \code{X_test}
 #' @param y_test \code{n_test} testing points
 #' @param alpha_level alpha-level for prediction intervals
@@ -138,22 +138,22 @@ simulate_tlm = function(n, p,
 #' fit = sblm(y = dat$y, X = dat$X, X_test = dat$X_test)
 #'
 #' # Evaluate posterior predictive means and intervals on the testing data:
-#' plot_pptest(fit$post_ytilde, dat$y_test,
+#' plot_pptest(fit$post_ypred, dat$y_test,
 #'             alpha_level = 0.10) # coverage should be about 90%
 #'
 #' @importFrom graphics abline arrows lines
 #' @export
-plot_pptest = function(post_ytilde,
+plot_pptest = function(post_ypred,
                        y_test,
                        alpha_level = 0.10
 
     ){
 
   # Fitted values:
-  y_hat = colMeans(post_ytilde)
+  y_hat = colMeans(post_ypred)
 
   # 100*(1 - alpha_level)% PI:
-  pi_y = t(apply(post_ytilde, 2, quantile,
+  pi_y = t(apply(post_ypred, 2, quantile,
                  c(alpha_level/2, 1 - alpha_level/2)))
 
   # Plot the testing values, fitted, values, and intervals:

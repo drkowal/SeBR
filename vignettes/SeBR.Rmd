@@ -68,7 +68,7 @@ The main functions in `SeBR` are:
 
 - `sbgp()`: Monte Carlo sampling for predictive inference with the *semiparametric Bayesian Gaussian process model*. 
 
-Each function returns a point estimate of $\theta$ (`coefficients`), point predictions at some specified testing points  (`fitted.values`), posterior samples of the transformation $g$ (`post_g`), and posterior predictive samples of $\tilde y(x)$ at the testing points (`post_ytilde`), as well as other function-specific quantities (e.g., posterior draws of $\theta$, `post_theta`). The  calls `coef()` and `fitted()` extract the point estimates and point predictions, respectively. 
+Each function returns a point estimate of $\theta$ (`coefficients`), point predictions at some specified testing points  (`fitted.values`), posterior samples of the transformation $g$ (`post_g`), and posterior predictive samples of $\tilde y(x)$ at the testing points (`post_ypred`), as well as other function-specific quantities (e.g., posterior draws of $\theta$, `post_theta`). The  calls `coef()` and `fitted()` extract the point estimates and point predictions, respectively. 
 
 **Note:** The package also includes Box-Cox variants of these functions, i.e., restricting $g$ to the (signed) Box-Cox parametric family $g(t; \lambda) = \{\mbox{sign}(t) \vert t \vert^\lambda - 1\}/\lambda$ with known or unknown $\lambda$. The parametric transformation is less flexible, especially for irregular marginals or restricted domains, and requires MCMC sampling. These functions (e.g., `blm_bc()`, etc.) are primarily for benchmarking. 
 
@@ -104,7 +104,7 @@ names(fit) # what is returned
 
 These are Monte Carlo (not MCMC) samples, so we do not require further algorithm diagnostics.
 
-First, we check for model adequacy using posterior predictive diagnostics. Specifically, we compute the empirical CDF on both `y_test` (black) and on each simulated testing predictive dataset from `post_ytilde` (gray):
+First, we check for model adequacy using posterior predictive diagnostics. Specifically, we compute the empirical CDF on both `y_test` (black) and on each simulated testing predictive dataset from `post_ypred` (gray):
 
 ```{r ppd, echo = FALSE}
 # Posterior predictive checks on testing data: empirical CDF
@@ -115,8 +115,8 @@ plot(y0, y0, type='n', ylim = c(0,1),
      xlab='y', ylab='F_y', main = 'Posterior predictive ECDF: testing data')
 
 # Add the ECDF of each simulated predictive dataset
-temp = sapply(1:nrow(fit$post_ytilde), function(s)
-  lines(y0, ecdf(fit$post_ytilde[s,])(y0), 
+temp = sapply(1:nrow(fit$post_ypred), function(s)
+  lines(y0, ecdf(fit$post_ypred[s,])(y0), 
         col='gray', type ='s'))
 
 # Add the ECDF for the observed testing data
@@ -132,7 +132,7 @@ Next, we evaluate the predictive ability on the testing dataset by computing and
 
 ```{r pi}
 # Evaluate posterior predictive means and intervals on the testing data:
-plot_pptest(fit$post_ytilde, 
+plot_pptest(fit$post_ypred, 
             y_test, 
             alpha_level = 0.10) # coverage should be >= 90% 
 ```
@@ -238,7 +238,7 @@ fit = sbqr(y = y,
 names(fit) # what is returned
 ```
 
-For both model fits, we evaluate the same posterior predictive diagnostics as before. Specifically, we compute the empirical CDF on both `y_test` (black) and on each simulated testing predictive dataset from `post_ytilde` for `sbqr` (gray) and `bqr` (red):
+For both model fits, we evaluate the same posterior predictive diagnostics as before. Specifically, we compute the empirical CDF on both `y_test` (black) and on each simulated testing predictive dataset from `post_ypred` for `sbqr` (gray) and `bqr` (red):
 ```{r ppd-bqr, echo = FALSE}
 # Posterior predictive checks on testing data: empirical CDF
 
@@ -249,13 +249,13 @@ plot(y0, y0, type='n', ylim = c(0,1),
      main = 'Posterior predictive ECDF: testing data (black) \n bqr (red) vs. sbqr (gray)')
 
 # Add the ECDF of each simulated predictive (bqr) dataset
-temp = sapply(1:nrow(fit_bqr$post_ytilde), function(s)
-  lines(y0, ecdf(fit_bqr$post_ytilde[s,])(y0), 
+temp = sapply(1:nrow(fit_bqr$post_ypred), function(s)
+  lines(y0, ecdf(fit_bqr$post_ypred[s,])(y0), 
         col='red', type ='s'))
 
 # Same, for sbqr:
-temp = sapply(1:nrow(fit$post_ytilde), function(s)
-  lines(y0, ecdf(fit$post_ytilde[s,])(y0), 
+temp = sapply(1:nrow(fit$post_ypred), function(s)
+  lines(y0, ecdf(fit$post_ypred[s,])(y0), 
         col='gray', type ='s'))
 
 # Add the ECDF for the observed testing data
@@ -275,7 +275,7 @@ q_hat_bqr = fitted(fit_bqr)
 (emp_quant_bqr = mean(q_hat_bqr >= y_test))
 
 # Evaluate posterior predictive means and intervals on the testing data:
-(emp_cov_bqr = plot_pptest(fit_bqr$post_ytilde, 
+(emp_cov_bqr = plot_pptest(fit_bqr$post_ypred, 
                            y_test, 
                            alpha_level = 0.10))
 ```
@@ -294,7 +294,7 @@ q_hat = fitted(fit)
 (emp_quant_sbqr = mean(q_hat >= y_test))
 
 # Evaluate posterior predictive means and intervals on the testing data:
-(emp_cov_sbqr = plot_pptest(fit$post_ytilde, 
+(emp_cov_sbqr = plot_pptest(fit$post_ypred, 
                             y_test, 
                             alpha_level = 0.10))
 ```
@@ -352,7 +352,7 @@ fit_bc = bgp_bc(y = y,
 y_hat_bc = fitted(fit_bc)
 
 # 90% prediction intervals on the testing data:
-pi_y_bc = t(apply(fit_bc$post_ytilde, 2, quantile, c(0.05, .95))) 
+pi_y_bc = t(apply(fit_bc$post_ypred, 2, quantile, c(0.05, .95))) 
 
 # Average PI width:
 (width_bc = mean(pi_y_bc[,2] - pi_y_bc[,1]))
@@ -395,7 +395,7 @@ Evaluate the out-of-sample predictive performance on the testing data:
 y_hat = fitted(fit)
 
 # 90% prediction intervals on the testing data:
-pi_y = t(apply(fit$post_ytilde, 2, quantile, c(0.05, .95))) 
+pi_y = t(apply(fit$post_ypred, 2, quantile, c(0.05, .95))) 
 
 # Average PI width:
 (width = mean(pi_y[,2] - pi_y[,1]))

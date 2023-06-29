@@ -48,7 +48,7 @@ a list with the following elements:
 \item \code{fitted.values} the posterior predictive mean at the test points \code{X_test}
 \item \code{post_theta}: \code{nsave x p} samples from the posterior distribution
 of the regression coefficients
-\item \code{post_ytilde}: \code{nsave x n_test} samples
+\item \code{post_ypred}: \code{nsave x n_test} samples
 from the posterior predictive distribution at test points \code{X_test}
 \item \code{post_g}: \code{nsave} posterior samples of the transformation
 evaluated at the unique \code{y} values

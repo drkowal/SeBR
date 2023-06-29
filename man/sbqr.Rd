@@ -52,7 +52,7 @@ a list with the following elements:
 \item \code{fitted.values} the estimated \code{tau}th quantile at test points \code{X_test}
 \item \code{post_theta}: \code{nsave x p} samples from the posterior distribution
 of the regression coefficients
-\item \code{post_ytilde}: \code{nsave x n_test} samples
+\item \code{post_ypred}: \code{nsave x n_test} samples
 from the posterior predictive distribution at test points \code{X_test}
 \item \code{post_qtau}: \code{nsave x n_test} samples of the \code{tau}th conditional quantile at test points \code{X_test}
 \item \code{post_g}: \code{nsave} posterior samples of the transformation
@@ -101,8 +101,8 @@ names(fit) # what is returned
 y0 = sort(unique(y_test))
 plot(y0, y0, type='n', ylim = c(0,1),
      xlab='y', ylab='F_y', main = 'Posterior predictive ECDF')
-temp = sapply(1:nrow(fit$post_ytilde), function(s)
-  lines(y0, ecdf(fit$post_ytilde[s,])(y0), # ECDF of posterior predictive draws
+temp = sapply(1:nrow(fit$post_ypred), function(s)
+  lines(y0, ecdf(fit$post_ypred[s,])(y0), # ECDF of posterior predictive draws
         col='gray', type ='s'))
 lines(y0, ecdf(y_test)(y0),  # ECDF of testing data
      col='black', type = 's', lwd = 3)

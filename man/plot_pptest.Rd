@@ -4,10 +4,10 @@
 \alias{plot_pptest}
 \title{Plot point and interval predictions on testing data}
 \usage{
-plot_pptest(post_ytilde, y_test, alpha_level = 0.1)
+plot_pptest(post_ypred, y_test, alpha_level = 0.1)
 }
 \arguments{
-\item{post_ytilde}{\code{nsave x n_test} samples
+\item{post_ypred}{\code{nsave x n_test} samples
 from the posterior predictive distribution at test points \code{X_test}}
 
 \item{y_test}{\code{n_test} testing points}
@@ -31,7 +31,7 @@ dat = simulate_tlm(n = 200, p = 10, g_type = 'step')
 fit = sblm(y = dat$y, X = dat$X, X_test = dat$X_test)
 
 # Evaluate posterior predictive means and intervals on the testing data:
-plot_pptest(fit$post_ytilde, dat$y_test,
+plot_pptest(fit$post_ypred, dat$y_test,
             alpha_level = 0.10) # coverage should be about 90\%
 
 }

@@ -26,7 +26,7 @@
 #' \item \code{fitted.values} the posterior predictive mean at the test points \code{X_test}
 #' \item \code{post_theta}: \code{nsave x p} samples from the posterior distribution
 #' of the regression coefficients
-#' \item \code{post_ytilde}: \code{nsave x n_test} samples
+#' \item \code{post_ypred}: \code{nsave x n_test} samples
 #' from the posterior predictive distribution at test points \code{X_test}
 #' \item \code{post_g}: \code{nsave} posterior samples of the transformation
 #' evaluated at the unique \code{y} values
@@ -129,7 +129,7 @@ blm_bc = function(y, X, X_test = X,
   #----------------------------------------------------------------------------
   # Store MCMC output:
   post_theta = array(NA, c(nsave, p))
-  post_ytilde = array(NA, c(nsave, nrow(X_test)))
+  post_ypred = array(NA, c(nsave, nrow(X_test)))
   post_g = array(NA, c(nsave, length(y0)))
   post_lambda = post_sigma = rep(NA, nsave)
 
@@ -191,7 +191,7 @@ blm_bc = function(y, X, X_test = X,
 
         # Predictive samples of ytilde:
         ztilde = X_test%*%theta + sigma_epsilon*rnorm(n = nrow(X_test))
-        post_ytilde[isave,] = g_inv_bc(ztilde, lambda = lambda)
+        post_ypred[isave,] = g_inv_bc(ztilde, lambda = lambda)
 
         # Posterior samples of the transformation:
         post_g[isave,] = g_bc(y0, lambda = lambda)
@@ -210,9 +210,9 @@ blm_bc = function(y, X, X_test = X,
 
   return(list(
     coefficients = colMeans(post_theta),
-    fitted.values = colMeans(post_ytilde),
+    fitted.values = colMeans(post_ypred),
     post_theta = post_theta,
-    post_ytilde = post_ytilde,
+    post_ypred = post_ypred,
     post_g = post_g, post_lambda = post_lambda, post_sigma = post_sigma,
     model = 'sblm_bc', y = y, X = X, X_test = X_test, psi = psi))
 }
@@ -240,7 +240,7 @@ blm_bc = function(y, X, X_test = X,
 #' \item \code{fitted.values} the posterior predictive mean at the test points \code{x_test}
 #' \item \code{post_theta}: \code{nsave x p} samples from the posterior distribution
 #' of the regression coefficients
-#' \item \code{post_ytilde}: \code{nsave x n_test} samples
+#' \item \code{post_ypred}: \code{nsave x n_test} samples
 #' from the posterior predictive distribution at \code{x_test}
 #' \item \code{post_g}: \code{nsave} posterior samples of the transformation
 #' evaluated at the unique \code{y} values
@@ -260,7 +260,7 @@ blm_bc = function(y, X, X_test = X,
 #'
 #' @examples
 #' # Simulate some data:
-#' n = 500 # sample size
+#' n = 200 # sample size
 #' x = sort(runif(n)) # observation points
 #'
 #' # Transform a noisy, periodic function:
@@ -274,7 +274,7 @@ blm_bc = function(y, X, X_test = X,
 #' round(quantile(fit$post_lambda), 3) # summary of unknown Box-Cox parameter
 #'
 #' # Plot the model predictions (point and interval estimates):
-#' pi_y = t(apply(fit$post_ytilde, 2, quantile, c(0.05, .95))) # 90% PI
+#' pi_y = t(apply(fit$post_ypred, 2, quantile, c(0.05, .95))) # 90% PI
 #' plot(x, y, type='n', ylim = range(pi_y,y),
 #'      xlab = 'x', ylab = 'y', main = paste('Fitted values and prediction intervals'))
 #' polygon(c(x, rev(x)),c(pi_y[,2], rev(pi_y[,1])),col='gray', border=NA)
@@ -364,7 +364,7 @@ bsm_bc = function(y, x = NULL,
   #----------------------------------------------------------------------------
   # Store MCMC output:
   post_theta = array(NA, c(nsave, p))
-  post_ytilde = array(NA, c(nsave, length(x_test)))
+  post_ypred = array(NA, c(nsave, length(x_test)))
   post_g = array(NA, c(nsave, length(y0)))
   post_lambda = rep(NA, nsave)
 
@@ -433,7 +433,7 @@ bsm_bc = function(y, x = NULL,
         # Predictive samples of ytilde:
         ztilde = splinefun(x, X%*%theta)(x_test) +
           sigma_epsilon*rnorm(n = length(x_test))
-        post_ytilde[isave,] = g_inv_bc(ztilde, lambda = lambda)
+        post_ypred[isave,] = g_inv_bc(ztilde, lambda = lambda)
 
         # Posterior samples of the transformation:
         post_g[isave,] = g_bc(y0, lambda = lambda)
@@ -449,9 +449,9 @@ bsm_bc = function(y, x = NULL,
 
   return(list(
     coefficients = colMeans(post_theta),
-    fitted.values = colMeans(post_ytilde),
+    fitted.values = colMeans(post_ypred),
     post_theta = post_theta,
-    post_ytilde = post_ytilde,
+    post_ypred = post_ypred,
     post_g = post_g, post_lambda = post_lambda,
     model = 'sbsm_bc', y = y, X = X, psi = psi))
 }
@@ -485,7 +485,7 @@ bsm_bc = function(y, x = NULL,
 #' \item \code{fitted.values} the posterior predictive mean at the test points \code{locs_test}
 #' \item \code{fit_gp} the fitted \code{GpGp_fit} object, which includes
 #' covariance parameter estimates and other model information
-#' \item \code{post_ytilde}: \code{nsave x n_test} samples
+#' \item \code{post_ypred}: \code{nsave x n_test} samples
 #' from the posterior predictive distribution at \code{locs_test}
 #' \item \code{post_g}: \code{nsave} posterior samples of the transformation
 #' evaluated at the unique \code{y} values
@@ -524,7 +524,7 @@ bsm_bc = function(y, x = NULL,
 #' round(quantile(fit$post_lambda), 3) # summary of unknown Box-Cox parameter
 #'
 #' # Plot the model predictions (point and interval estimates):
-#' pi_y = t(apply(fit$post_ytilde, 2, quantile, c(0.05, .95))) # 90% PI
+#' pi_y = t(apply(fit$post_ypred, 2, quantile, c(0.05, .95))) # 90% PI
 #' plot(x, y, type='n', ylim = range(pi_y,y),
 #'      xlab = 'x', ylab = 'y', main = paste('Fitted values and prediction intervals'))
 #' polygon(c(x, rev(x)),c(pi_y[,2], rev(pi_y[,1])),col='gray', border=NA)
@@ -670,7 +670,7 @@ bgp_bc = function(y, locs,
   theta = fit_gp$betahat
   #----------------------------------------------------------------------------
   # Store MCMC output:
-  post_ytilde = array(NA, c(nsave, n_test))
+  post_ypred = array(NA, c(nsave, n_test))
   post_g = array(NA, c(nsave, length(y0)))
   post_lambda = rep(NA, nsave)
 
@@ -727,7 +727,7 @@ bgp_bc = function(y, locs,
                             X_pred = X_test,
                             m = nn)
         }
-        post_ytilde[isave,] = g_inv_bc(ztilde, lambda = lambda)
+        post_ypred[isave,] = g_inv_bc(ztilde, lambda = lambda)
 
         # Posterior samples of the transformation:
         post_g[isave,] = g_bc(y0, lambda = lambda)
@@ -741,9 +741,9 @@ bgp_bc = function(y, locs,
 
   return(list(
     coefficients = theta,
-    fitted.values = colMeans(post_ytilde),
+    fitted.values = colMeans(post_ypred),
     fit_gp = fit_gp,
-    post_ytilde = post_ytilde,
+    post_ypred = post_ypred,
     post_g = post_g, post_lambda = post_lambda,
     model = 'sbgp_bc', y = y, X = X))
 }
@@ -771,7 +771,7 @@ bgp_bc = function(y, locs,
 #' \item \code{fitted.values} the estimated \code{tau}th quantile at test points \code{X_test}
 #' \item \code{post_theta}: \code{nsave x p} samples from the posterior distribution
 #' of the regression coefficients
-#' \item \code{post_ytilde}: \code{nsave x n_test} samples
+#' \item \code{post_ypred}: \code{nsave x n_test} samples
 #' from the posterior predictive distribution at test points \code{X_test}
 #' \item \code{model}: the model fit (here, \code{bqr})
 #' }
@@ -800,8 +800,8 @@ bgp_bc = function(y, locs,
 #' y0 = sort(unique(y_test))
 #' plot(y0, y0, type='n', ylim = c(0,1),
 #'      xlab='y', ylab='F_y', main = 'Posterior predictive ECDF')
-#' temp = sapply(1:nrow(fit$post_ytilde), function(s)
-#'   lines(y0, ecdf(fit$post_ytilde[s,])(y0), # ECDF of posterior predictive draws
+#' temp = sapply(1:nrow(fit$post_ypred), function(s)
+#'   lines(y0, ecdf(fit$post_ypred[s,])(y0), # ECDF of posterior predictive draws
 #'         col='gray', type ='s'))
 #' lines(y0, ecdf(y_test)(y0),  # ECDF of testing data
 #'      col='black', type = 's', lwd = 3)
@@ -847,7 +847,7 @@ bqr = function(y, X, tau = 0.5,
   #----------------------------------------------------------------------------
   # Store MCMC output:
   post_theta = array(NA, c(nsave, p))
-  post_ytilde = array(NA, c(nsave, n_test))
+  post_ypred = array(NA, c(nsave, n_test))
 
   # Total number of MCMC simulations:
   nstot = nburn+(nskip+1)*(nsave)
@@ -902,7 +902,7 @@ bqr = function(y, X, tau = 0.5,
 
         # Predictive samples of ytilde:
         xi_test = rexp(n = n_test, rate = 1)
-        post_ytilde[isave,] = X_test%*%theta + a_tau*xi_test + b_tau*sqrt(xi_test)*rnorm(n = n_test)
+        post_ypred[isave,] = X_test%*%theta + a_tau*xi_test + b_tau*sqrt(xi_test)*rnorm(n = n_test)
 
         # And reset the skip counter:
         skipcount = 0
@@ -919,6 +919,6 @@ bqr = function(y, X, tau = 0.5,
     coefficients = theta_hat,
     fitted.values = X_test%*%theta_hat,
     post_theta = post_theta,
-    post_ytilde = post_ytilde,
+    post_ypred = post_ypred,
     model = 'bqr', y = y, X = X, X_test = X_test, psi = psi, tau = tau))
 }

@@ -46,7 +46,7 @@ a list with the following elements:
 \item \code{fitted.values} the posterior predictive mean at the test points \code{X_test}
 \item \code{post_theta}: \code{nsave x p} samples from the posterior distribution
 of the regression coefficients
-\item \code{post_ytilde}: \code{nsave x n_test} samples
+\item \code{post_ypred}: \code{nsave x n_test} samples
 from the posterior predictive distribution at test points \code{X_test}
 \item \code{post_g}: \code{nsave} posterior samples of the transformation
 evaluated at the unique \code{y} values
@@ -85,7 +85,7 @@ names(fit) # what is returned
 # Note: this is Monte Carlo sampling, so no need for MCMC diagnostics!
 
 # Evaluate posterior predictive means and intervals on the testing data:
-plot_pptest(fit$post_ytilde, y_test,
+plot_pptest(fit$post_ypred, y_test,
             alpha_level = 0.10) # coverage should be about 90\%
 
 # Check: correlation with true coefficients
@@ -109,8 +109,8 @@ legend('bottomright', c('Truth'), pch = 2) # annotate the true transformation
 y0 = sort(unique(y_test))
 plot(y0, y0, type='n', ylim = c(0,1),
      xlab='y', ylab='F_y', main = 'Posterior predictive ECDF')
-temp = sapply(1:nrow(fit$post_ytilde), function(s)
-  lines(y0, ecdf(fit$post_ytilde[s,])(y0), # ECDF of posterior predictive draws
+temp = sapply(1:nrow(fit$post_ypred), function(s)
+  lines(y0, ecdf(fit$post_ypred[s,])(y0), # ECDF of posterior predictive draws
         col='gray', type ='s'))
 lines(y0, ecdf(y_test)(y0),  # ECDF of testing data
      col='black', type = 's', lwd = 3)

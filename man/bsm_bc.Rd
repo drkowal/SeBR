@@ -48,7 +48,7 @@ a list with the following elements:
 \item \code{fitted.values} the posterior predictive mean at the test points \code{x_test}
 \item \code{post_theta}: \code{nsave x p} samples from the posterior distribution
 of the regression coefficients
-\item \code{post_ytilde}: \code{nsave x n_test} samples
+\item \code{post_ypred}: \code{nsave x n_test} samples
 from the posterior predictive distribution at \code{x_test}
 \item \code{post_g}: \code{nsave} posterior samples of the transformation
 evaluated at the unique \code{y} values
@@ -74,7 +74,7 @@ Monte Carlo, not MCMC sampling) in \code{\link{sbsm}}.
 }
 \examples{
 # Simulate some data:
-n = 500 # sample size
+n = 200 # sample size
 x = sort(runif(n)) # observation points
 
 # Transform a noisy, periodic function:
@@ -88,7 +88,7 @@ names(fit) # what is returned
 round(quantile(fit$post_lambda), 3) # summary of unknown Box-Cox parameter
 
 # Plot the model predictions (point and interval estimates):
-pi_y = t(apply(fit$post_ytilde, 2, quantile, c(0.05, .95))) # 90\% PI
+pi_y = t(apply(fit$post_ypred, 2, quantile, c(0.05, .95))) # 90\% PI
 plot(x, y, type='n', ylim = range(pi_y,y),
      xlab = 'x', ylab = 'y', main = paste('Fitted values and prediction intervals'))
 polygon(c(x, rev(x)),c(pi_y[,2], rev(pi_y[,1])),col='gray', border=NA)

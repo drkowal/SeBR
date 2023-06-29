@@ -75,7 +75,7 @@ The main functions in `SeBR` are:
 
 - `sbgp()`: Monte Carlo sampling for predictive inference with the *semiparametric Bayesian Gaussian process model*. 
 
-Each function returns a point estimate of $\theta$ (`coefficients`), point predictions at some specified testing points  (`fitted.values`), posterior samples of the transformation $g$ (`post_g`), and posterior predictive samples of $\tilde y(x)$ at the testing points (`post_ytilde`), as well as other function-specific quantities (e.g., posterior draws of $\theta$, `post_theta`). The  calls `coef()` and `fitted()` extract the point estimates and point predictions, respectively. 
+Each function returns a point estimate of $\theta$ (`coefficients`), point predictions at some specified testing points  (`fitted.values`), posterior samples of the transformation $g$ (`post_g`), and posterior predictive samples of $\tilde y(x)$ at the testing points (`post_ypred`), as well as other function-specific quantities (e.g., posterior draws of $\theta$, `post_theta`). The  calls `coef()` and `fitted()` extract the point estimates and point predictions, respectively. 
 
 **Note:** The package also includes Box-Cox variants of these functions, i.e., restricting $g$ to the (signed) Box-Cox parametric family $g(t; \lambda) = \{\mbox{sign}(t) \vert t \vert^\lambda - 1\}/\lambda$ with known or unknown $\lambda$. The parametric transformation is less flexible, especially for irregular marginals or restricted domains, and requires MCMC sampling. These functions (e.g., `blm_bc()`, etc.) are primarily for benchmarking. 
 

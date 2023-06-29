@@ -53,7 +53,7 @@ a list with the following elements:
 \item \code{fitted.values} the posterior predictive mean at the test points \code{locs_test}
 \item \code{fit_gp} the fitted \code{GpGp_fit} object, which includes
 covariance parameter estimates and other model information
-\item \code{post_ytilde}: \code{nsave x ntest} samples
+\item \code{post_ypred}: \code{nsave x ntest} samples
 from the posterior predictive distribution at \code{locs_test}
 \item \code{post_g}: \code{nsave} posterior samples of the transformation
 evaluated at the unique \code{y} values
@@ -97,7 +97,7 @@ coef(fit) # estimated regression coefficients (here, just an intercept)
 class(fit$fit_gp) # the GpGp object is also returned
 
 # Plot the model predictions (point and interval estimates):
-pi_y = t(apply(fit$post_ytilde, 2, quantile, c(0.05, .95))) # 90\% PI
+pi_y = t(apply(fit$post_ypred, 2, quantile, c(0.05, .95))) # 90\% PI
 plot(x, y, type='n', ylim = range(pi_y,y),
      xlab = 'x', ylab = 'y', main = paste('Fitted values and prediction intervals'))
 polygon(c(x, rev(x)),c(pi_y[,2], rev(pi_y[,1])),col='gray', border=NA)
