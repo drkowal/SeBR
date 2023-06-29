@@ -158,7 +158,7 @@ transformation serves as an additional layer of robustness.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Simulate some data:</span></span></span>
-<span class="r-in"><span><span class="va">n</span> <span class="op">=</span> <span class="fl">200</span> <span class="co"># sample size</span></span></span>
+<span class="r-in"><span><span class="va">n</span> <span class="op">=</span> <span class="fl">100</span> <span class="co"># sample size</span></span></span>
 <span class="r-in"><span><span class="va">x</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, length <span class="op">=</span> <span class="va">n</span><span class="op">)</span> <span class="co"># observation points</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Transform a noisy, periodic function:</span></span></span>
@@ -167,7 +167,7 @@ transformation serves as an additional layer of robustness.</p>
 <span class="r-in"><span>             lambda <span class="op">=</span> <span class="fl">.5</span><span class="op">)</span> <span class="co"># Signed square-root transformation</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Fit the semiparametric Bayesian Gaussian process:</span></span></span>
-<span class="r-in"><span><span class="va">fit</span> <span class="op">=</span> <span class="fu">sbgp</span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, locs <span class="op">=</span> <span class="va">x</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">=</span> <span class="fu">sbgp</span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, locs <span class="op">=</span> <span class="va">x</span>, nsave <span class="op">=</span> <span class="fl">100</span><span class="op">)</span> <span class="co"># small sim for illustration</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Initial GP fit..."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Updated GP fit..."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Sampling..."</span>
@@ -177,7 +177,7 @@ transformation serves as an additional layer of robustness.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "post_g"        "model"         "y"             "X"            </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "approx_g"      "sigma_epsilon"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="co"># estimated regression coefficients (here, just an intercept)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.04925972</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.02066063</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">fit_gp</span><span class="op">)</span> <span class="co"># the GpGp object is also returned</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "GpGp_fit"</span>
 <span class="r-in"><span></span></span>
