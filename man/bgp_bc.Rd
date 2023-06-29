@@ -89,7 +89,7 @@ Monte Carlo, not MCMC sampling) in \code{\link{sbgp}}.
 }
 \examples{
 # Simulate some data:
-n = 200 # sample size
+n = 100 # sample size
 x = seq(0, 1, length = n) # observation points
 
 # Transform a noisy, periodic function:
@@ -98,7 +98,7 @@ y = g_inv_bc(
              lambda = .5) # Signed square-root transformation
 
 # Fit a Bayesian Gaussian process with Box-Cox transformation:
-fit = bgp_bc(y = y, locs = x)
+fit = bgp_bc(y = y, locs = x) # small sim for illustration
 names(fit) # what is returned
 coef(fit) # estimated regression coefficients (here, just an intercept)
 class(fit$fit_gp) # the GpGp object is also returned

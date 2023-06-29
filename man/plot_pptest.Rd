@@ -25,10 +25,10 @@ to the actual testing data \code{y_test}.
 }
 \examples{
 # Simulate some data:
-dat = simulate_tlm(n = 200, p = 10, g_type = 'step')
+dat = simulate_tlm(n = 100, p = 5, g_type = 'step')
 
 # Fit a semiparametric Bayesian linear model:
-fit = sblm(y = dat$y, X = dat$X, X_test = dat$X_test)
+fit = sblm(y = dat$y, X = dat$X, X_test = dat$X_test, nsave = 100) # small sim for illustration
 
 # Evaluate posterior predictive means and intervals on the testing data:
 plot_pptest(fit$post_ypred, dat$y_test,

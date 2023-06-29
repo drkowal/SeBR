@@ -76,7 +76,7 @@ Monte Carlo, not MCMC sampling) in \code{\link{sblm}}.
 }
 \examples{
 # Simulate some data:
-dat = simulate_tlm(n = 200, p = 10, g_type = 'step')
+dat = simulate_tlm(n = 100, p = 5, g_type = 'step')
 y = dat$y; X = dat$X # training data
 y_test = dat$y_test; X_test = dat$X_test # testing data
 

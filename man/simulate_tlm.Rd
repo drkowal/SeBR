@@ -57,7 +57,7 @@ square-root, and log transformations.
 }
 \examples{
 # Simulate data:
-dat = simulate_tlm(n = 200, p = 10, g_type = 'beta')
+dat = simulate_tlm(n = 100, p = 5, g_type = 'beta')
 names(dat) # what is returned
 hist(dat$y, breaks = 25) # marginal distribution
 

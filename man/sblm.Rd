@@ -72,14 +72,14 @@ may speed up computations for very large datasets.
 }
 \examples{
 # Simulate some data:
-dat = simulate_tlm(n = 200, p = 10, g_type = 'step')
+dat = simulate_tlm(n = 100, p = 5, g_type = 'step')
 y = dat$y; X = dat$X # training data
 y_test = dat$y_test; X_test = dat$X_test # testing data
 
 hist(y, breaks = 25) # marginal distribution
 
 # Fit the semiparametric Bayesian linear model:
-fit = sblm(y = y, X = X, X_test = X_test)
+fit = sblm(y = y, X = X, X_test = X_test, nsave = 100) # small sim for illustration
 names(fit) # what is returned
 
 # Note: this is Monte Carlo sampling, so no need for MCMC diagnostics!

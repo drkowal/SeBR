@@ -65,7 +65,7 @@ recommended in general.
 }
 \examples{
 # Simulate some heteroskedastic data (no transformation):
-dat = simulate_tlm(n = 200, p = 10, g_type = 'box-cox', heterosked = TRUE, lambda = 1)
+dat = simulate_tlm(n = 100, p = 5, g_type = 'box-cox', heterosked = TRUE, lambda = 1)
 y = dat$y; X = dat$X # training data
 y_test = dat$y_test; X_test = dat$X_test # testing data
 

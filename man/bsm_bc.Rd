@@ -74,7 +74,7 @@ Monte Carlo, not MCMC sampling) in \code{\link{sbsm}}.
 }
 \examples{
 # Simulate some data:
-n = 200 # sample size
+n = 100 # sample size
 x = sort(runif(n)) # observation points
 
 # Transform a noisy, periodic function:

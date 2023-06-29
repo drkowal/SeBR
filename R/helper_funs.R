@@ -35,7 +35,7 @@
 #'
 #' @examples
 #' # Simulate data:
-#' dat = simulate_tlm(n = 200, p = 10, g_type = 'beta')
+#' dat = simulate_tlm(n = 100, p = 5, g_type = 'beta')
 #' names(dat) # what is returned
 #' hist(dat$y, breaks = 25) # marginal distribution
 #'
@@ -132,10 +132,10 @@ simulate_tlm = function(n, p,
 #'
 #' @examples
 #' # Simulate some data:
-#' dat = simulate_tlm(n = 200, p = 10, g_type = 'step')
+#' dat = simulate_tlm(n = 100, p = 5, g_type = 'step')
 #'
 #' # Fit a semiparametric Bayesian linear model:
-#' fit = sblm(y = dat$y, X = dat$X, X_test = dat$X_test)
+#' fit = sblm(y = dat$y, X = dat$X, X_test = dat$X_test, nsave = 100) # small sim for illustration
 #'
 #' # Evaluate posterior predictive means and intervals on the testing data:
 #' plot_pptest(fit$post_ypred, dat$y_test,

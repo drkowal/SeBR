@@ -71,7 +71,7 @@ may speed up computations for very large datasets.
 }
 \examples{
 # Simulate some data:
-n = 200 # sample size
+n = 100 # sample size
 x = sort(runif(n)) # observation points
 
 # Transform a noisy, periodic function:
@@ -80,7 +80,7 @@ y = g_inv_bc(
              lambda = .5) # Signed square-root transformation
 
 # Fit the semiparametric Bayesian spline model:
-fit = sbsm(y = y, x = x)
+fit = sbsm(y = y, x = x, nsave = 100) # small sim for illustration
 names(fit) # what is returned
 
 # Note: this is Monte Carlo sampling, so no need for MCMC diagnostics!

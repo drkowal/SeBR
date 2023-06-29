@@ -47,7 +47,7 @@
 #'
 #' @examples
 #' # Simulate some data:
-#' dat = simulate_tlm(n = 200, p = 10, g_type = 'step')
+#' dat = simulate_tlm(n = 100, p = 5, g_type = 'step')
 #' y = dat$y; X = dat$X # training data
 #' y_test = dat$y_test; X_test = dat$X_test # testing data
 #'
@@ -260,7 +260,7 @@ blm_bc = function(y, X, X_test = X,
 #'
 #' @examples
 #' # Simulate some data:
-#' n = 200 # sample size
+#' n = 100 # sample size
 #' x = sort(runif(n)) # observation points
 #'
 #' # Transform a noisy, periodic function:
@@ -508,7 +508,7 @@ bsm_bc = function(y, x = NULL,
 #'
 #' @examples
 #' # Simulate some data:
-#' n = 200 # sample size
+#' n = 100 # sample size
 #' x = seq(0, 1, length = n) # observation points
 #'
 #' # Transform a noisy, periodic function:
@@ -517,7 +517,7 @@ bsm_bc = function(y, x = NULL,
 #'              lambda = .5) # Signed square-root transformation
 #'
 #' # Fit a Bayesian Gaussian process with Box-Cox transformation:
-#' fit = bgp_bc(y = y, locs = x)
+#' fit = bgp_bc(y = y, locs = x) # small sim for illustration
 #' names(fit) # what is returned
 #' coef(fit) # estimated regression coefficients (here, just an intercept)
 #' class(fit$fit_gp) # the GpGp object is also returned
@@ -785,7 +785,7 @@ bgp_bc = function(y, locs,
 #'
 #' @examples
 #' # Simulate some heteroskedastic data (no transformation):
-#' dat = simulate_tlm(n = 200, p = 10, g_type = 'box-cox', heterosked = TRUE, lambda = 1)
+#' dat = simulate_tlm(n = 100, p = 5, g_type = 'box-cox', heterosked = TRUE, lambda = 1)
 #' y = dat$y; X = dat$X # training data
 #' y_test = dat$y_test; X_test = dat$X_test # testing data
 #'

@@ -82,7 +82,7 @@ transformation serves as an additional layer of robustness.
 }
 \examples{
 # Simulate some data:
-n = 200 # sample size
+n = 100 # sample size
 x = seq(0, 1, length = n) # observation points
 
 # Transform a noisy, periodic function:
@@ -91,7 +91,7 @@ y = g_inv_bc(
              lambda = .5) # Signed square-root transformation
 
 # Fit the semiparametric Bayesian Gaussian process:
-fit = sbgp(y = y, locs = x)
+fit = sbgp(y = y, locs = x, nsave = 100) # small sim for illustration
 names(fit) # what is returned
 coef(fit) # estimated regression coefficients (here, just an intercept)
 class(fit$fit_gp) # the GpGp object is also returned
