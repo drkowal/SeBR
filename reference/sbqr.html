@@ -174,7 +174,7 @@ may speed up computations for very large datasets.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="co"># Simulate some heteroskedastic data (no transformation):</span></span></span>
 <span class="r-in"><span><span class="va">dat</span> <span class="op">=</span> <span class="fu"><a href="simulate_tlm.html">simulate_tlm</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">200</span>, p <span class="op">=</span> <span class="fl">10</span>, g_type <span class="op">=</span> <span class="st">'box-cox'</span>, heterosked <span class="op">=</span> <span class="cn">TRUE</span>, lambda <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">y</span> <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">y</span>; <span class="va">X</span> <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">X</span> <span class="co"># training data</span></span></span>
@@ -185,7 +185,16 @@ may speed up computations for very large datasets.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Fit the semiparametric Bayesian quantile regression model:</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">=</span> <span class="fu">sbqr</span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, X <span class="op">=</span> <span class="va">X</span>, tau <span class="op">=</span> <span class="va">tau</span>, X_test <span class="op">=</span> <span class="va">X_test</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "32 seconds remaining"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "25 seconds remaining"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "13 seconds remaining"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "0 seconds remaining"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Total time:  42 seconds"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="co"># what is returned</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "coefficients"  "fitted.values" "post_theta"    "post_ypred"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "post_qtau"     "post_g"        "model"         "y"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "X"             "X_test"        "psi"           "approx_g"     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "tau"          </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Posterior predictive checks on testing data: empirical CDF</span></span></span>
 <span class="r-in"><span><span class="va">y0</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">y_test</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -196,7 +205,8 @@ may speed up computations for very large datasets.</p>
 <span class="r-in"><span>        col<span class="op">=</span><span class="st">'gray'</span>, type <span class="op">=</span><span class="st">'s'</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">y0</span>, <span class="fu"><a href="https://rdrr.io/r/stats/ecdf.html" class="external-link">ecdf</a></span><span class="op">(</span><span class="va">y_test</span><span class="op">)</span><span class="op">(</span><span class="va">y0</span><span class="op">)</span>,  <span class="co"># ECDF of testing data</span></span></span>
 <span class="r-in"><span>     col<span class="op">=</span><span class="st">'black'</span>, type <span class="op">=</span> <span class="st">'s'</span>, lwd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-plt img"><img src="sbqr-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

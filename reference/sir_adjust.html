@@ -115,20 +115,39 @@ can significantly slow down this function.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="co"># Simulate some data:</span></span></span>
 <span class="r-in"><span><span class="va">dat</span> <span class="op">=</span> <span class="fu"><a href="simulate_tlm.html">simulate_tlm</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">50</span>, p <span class="op">=</span> <span class="fl">5</span>, g_type <span class="op">=</span> <span class="st">'step'</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">y</span> <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">y</span>; <span class="va">X</span> <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">X</span> <span class="co"># training data</span></span></span>
 <span class="r-in"><span><span class="va">y_test</span> <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">y_test</span>; <span class="va">X_test</span> <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">X_test</span> <span class="co"># testing data</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">y</span>, breaks <span class="op">=</span> <span class="fl">10</span><span class="op">)</span> <span class="co"># marginal distribution</span></span></span>
+<span class="r-plt img"><img src="sir_adjust-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Fit the semiparametric Bayesian linear model:</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="sblm.html">sblm</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, X <span class="op">=</span> <span class="va">X</span>, X_test <span class="op">=</span> <span class="va">X_test</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "4 seconds remaining"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "2 seconds remaining"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "1 seconds remaining"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Total time:  3 seconds"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="co"># what is returned</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "coefficients"  "fitted.values" "post_theta"    "post_ypred"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "post_g"        "model"         "y"             "X"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "X_test"        "psi"           "approx_g"      "sigma_epsilon"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Update with SIR:</span></span></span>
 <span class="r-in"><span><span class="va">fit_sir</span> <span class="op">=</span> <span class="fu">sir_adjust</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "31 seconds remaining"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "28 seconds remaining"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "24 seconds remaining"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "21 seconds remaining"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "18 seconds remaining"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "14 seconds remaining"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "11 seconds remaining"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "7 seconds remaining"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "4 seconds remaining"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "0 seconds remaining"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Total time:  35 seconds"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Prediction: unadjusted vs. adjusted?</span></span></span>
 <span class="r-in"><span></span></span>
@@ -136,6 +155,7 @@ can significantly slow down this function.</p>
 <span class="r-in"><span><span class="va">y_hat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">y_hat_sir</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted</a></span><span class="op">(</span><span class="va">fit_sir</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">y_hat</span>, <span class="va">y_hat_sir</span><span class="op">)</span> <span class="co"># similar</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Interval estimates:</span></span></span>
 <span class="r-in"><span><span class="va">pi_y</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_ypred</span>, <span class="fl">2</span>, <span class="va">quantile</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">.95</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="co"># 90% PI</span></span></span>
@@ -149,10 +169,14 @@ can significantly slow down this function.</p>
 <span class="r-in"><span>    <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">pi_y</span><span class="op">[</span><span class="va">i</span>,<span class="fl">2</span><span class="op">]</span>, <span class="va">pi_y_sir</span><span class="op">[</span><span class="va">i</span>,<span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">pi_y</span><span class="op">[</span><span class="va">i</span>,<span class="fl">1</span><span class="op">]</span>, <span class="va">pi_y_sir</span><span class="op">[</span><span class="va">i</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">overlaps</span><span class="op">)</span> <span class="co"># mostly close to 100%</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.00   92.48   96.46   94.59   99.34  100.00 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Coverage of PIs on testing data (should be ~ 90%)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">pi_y</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span> <span class="op">&lt;=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">*</span><span class="op">(</span><span class="va">pi_y</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span> <span class="op">&gt;=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">)</span> <span class="co"># unadjusted</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.89</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">pi_y_sir</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span> <span class="op">&lt;=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">*</span><span class="op">(</span><span class="va">pi_y_sir</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span> <span class="op">&gt;=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">)</span> <span class="co"># adjusted</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.887</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot together with testing data:</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">y_test</span>, <span class="va">y_test</span>, type<span class="op">=</span><span class="st">'n'</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">pi_y</span>, <span class="va">pi_y_sir</span>, <span class="va">y_test</span><span class="op">)</span>,</span></span>
@@ -168,7 +192,8 @@ can significantly slow down this function.</p>
 <span class="r-in"><span><span class="op">)</span> <span class="co"># plot the PIs (adjusted)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">y_test</span>, <span class="va">y_hat</span>, type<span class="op">=</span><span class="st">'p'</span>, pch<span class="op">=</span><span class="fl">2</span><span class="op">)</span> <span class="co"># plot the means (unadjusted)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">y_test</span>, <span class="va">y_hat_sir</span>, type<span class="op">=</span><span class="st">'p'</span>, pch<span class="op">=</span><span class="fl">3</span><span class="op">)</span> <span class="co"># plot the means (adjusted)</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-plt img"><img src="sir_adjust-2.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
