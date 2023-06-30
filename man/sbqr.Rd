@@ -84,7 +84,7 @@ setting it to TRUE may reduce sensitivity to the prior, while setting it to FALS
 may speed up computations for very large datasets.
 }
 \examples{
-\dontrun{
+\donttest{
 # Simulate some heteroskedastic data (no transformation):
 dat = simulate_tlm(n = 200, p = 10, g_type = 'box-cox', heterosked = TRUE, lambda = 1)
 y = dat$y; X = dat$X # training data

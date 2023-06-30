@@ -131,17 +131,17 @@ simulate_tlm = function(n, p,
 #' and a summary of the empirical coverage
 #'
 #' @examples
+#' \donttest{
 #' # Simulate some data:
 #' dat = simulate_tlm(n = 100, p = 5, g_type = 'step')
 #'
 #' # Fit a semiparametric Bayesian linear model:
-#' fit = sblm(y = dat$y, X = dat$X, X_test = dat$X_test,
-#'            nsave = 100, verbose = FALSE) # small sim for illustration
+#' fit = sblm(y = dat$y, X = dat$X, X_test = dat$X_test)
 #'
 #' # Evaluate posterior predictive means and intervals on the testing data:
 #' plot_pptest(fit$post_ypred, dat$y_test,
 #'             alpha_level = 0.10) # coverage should be about 90%
-#'
+#' }
 #' @importFrom graphics abline arrows lines
 #' @export
 plot_pptest = function(post_ypred,

@@ -44,8 +44,8 @@
 #' setting it to TRUE may reduce sensitivity to the prior, while setting it to FALSE
 #' may speed up computations for very large datasets.
 #'
-#'
 #' @examples
+#' \donttest{
 #' # Simulate some data:
 #' dat = simulate_tlm(n = 100, p = 5, g_type = 'step')
 #' y = dat$y; X = dat$X # training data
@@ -54,8 +54,7 @@
 #' hist(y, breaks = 25) # marginal distribution
 #'
 #' # Fit the semiparametric Bayesian linear model:
-#' fit = sblm(y = y, X = X, X_test = X_test,
-#'            nsave = 100, verbose = FALSE) # small sim for illustration
+#' fit = sblm(y = y, X = X, X_test = X_test)
 #' names(fit) # what is returned
 #'
 #' # Note: this is Monte Carlo sampling, so no need for MCMC diagnostics!
@@ -90,7 +89,7 @@
 #'         col='gray', type ='s'))
 #' lines(y0, ecdf(y_test)(y0),  # ECDF of testing data
 #'      col='black', type = 's', lwd = 3)
-#'
+#' }
 #' @export
 sblm = function(y, X, X_test = X,
                 psi = length(y),
@@ -349,6 +348,7 @@ sblm = function(y, X, X_test = X,
 #' may speed up computations for very large datasets.
 #'
 #' @examples
+#' \donttest{
 #' # Simulate some data:
 #' n = 100 # sample size
 #' x = sort(runif(n)) # observation points
@@ -359,8 +359,7 @@ sblm = function(y, X, X_test = X,
 #'              lambda = .5) # Signed square-root transformation
 #'
 #' # Fit the semiparametric Bayesian spline model:
-#' fit = sbsm(y = y, x = x,
-#'            nsave = 100, verbose = FALSE) # small sim for illustration
+#' fit = sbsm(y = y, x = x)
 #' names(fit) # what is returned
 #'
 #' # Note: this is Monte Carlo sampling, so no need for MCMC diagnostics!
@@ -372,7 +371,7 @@ sblm = function(y, X, X_test = X,
 #' polygon(c(x, rev(x)),c(pi_y[,2], rev(pi_y[,1])),col='gray', border=NA)
 #' lines(x, y, type='p')
 #' lines(x, fitted(fit), lwd = 3)
-#'
+#' }
 #' @importFrom spikeSlabGAM sm
 #' @export
 sbsm = function(y, x = NULL,
@@ -664,7 +663,7 @@ sbsm = function(y, x = NULL,
 #' transformation serves as an additional layer of robustness.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Simulate some data:
 #' n = 200 # sample size
 #' x = seq(0, 1, length = n) # observation points
@@ -1000,7 +999,7 @@ sbgp = function(y, locs,
 #' may speed up computations for very large datasets.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Simulate some heteroskedastic data (no transformation):
 #' dat = simulate_tlm(n = 200, p = 10, g_type = 'box-cox', heterosked = TRUE, lambda = 1)
 #' y = dat$y; X = dat$X # training data
@@ -1293,7 +1292,7 @@ sbqr = function(y, X, tau = 0.5,
 #' can significantly slow down this function.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Simulate some data:
 #' dat = simulate_tlm(n = 50, p = 5, g_type = 'step')
 #' y = dat$y; X = dat$X # training data

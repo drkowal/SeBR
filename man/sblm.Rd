@@ -71,6 +71,7 @@ setting it to TRUE may reduce sensitivity to the prior, while setting it to FALS
 may speed up computations for very large datasets.
 }
 \examples{
+\donttest{
 # Simulate some data:
 dat = simulate_tlm(n = 100, p = 5, g_type = 'step')
 y = dat$y; X = dat$X # training data
@@ -79,8 +80,7 @@ y_test = dat$y_test; X_test = dat$X_test # testing data
 hist(y, breaks = 25) # marginal distribution
 
 # Fit the semiparametric Bayesian linear model:
-fit = sblm(y = y, X = X, X_test = X_test,
-           nsave = 100, verbose = FALSE) # small sim for illustration
+fit = sblm(y = y, X = X, X_test = X_test)
 names(fit) # what is returned
 
 # Note: this is Monte Carlo sampling, so no need for MCMC diagnostics!
@@ -115,5 +115,5 @@ temp = sapply(1:nrow(fit$post_ypred), function(s)
         col='gray', type ='s'))
 lines(y0, ecdf(y_test)(y0),  # ECDF of testing data
      col='black', type = 's', lwd = 3)
-
+}
 }

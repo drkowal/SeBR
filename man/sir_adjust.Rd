@@ -49,7 +49,7 @@ are used to approximate a prior expectation, but larger values
 can significantly slow down this function.
 }
 \examples{
-\dontrun{
+\donttest{
 # Simulate some data:
 dat = simulate_tlm(n = 50, p = 5, g_type = 'step')
 y = dat$y; X = dat$X # training data

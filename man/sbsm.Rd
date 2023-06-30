@@ -70,6 +70,7 @@ setting it to TRUE may reduce sensitivity to the prior, while setting it to FALS
 may speed up computations for very large datasets.
 }
 \examples{
+\donttest{
 # Simulate some data:
 n = 100 # sample size
 x = sort(runif(n)) # observation points
@@ -80,8 +81,7 @@ y = g_inv_bc(
              lambda = .5) # Signed square-root transformation
 
 # Fit the semiparametric Bayesian spline model:
-fit = sbsm(y = y, x = x,
-           nsave = 100, verbose = FALSE) # small sim for illustration
+fit = sbsm(y = y, x = x)
 names(fit) # what is returned
 
 # Note: this is Monte Carlo sampling, so no need for MCMC diagnostics!
@@ -93,5 +93,5 @@ plot(x, y, type='n', ylim = range(pi_y,y),
 polygon(c(x, rev(x)),c(pi_y[,2], rev(pi_y[,1])),col='gray', border=NA)
 lines(x, y, type='p')
 lines(x, fitted(fit), lwd = 3)
-
+}
 }

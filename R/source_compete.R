@@ -507,7 +507,7 @@ bsm_bc = function(y, x = NULL,
 #' Monte Carlo, not MCMC sampling) in \code{\link{sbgp}}.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Simulate some data:
 #' n = 200 # sample size
 #' x = seq(0, 1, length = n) # observation points

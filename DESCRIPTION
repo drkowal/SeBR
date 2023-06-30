@@ -15,7 +15,7 @@ Description: Monte Carlo and MCMC sampling algorithms for semiparametric
     distributional features. The samplers prioritize computational
     scalability and, for most cases, Monte Carlo (not MCMC) sampling for
     greater efficiency. Details of the methods and algorithms are provided
-    in <arXiv:2306.05498>.
+    in Kowal and Wu (2023) <arXiv:2306.05498>.
 License: MIT + file LICENSE
 URL: https://github.com/drkowal/SeBR, https://drkowal.github.io/SeBR/
 BugReports: https://github.com/drkowal/SeBR/issues

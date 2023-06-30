@@ -81,7 +81,7 @@ from this term is often negligible compared to the observation errors, and the
 transformation serves as an additional layer of robustness.
 }
 \examples{
-\dontrun{
+\donttest{
 # Simulate some data:
 n = 200 # sample size
 x = seq(0, 1, length = n) # observation points
