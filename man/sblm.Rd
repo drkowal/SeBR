@@ -79,7 +79,8 @@ y_test = dat$y_test; X_test = dat$X_test # testing data
 hist(y, breaks = 25) # marginal distribution
 
 # Fit the semiparametric Bayesian linear model:
-fit = sblm(y = y, X = X, X_test = X_test, nsave = 100) # small sim for illustration
+fit = sblm(y = y, X = X, X_test = X_test,
+           nsave = 100, verbose = FALSE) # small sim for illustration
 names(fit) # what is returned
 
 # Note: this is Monte Carlo sampling, so no need for MCMC diagnostics!

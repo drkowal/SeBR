@@ -54,7 +54,8 @@
 #' hist(y, breaks = 25) # marginal distribution
 #'
 #' # Fit the semiparametric Bayesian linear model:
-#' fit = sblm(y = y, X = X, X_test = X_test, nsave = 100) # small sim for illustration
+#' fit = sblm(y = y, X = X, X_test = X_test,
+#'            nsave = 100, verbose = FALSE) # small sim for illustration
 #' names(fit) # what is returned
 #'
 #' # Note: this is Monte Carlo sampling, so no need for MCMC diagnostics!
@@ -358,7 +359,8 @@ sblm = function(y, X, X_test = X,
 #'              lambda = .5) # Signed square-root transformation
 #'
 #' # Fit the semiparametric Bayesian spline model:
-#' fit = sbsm(y = y, x = x, nsave = 100) # small sim for illustration
+#' fit = sbsm(y = y, x = x,
+#'            nsave = 100, verbose = FALSE) # small sim for illustration
 #' names(fit) # what is returned
 #'
 #' # Note: this is Monte Carlo sampling, so no need for MCMC diagnostics!
