@@ -81,7 +81,10 @@ accompany MCMC. The Monte Carlo sampling is typically quite fast.
 The package `SeBR` is installed and loaded as follows:
 
 ``` r
-# install.packages("devtools")
+# CRAN version:
+# install.packages("SeBR")
+
+# Development version: 
 # devtools::install_github("drkowal/SeBR")
 library(SeBR) 
 ```
