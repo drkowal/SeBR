@@ -18,29 +18,27 @@ $$
 and (2) a useful parametric regression model
 
 $$
-z_i  \stackrel{indep}{\sim} P_{Z \mid \theta, X = x_i}
+z_i  = f_\theta(x_i) + \sigma \epsilon_i
 $$
 
-with unknown parameters $\theta$.
+with unknown parameters $\theta$ and independent errors $\epsilon_i$.
 
-**Examples.** We focus on the following important special cases of
-$P_{Z \mid \theta, X}$:
+**Examples.** We focus on the following important special cases:
 
 1.  The **linear model** is a natural starting point:
 
 $$
-z_i = x_i'\theta + \epsilon_i, \quad \epsilon_i \stackrel{iid}{\sim} N(0, \sigma_\epsilon^2)
+z_i = x_i'\theta + \sigma\epsilon_i, \quad \epsilon_i \stackrel{iid}{\sim} N(0, 1)
 $$
 
 The transformation $g$ broadens the applicability of this useful class
-of models, including for positive or compactly-supported data, while
-$P_{Z \mid \theta, X=x} = N(x'\theta, \sigma_\epsilon^2)$.
+of models, including for positive or compactly-supported data.
 
 2.  The **quantile regression model** replaces the Gaussian assumption
     in the linear model with an *asymmetric Laplace* distribution (ALD)
 
 $$
-z_i = x_i'\theta + \epsilon_i, \quad \epsilon_i \stackrel{iid}{\sim} ALD(\tau)
+z_i = x_i'\theta + \sigma\epsilon_i, \quad \epsilon_i \stackrel{iid}{\sim} ALD(\tau)
 $$
 
 to target the $\tau$th quantile of $z$ at $x$, or equivalently, the
@@ -53,7 +51,7 @@ model adequacy, while still targeting the desired quantile of the data.
     include a nonparametric regression function,
 
 $$
-z_i = f_\theta(x_i) + \epsilon_i, \quad  \epsilon_i \stackrel{iid}{\sim} N(0, \sigma_\epsilon^2)
+z_i = f_\theta(x_i) + \sigma \epsilon_i, \quad  \epsilon_i \stackrel{iid}{\sim} N(0, 1)
 $$
 
 where $f_\theta$ is a GP and $\theta$ parameterizes the mean and
@@ -68,15 +66,16 @@ inference for future/unobserved data $\tilde y(x)$. We prefer a model
 and algorithm that offer both (i) flexible modeling of $g$ and (ii)
 efficient posterior and predictive computations.
 
-**Innovations:** Our approach (<https://arxiv.org/abs/2306.05498>)
-specifies a *nonparametric* model for $g$, yet also provides *Monte
-Carlo* (not MCMC) sampling for the posterior and predictive
-distributions. As a result, we control the approximation accuracy via
-the number of simulations, but do *not* require the lengthy runs,
-burn-in periods, convergence diagnostics, or inefficiency factors that
-accompany MCMC. The Monte Carlo sampling is typically quite fast.
+**Innovations:** Our approach
+(<https://doi.org/10.1080/01621459.2024.2395586>) specifies a
+*nonparametric* model for $g$, yet also provides *Monte Carlo* (not
+MCMC) sampling for the posterior and predictive distributions. As a
+result, we control the approximation accuracy via the number of
+simulations, but do *not* require the lengthy runs, burn-in periods,
+convergence diagnostics, or inefficiency factors that accompany MCMC.
+The Monte Carlo sampling is typically quite fast.
 
-# Using `SeBR`
+## Using `SeBR`
 
 The package `SeBR` is installed and loaded as follows:
 
@@ -124,3 +123,9 @@ primarily for benchmarking.
 
 Detailed documentation and examples are available at
 <https://drkowal.github.io/SeBR/>.
+
+## References
+
+Kowal, D. and Wu, B. (2024). Monte Carlo inference for semiparametric
+Bayesian regression. *JASA*.
+<https://doi.org/10.1080/01621459.2024.2395586>

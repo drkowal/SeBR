@@ -98,6 +98,9 @@ y = g_inv_bc(
   sin(2*pi*x) + sin(4*pi*x) + rnorm(n, sd = .5),
              lambda = .5) # Signed square-root transformation
 
+# Package we use for fast computing w/ Gaussian processes:
+library(GpGp)
+
 # Fit a Bayesian Gaussian process with Box-Cox transformation:
 fit = bgp_bc(y = y, locs = x)
 names(fit) # what is returned

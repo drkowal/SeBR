@@ -24,30 +24,34 @@ $$
 g(y_i) = z_i
 $$
 $$
-z_i  \stackrel{indep}{\sim} P_{Z \mid \theta, X = x_i}
+z_i  = f_\theta(x_i) + \sigma \epsilon_i
 $$
-Here, $g$ is a (monotone increasing) data transformation to be learned, while $P_{Z \mid \theta, X}$ may be considered the core parametric regression model indexed by unknown parameters $\theta$. 
+Here, $g$ is a (monotone increasing) data transformation to be learned, $f_\theta$ is an unknown regression function parametrized by $\theta$, and $\epsilon_i$ are independent errors. Location and scale restrictions (e.g., $f_\theta(0) = 0$ and $\sigma =1$) are usually applied for identifiability. 
 
-**Examples.** We focus on the following important special cases of $P_{Z \mid \theta, X}$:
+**Examples.** We focus on the following important special cases:
 
 1. The **linear model** is a natural starting point:
 $$
-z_i = x_i'\theta + \epsilon_i, \quad \epsilon_i \stackrel{iid}{\sim} N(0, \sigma_\epsilon^2)
+z_i = x_i'\theta + \sigma\epsilon_i, \quad \epsilon_i \stackrel{iid}{\sim} N(0, 1)
 $$
-The transformation $g$ broadens the applicability of this useful class of models, including for positive or compactly-supported data (see below), while $P_{Z \mid \theta, X=x} = N(x'\theta, \sigma_\epsilon^2)$. 
+The transformation $g$ broadens the applicability of this useful class of models, including for positive or compactly-supported data (see below).
 
-2. The **quantile regression model** replaces the Gaussian assumption in the linear model with an *asymmetric Laplace* distribution (ALD) to target the $\tau$th quantile of $z$ at $x$, or equivalently, the $g^{-1}(\tau)$th quantile of $y$ at $x$. The ALD is quite often a very poor model for real data, especially when $\tau$ is near zero or one. The transformation $g$ offers a pathway to significantly improve the model adequacy, while still targeting the desired quantile of the data. 
+2. The **quantile regression model** replaces the Gaussian assumption in the linear model with an *asymmetric Laplace* distribution (ALD) 
+$$
+z_i = x_i'\theta + \sigma\epsilon_i, \quad \epsilon_i \stackrel{iid}{\sim} ALD(\tau)
+$$
+to target the $\tau$th quantile of $z$ at $x$, or equivalently, the $g^{-1}(\tau)$th quantile of $y$ at $x$. The ALD is quite often a very poor model for real data, especially when $\tau$ is near zero or one. The transformation $g$ offers a pathway to significantly improve the model adequacy, while still targeting the desired quantile of the data. 
 
 3. The **Gaussian process (GP) model** generalizes the linear model to include a nonparametric regression function,
 $$
-z_i = f_\theta(x_i) + \epsilon_i, \quad  \epsilon_i \stackrel{iid}{\sim} N(0, \sigma_\epsilon^2)
+z_i = f_\theta(x_i) + \sigma \epsilon_i, \quad  \epsilon_i \stackrel{iid}{\sim} N(0, 1)
 $$
-where $f_\theta$ is a GP and $\theta$ parameterizes the mean and covariance functions. Although GPs offer substantial flexibility for the regression function $f_\theta$, this model may be inadequate when $y$ has irregular marginal features or a restricted domain (e.g., positive or compact). 
+where $f_\theta$ is a GP and $\theta$ parameterizes the mean and covariance functions. Although GPs offer substantial flexibility for the regression function $f_\theta$, the default approach (without a transformation) may be inadequate when $y$ has irregular marginal features or a restricted domain (e.g., positive or compact). 
 
 
 **Challenges:** The goal is to provide fully Bayesian posterior inference for the unknowns $(g, \theta)$ and posterior predictive inference for future/unobserved data $\tilde y(x)$. We prefer a model and algorithm that offer both (i) flexible modeling of $g$ and (ii) efficient posterior and predictive computations. 
 
-**Innovations:** Our approach (<https://arxiv.org/abs/2306.05498>) specifies a  *nonparametric* model for $g$, yet also provides *Monte Carlo* (not MCMC) sampling for the posterior and predictive distributions. As a result, we control the approximation accuracy via the number of simulations, but do *not* require the lengthy runs, burn-in periods, convergence diagnostics, or inefficiency factors that accompany MCMC. The Monte Carlo sampling is typically quite fast.  
+**Innovations:** Our approach (<https://doi.org/10.1080/01621459.2024.2395586>) specifies a  *nonparametric* model for $g$, yet also provides *Monte Carlo* (not MCMC) sampling for the posterior and predictive distributions. As a result, we control the approximation accuracy via the number of simulations, but do *not* require the lengthy runs, burn-in periods, convergence diagnostics, or inefficiency factors that accompany MCMC. The Monte Carlo sampling is typically quite fast.  
 
 # Using `SeBR`
 The `R` package `SeBR` is installed and loaded as follows:
@@ -102,7 +106,7 @@ fit = sblm(y = y,
 names(fit) # what is returned
 ```
 
-These are Monte Carlo (not MCMC) samples, so we do not require further algorithm diagnostics.
+These are Monte Carlo (not MCMC) samples, so we do *not* need to perform any MCMC diagnostics (e.g., verify convergence, inspect autocorrelations, discard a burn-in, re-run multiple chains, etc.). 
 
 First, we check for model adequacy using posterior predictive diagnostics. Specifically, we compute the empirical CDF on both `y_test` (black) and on each simulated testing predictive dataset from `post_ypred` (gray):
 
@@ -126,7 +130,7 @@ lines(y0, ecdf(y_test)(y0),  # ECDF of testing data
 
 Despite the challenging features of this marginal distribution, the proposed model appears to be adequate. Although the gray lines are not clearly visible at zero or one, the posterior predictive distribution does indeed match the support of the observed data. 
 
-**Remark:** Posterior predictive diagnostics do not require training/testing splits and are typically performed in-sample. If `X_test` is left unspecified in `sblm`, then the posterior predictive draws are given at `X` and can be compared to `y`. Naturally, the out-of-sample diagnostics above offer a more rigorous check. 
+**Remark:** Posterior predictive diagnostics do not require training/testing splits and are typically performed in-sample. If `X_test` is left unspecified in `sblm`, then the posterior predictive draws are given at `X` and can be compared to `y`. The example above uses out-of-sample checks, which are more rigorous but less common. 
 
 Next, we evaluate the predictive ability on the testing dataset by computing and plotting the out-of-sample prediction intervals at `X_test` and comparing them to `y_test`. There is a built-in function for this:
 
@@ -213,9 +217,17 @@ y = dat$y; X = dat$X
 y_test = dat$y_test; X_test = dat$X_test 
 ```
 
-Now, we fit two Bayesian quantile regression models: the traditional version without a transformation (`bqr()`) and the proposed alternative (`sbqr()`). We target the $\tau = 0.05$ quantile.
+Next, we load in two packages that we'll need: 
+
+```{r pack-qr, message = FALSE, warning = FALSE}
+library(quantreg) # traditional QR for initialization
+library(statmod) # for rinvgauss sampling
+```
+
+Now, we fit two Bayesian quantile regression models: the traditional version without a transformation (`bqr()`) and the proposed alternative (`sbqr()`). We target the $\tau = 0.05$ quantile. 
 
 ```{r fit-qr}
+
 # Quantile to target:
 tau = 0.05
 
@@ -340,7 +352,13 @@ plot(x_test, y_test,
 lines(x, y, type='p', col='gray', pch = 2)
 ```
 
-To highlight the challenges in this problem, we first consider a Box-Cox-transformed GP and evaluate the out-of-sample predictive performance:
+To highlight the challenges here, we first consider a Box-Cox-transformed GP. For this as well as the proposed model, we require a package:  
+
+```{r pack-gp, message = FALSE, warning = FALSE}
+library(GpGp) # fast GP computing
+```
+
+Now we fit the Box-Cox GP and evaluate the out-of-sample predictive performance:
 
 ```{r fit-bc}
 # Fit the Box-Cox Gaussian process model:
@@ -378,6 +396,9 @@ The Box-Cox transformation adds some flexibility to the GP, but is insufficient 
 Now fit the semiparametric Bayesian GP model:
 
 ```{r fit-gp}
+
+# library(GpGp) # loaded above
+
 # Fit the semiparametric Gaussian process model:
 fit = sbgp(y = y, 
            locs = x,
@@ -430,3 +451,5 @@ Despite the significant complexities in the data, `sbgp` performs quite well out
 
 **Note:** `sbgp` also applies for $x \in \mathbb{R}^p$ with $p >1$, such as spatial or spatio-temporal data. Such cases may require more careful consideration of the mean and covariance functions: the default mean function is a linear regression with the intercept only, while the default covariance function is an isotropic Matern function. However, many other options are available (inherited from the `GpGp` package).
 
+## References
+Kowal, D. and Wu, B. (2024). Monte Carlo inference for semiparametric Bayesian regression. *JASA*. <https://doi.org/10.1080/01621459.2024.2395586>

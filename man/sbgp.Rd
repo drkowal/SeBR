@@ -91,6 +91,9 @@ y = g_inv_bc(
   sin(2*pi*x) + sin(4*pi*x) + rnorm(n, sd = .5),
              lambda = .5) # Signed square-root transformation
 
+# Package we use for fast computing w/ Gaussian processes:
+library(GpGp)
+
 # Fit the semiparametric Bayesian Gaussian process:
 fit = sbgp(y = y, locs = x)
 names(fit) # what is returned

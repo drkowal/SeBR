@@ -372,7 +372,7 @@ sblm = function(y, X, X_test = X,
 #' lines(x, y, type='p')
 #' lines(x, fitted(fit), lwd = 3)
 #' }
-#' @importFrom spikeSlabGAM sm
+# #' @importFrom spikeSlabGAM sm
 #' @export
 sbsm = function(y, x = NULL,
                 x_test = NULL,
@@ -386,6 +386,14 @@ sbsm = function(y, x = NULL,
   # For testing:
   # psi = length(y); laplace_approx = TRUE; approx_g = FALSE; nsave = 1000; verbose = TRUE; x_test = sort(runif(100)); ngrid = 100
 
+  # Library required here:
+  if (!requireNamespace("spikeSlabGAM", quietly = TRUE)) {
+    stop(
+      "Package \"spikeSlabGAM\" must be installed to use this function.",
+      call. = FALSE
+    )
+  }
+
   # Data dimensions:
   n = length(y)
 
@@ -398,7 +406,7 @@ sbsm = function(y, x = NULL,
   x_test = (x_test - min(x_test))/(max(x_test) - min(x_test))
   #----------------------------------------------------------------------------
   # Orthogonalized P-spline and related quantities:
-  X = cbind(1/sqrt(n), poly(x, 1), sm(x))
+  X = cbind(1/sqrt(n), poly(x, 1), spikeSlabGAM::sm(x))
   X = X/sqrt(sum(diag(crossprod(X))))
   diagXtX = colSums(X^2)
   p = length(diagXtX)
@@ -673,6 +681,9 @@ sbsm = function(y, x = NULL,
 #'   sin(2*pi*x) + sin(4*pi*x) + rnorm(n, sd = .5),
 #'              lambda = .5) # Signed square-root transformation
 #'
+#' # Package we use for fast computing w/ Gaussian processes:
+#' library(GpGp)
+#'
 #' # Fit the semiparametric Bayesian Gaussian process:
 #' fit = sbgp(y = y, locs = x)
 #' names(fit) # what is returned
@@ -687,7 +698,7 @@ sbsm = function(y, x = NULL,
 #' lines(x, y, type='p')
 #' lines(x, fitted(fit), lwd = 3)
 #' }
-#' @import GpGp fields
+# #' @import GpGp fields
 #' @export
 sbgp = function(y, locs,
                 X = NULL,
@@ -703,6 +714,14 @@ sbgp = function(y, locs,
   # library(GpGp) # see if this fixes it...
   # For testing:
   # X = matrix(1, nrow = length(y)); covfun_name = "matern_isotropic"; locs_test = locs; X_test = X; nn = 30; emp_bayes = TRUE; approx_g = FALSE; nsave = 1000; ngrid = 100
+
+  # Library required here:
+  if (!requireNamespace("GpGp", quietly = TRUE)) {
+    stop(
+      "Package \"GpGp\" must be installed to use this function.",
+      call. = FALSE
+    )
+  }
 
   # Data dimensions:
   y = as.matrix(y); n = length(y);
@@ -925,10 +944,10 @@ sbgp = function(y, locs,
     if(emp_bayes){
       ztilde = z_test + sigma_epsilon*rnorm(n = n_test)
     } else {
-      ztilde = cond_sim(fit = fit_gp,
-                        locs_pred = locs_test,
-                        X_pred = X_test,
-                        m = nn)
+      ztilde = GpGp::cond_sim(fit = fit_gp,
+                              locs_pred = locs_test,
+                              X_pred = X_test,
+                              m = nn)
     }
     post_ypred[nsi,] = g_inv(ztilde)
 
@@ -1023,8 +1042,8 @@ sbgp = function(y, locs,
 #'      col='black', type = 's', lwd = 3)
 #' }
 #'
-#' @importFrom quantreg rq
-#' @importFrom statmod rinvgauss
+# #' @importFrom quantreg rq
+# #' @importFrom statmod rinvgauss
 #' @export
 sbqr = function(y, X, tau = 0.5,
                 X_test = X,
@@ -1038,6 +1057,21 @@ sbqr = function(y, X, tau = 0.5,
 
   # For testing:
   # psi = length(y); laplace_approx = TRUE; approx_g = FALSE; nsave = 1000; nburn = 100; verbose = TRUE; ngrid = 100
+
+  # Library required here:
+  if (!requireNamespace("quantreg", quietly = TRUE)) {
+    stop(
+      "Package \"quantreg\" must be installed to use this function.",
+      call. = FALSE
+    )
+  }
+  # Library required here:
+  if (!requireNamespace("statmod", quietly = TRUE)) {
+    stop(
+      "Package \"statmod\" must be installed to use this function.",
+      call. = FALSE
+    )
+  }
 
   # Data dimensions:
   n = length(y); p = ncol(X)
@@ -1084,7 +1118,7 @@ sbqr = function(y, X, tau = 0.5,
 
     # First pass: fix Fz() = qnorm(), initialize coefficients
     z = qnorm(Fy(y))
-    fit  = rq(z ~ X - 1, tau = tau)
+    fit = quantreg::rq(z ~ X - 1, tau = tau)
     Sigma_hat = summary(fit, se = 'boot', covariance = TRUE)$cov
     xt_Sigma_hat_x = sapply(1:n, function(i)
       crossprod(X[i,], Sigma_hat)%*%X[i,])
@@ -1115,7 +1149,7 @@ sbqr = function(y, X, tau = 0.5,
 
     # Updated coefficients:
     z = g(y) # update latent data
-    fit  = rq(z ~ X - 1, tau = tau)
+    fit = quantreg::rq(z ~ X - 1, tau = tau)
     Sigma_hat = summary(fit, se = 'boot', covariance = TRUE)$cov
     xt_Sigma_hat_x = sapply(1:n, function(i)
       crossprod(X[i,], Sigma_hat)%*%X[i,])
@@ -1213,9 +1247,9 @@ sbqr = function(y, X, tau = 0.5,
     }
     #----------------------------------------------------------------------------
     # Block 2: parameter expansion
-    xi = 1/rinvgauss(n = n,
-                     mean = sqrt((2 + a_tau^2/b_tau^2)/((z - X%*%theta)^2/b_tau^2)),
-                     shape = 2 + a_tau^2/b_tau^2)
+    xi = 1/statmod::rinvgauss(n = n,
+                              mean = sqrt((2 + a_tau^2/b_tau^2)/((z - X%*%theta)^2/b_tau^2)),
+                              shape = 2 + a_tau^2/b_tau^2)
     #----------------------------------------------------------------------------
     # Block 3: sample the regression coefficients
     Q_theta = crossprod(X/sqrt(b_tau^2*xi)) + 1/psi*XtX # t(X)%*%diag(1/(b_tau^2*xi))%*%X + 1/psi*XtX
@@ -1346,12 +1380,14 @@ sbqr = function(y, X, tau = 0.5,
 #' lines(y_test, y_hat, type='p', pch=2) # plot the means (unadjusted)
 #' lines(y_test, y_hat_sir, type='p', pch=3) # plot the means (adjusted)
 #' }
-#' @importFrom MASS mvrnorm
+# #' @importFrom MASS mvrnorm
 #' @export
 sir_adjust = function(fit,
                       sir_frac = 0.3,
                       nsims_prior = 100,
                       verbose = TRUE){
+
+
   # Checks:
   if(fit$model == 'sbgp'){
     warning('sbgp uses an empirical bayes approximation for the parameters,
@@ -1382,15 +1418,23 @@ sir_adjust = function(fit,
   # Linear model case:
   if(fit$model == 'sblm'){
 
+    # Library required here:
+    if (!requireNamespace("MASS", quietly = TRUE)) {
+      stop(
+        "Package \"MASS\" must be installed to use this function.",
+        call. = FALSE
+      )
+    }
+
     # Matrix quantities (note: these *could* be passed in from fit)
     XtXinv = chol2inv(chol(crossprod(X)))
     xt_Sigma_x = sapply(1:n, function(i)
       crossprod(X[i,], XtXinv)%*%X[i,])
 
     # Sample:
-    prior_theta = mvrnorm(n = nsims_prior,
-                          mu = rep(0,p),
-                          Sigma = sigma_epsilon^2*fit$psi*XtXinv)
+    prior_theta = MASS::mvrnorm(n = nsims_prior,
+                                mu = rep(0,p),
+                                Sigma = sigma_epsilon^2*fit$psi*XtXinv)
   }
 
   # Spline case:

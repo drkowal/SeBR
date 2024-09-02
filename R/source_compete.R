@@ -281,7 +281,7 @@ blm_bc = function(y, X, X_test = X,
 #' lines(x, y, type='p')
 #' lines(x, fitted(fit), lwd = 3)
 #'
-#' @importFrom spikeSlabGAM sm
+# #' @importFrom spikeSlabGAM sm
 #' @export
 bsm_bc = function(y, x = NULL,
                    x_test = NULL,
@@ -296,6 +296,14 @@ bsm_bc = function(y, x = NULL,
   # For testing:
   # psi = length(y); sample_lambda  = FALSE; lambda = NULL; nsave = 1000; nburn = 1000; nskip = 0; verbose = TRUE
 
+  # Library required here:
+  if (!requireNamespace("spikeSlabGAM", quietly = TRUE)) {
+    stop(
+      "Package \"spikeSlabGAM\" must be installed to use this function.",
+      call. = FALSE
+    )
+  }
+
   # Data dimensions:
   n = length(y)
 
@@ -308,7 +316,7 @@ bsm_bc = function(y, x = NULL,
   x_test = (x_test - min(x_test))/(max(x_test) - min(x_test))
   #----------------------------------------------------------------------------
   # Orthogonalized P-spline and related quantities:
-  X = cbind(1/sqrt(n), poly(x, 1), sm(x))
+  X = cbind(1/sqrt(n), poly(x, 1), spikeSlabGAM::sm(x))
   X = X/sqrt(sum(diag(crossprod(X))))
   diagXtX = colSums(X^2)
   p = length(diagXtX)
@@ -517,6 +525,9 @@ bsm_bc = function(y, x = NULL,
 #'   sin(2*pi*x) + sin(4*pi*x) + rnorm(n, sd = .5),
 #'              lambda = .5) # Signed square-root transformation
 #'
+#' # Package we use for fast computing w/ Gaussian processes:
+#' library(GpGp)
+#'
 #' # Fit a Bayesian Gaussian process with Box-Cox transformation:
 #' fit = bgp_bc(y = y, locs = x)
 #' names(fit) # what is returned
@@ -533,7 +544,7 @@ bsm_bc = function(y, x = NULL,
 #' lines(x, fitted(fit), lwd = 3)
 #' }
 #'
-#' @import GpGp fields
+# #' @import GpGp fields
 #' @export
 bgp_bc = function(y, locs,
                    X = NULL,
@@ -550,6 +561,14 @@ bgp_bc = function(y, locs,
 
   # For testing:
   # X = matrix(1, nrow = length(y)); covfun_name = "matern_isotropic"; locs_test = locs; X_test = X; nn = 30; sample_lambda  = FALSE; lambda = NULL; nsave = 1000; nburn = 1000; nskip = 0;
+
+  # Library required here:
+  if (!requireNamespace("GpGp", quietly = TRUE)) {
+    stop(
+      "Package \"GpGp\" must be installed to use this function.",
+      call. = FALSE
+    )
+  }
 
   # Data dimensions:
   n = length(y);
@@ -724,10 +743,10 @@ bgp_bc = function(y, locs,
         if(emp_bayes){
           ztilde = z_test + sigma_epsilon*rnorm(n = n_test)
         } else {
-          ztilde = cond_sim(fit = fit_gp,
-                            locs_pred = locs_test,
-                            X_pred = X_test,
-                            m = nn)
+          ztilde = GpGp::cond_sim(fit = fit_gp,
+                                  locs_pred = locs_test,
+                                  X_pred = X_test,
+                                  m = nn)
         }
         post_ypred[isave,] = g_inv_bc(ztilde, lambda = lambda)
 
@@ -811,7 +830,7 @@ bgp_bc = function(y, locs,
 #' # The posterior predictive checks usually do not pass!
 #' # try ?sbqr instead...
 #'
-#' @importFrom statmod rinvgauss
+# #' @importFrom statmod rinvgauss
 #' @export
 bqr = function(y, X, tau = 0.5,
                X_test = X,
@@ -823,6 +842,14 @@ bqr = function(y, X, tau = 0.5,
 
   # For testing:
   # tau = 0.5; psi = length(y); nsave = 1000; nburn = 1000; nskip = 0; verbose = TRUE
+
+  # Library required here:
+  if (!requireNamespace("statmod", quietly = TRUE)) {
+    stop(
+      "Package \"statmod\" must be installed to use this function.",
+      call. = FALSE
+    )
+  }
 
   # Data dimensions:
   n = length(y); p = ncol(X)
@@ -861,9 +888,9 @@ bqr = function(y, X, tau = 0.5,
 
     #----------------------------------------------------------------------------
     # Block 1: parameter expansion
-    xi = 1/rinvgauss(n = n,
-                     mean = sqrt((2 + a_tau^2/b_tau^2)/((y - X%*%theta)^2/b_tau^2)),
-                     shape = 2 + a_tau^2/b_tau^2)
+    xi = 1/statmod::rinvgauss(n = n,
+                              mean = sqrt((2 + a_tau^2/b_tau^2)/((y - X%*%theta)^2/b_tau^2)),
+                              shape = 2 + a_tau^2/b_tau^2)
     # xi = sapply(1:n, function(i){
     #   rgig(n = 1,
     #        lambda = 0.5,
