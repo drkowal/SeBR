@@ -23,6 +23,7 @@ Imports:
     graphics,
     stats
 Suggests: 
+    fields,
     GpGp,
     knitr,
     MASS,

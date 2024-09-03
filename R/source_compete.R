@@ -570,6 +570,14 @@ bgp_bc = function(y, locs,
     )
   }
 
+  # Library required here:
+  if (!requireNamespace("fields", quietly = TRUE)) {
+    stop(
+      "Package \"fields\" must be installed to use this function.",
+      call. = FALSE
+    )
+  }
+
   # Data dimensions:
   n = length(y);
   locs = as.matrix(locs); d = ncol(locs)

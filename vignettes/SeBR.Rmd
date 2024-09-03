@@ -356,6 +356,7 @@ To highlight the challenges here, we first consider a Box-Cox-transformed GP. Fo
 
 ```{r pack-gp, message = FALSE, warning = FALSE}
 library(GpGp) # fast GP computing
+library(fields) # accompanies GpGp
 ```
 
 Now we fit the Box-Cox GP and evaluate the out-of-sample predictive performance:
