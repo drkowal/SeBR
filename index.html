@@ -5,81 +5,45 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="Monte Carlo and MCMC sampling algorithms for semiparametric
-    Bayesian regression analysis. These models feature a nonparametric
-    (unknown) transformation of the data paired with widely-used
-    regression models including linear regression, spline regression,
-    quantile regression, and Gaussian processes. The transformation
-    enables broader applicability of these key models, including for
-    real-valued, positive, and compactly-supported data with challenging
-    distributional features. The samplers prioritize computational
-    scalability and, for most cases, Monte Carlo (not MCMC) sampling for
-    greater efficiency. Details of the methods and algorithms are provided
-    in Kowal and Wu (2023) &lt;arXiv:2306.05498&gt;.">
 <title>Semiparametric Bayesian Regression Analysis • SeBR</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Semiparametric Bayesian Regression Analysis">
-<meta property="og:description" content="Monte Carlo and MCMC sampling algorithms for semiparametric
-    Bayesian regression analysis. These models feature a nonparametric
-    (unknown) transformation of the data paired with widely-used
-    regression models including linear regression, spline regression,
-    quantile regression, and Gaussian processes. The transformation
-    enables broader applicability of these key models, including for
-    real-valued, positive, and compactly-supported data with challenging
-    distributional features. The samplers prioritize computational
-    scalability and, for most cases, Monte Carlo (not MCMC) sampling for
-    greater efficiency. Details of the methods and algorithms are provided
-    in Kowal and Wu (2023) &lt;arXiv:2306.05498&gt;.">
-<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
+<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
+<link href="deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Semiparametric Bayesian Regression Analysis">
+<meta name="description" content="Monte Carlo sampling algorithms for semiparametric Bayesian regression analysis. These models feature a nonparametric (unknown) transformation of the data paired with widely-used regression models including linear regression, spline regression, quantile regression, and Gaussian processes. The transformation enables broader applicability of these key models, including for real-valued, positive, and compactly-supported data with challenging distributional features. The samplers prioritize computational scalability and, for most cases, Monte Carlo (not MCMC) sampling for greater efficiency. Details of the methods and algorithms are provided in Kowal and Wu (2024) &lt;doi:10.1080/01621459.2024.2395586&gt;.">
+<meta property="og:description" content="Monte Carlo sampling algorithms for semiparametric Bayesian regression analysis. These models feature a nonparametric (unknown) transformation of the data paired with widely-used regression models including linear regression, spline regression, quantile regression, and Gaussian processes. The transformation enables broader applicability of these key models, including for real-valued, positive, and compactly-supported data with challenging distributional features. The samplers prioritize computational scalability and, for most cases, Monte Carlo (not MCMC) sampling for greater efficiency. Details of the methods and algorithms are provided in Kowal and Wu (2024) &lt;doi:10.1080/01621459.2024.2395586&gt;.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
-    
 
-    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light"><div class="container">
-    
+
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+
     <a class="navbar-brand me-2" href="index.html">SeBR</a>
 
     <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
-    
+
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item">
-  <a class="nav-link" href="articles/SeBR.html">Get started</a>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="reference/index.html">Reference</a>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="news/index.html">Changelog</a>
-</li>
+<li class="nav-item"><a class="nav-link" href="articles/SeBR.html">Get started</a></li>
+<li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
-<form class="form-inline my-2 my-lg-0" role="search">
-        <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="search.json" id="search-input" placeholder="Search for" autocomplete="off">
-</form>
-
-      <ul class="navbar-nav">
-<li class="nav-item">
-  <a class="external-link nav-link" href="https://github.com/drkowal/SeBR/" aria-label="github">
-    <span class="fab fa fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
+<ul class="navbar-nav">
+<li class="nav-item"><form class="form-inline" role="search">
+ <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
+</form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/drkowal/SeBR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
-    
+
   </div>
 </nav><div class="container template-home">
 <div class="row">
@@ -87,42 +51,43 @@
 <div class="page-header"><h1 id="sebr-semiparametric-bayesian-regression">SeBR: Semiparametric Bayesian Regression<a class="anchor" aria-label="anchor" href="#sebr-semiparametric-bayesian-regression"></a>
 </h1></div>
 <p><strong>Overview.</strong> Data transformations are a useful companion for parametric regression models. A well-chosen or learned transformation can greatly enhance the applicability of a given model, especially for data with irregular marginal features (e.g., multimodality, skewness) or various data domains (e.g., real-valued, positive, or compactly-supported data).</p>
-<p>Given paired data <span class="math inline">(<em>x</em><sub><em>i</em></sub>,<em>y</em><sub><em>i</em></sub>)</span> for <span class="math inline"><em>i</em> = 1, …, <em>n</em></span>, <code>SeBR</code> implements efficient and fully Bayesian inference for <em>semiparametric regression models</em> that incorporate (1) an unknown data transformation</p>
-<p><span class="math display"><em>g</em>(<em>y</em><sub><em>i</em></sub>) = <em>z</em><sub><em>i</em></sub></span></p>
+<p>Given paired data <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>,</mo><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(x_i,y_i)</annotation></semantics></math> for <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">i=1,\ldots,n</annotation></semantics></math>, <code>SeBR</code> implements efficient and fully Bayesian inference for <em>semiparametric regression models</em> that incorporate (1) an unknown data transformation</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mi>z</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">
+g(y_i) = z_i
+</annotation></semantics></math></p>
 <p>and (2) a useful parametric regression model</p>
-<p><span class="math display">$$
-z_i  \stackrel{indep}{\sim} P_{Z \mid \theta, X = x_i}
-$$</span></p>
-<p>with unknown parameters <span class="math inline"><em>θ</em></span>.</p>
-<p><strong>Examples.</strong> We focus on the following important special cases of <span class="math inline"><em>P</em><sub><em>Z</em> ∣ <em>θ</em>, <em>X</em></sub></span>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>z</mi><mi>i</mi></msub><mo>=</mo><msub><mi>f</mi><mi>θ</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mi>σ</mi><msub><mi>ϵ</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">
+z_i  = f_\theta(x_i) + \sigma \epsilon_i
+</annotation></semantics></math></p>
+<p>with unknown parameters <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math> and independent errors <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ϵ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\epsilon_i</annotation></semantics></math>.</p>
+<p><strong>Examples.</strong> We focus on the following important special cases:</p>
 <ol style="list-style-type: decimal">
 <li>The <strong>linear model</strong> is a natural starting point:</li>
 </ol>
-<p><span class="math display">$$
-z_i = x_i'\theta + \epsilon_i, \quad \epsilon_i \stackrel{iid}{\sim} N(0, \sigma_\epsilon^2)
-$$</span></p>
-<p>The transformation <span class="math inline"><em>g</em></span> broadens the applicability of this useful class of models, including for positive or compactly-supported data, while <span class="math inline"><em>P</em><sub><em>Z</em> ∣ <em>θ</em>, <em>X</em> = <em>x</em></sub> = <em>N</em>(<em>x</em>′<em>θ</em>,<em>σ</em><sub><em>ϵ</em></sub><sup>2</sup>)</span>.</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>z</mi><mi>i</mi></msub><mo>=</mo><msub><mi>x</mi><mi>i</mi></msub><mi>′</mi><mi>θ</mi><mo>+</mo><mi>σ</mi><msub><mi>ϵ</mi><mi>i</mi></msub><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>ϵ</mi><mi>i</mi></msub><mover><mo>∼</mo><mrow><mi>i</mi><mi>i</mi><mi>d</mi></mrow></mover><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+z_i = x_i'\theta + \sigma\epsilon_i, \quad \epsilon_i \stackrel{iid}{\sim} N(0, 1)
+</annotation></semantics></math></p>
+<p>The transformation <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math> broadens the applicability of this useful class of models, including for positive or compactly-supported data.</p>
 <ol start="2" style="list-style-type: decimal">
 <li>The <strong>quantile regression model</strong> replaces the Gaussian assumption in the linear model with an <em>asymmetric Laplace</em> distribution (ALD)</li>
 </ol>
-<p><span class="math display">$$
-z_i = x_i'\theta + \epsilon_i, \quad \epsilon_i \stackrel{iid}{\sim} ALD(\tau)
-$$</span></p>
-<p>to target the <span class="math inline"><em>τ</em></span>th quantile of <span class="math inline"><em>z</em></span> at <span class="math inline"><em>x</em></span>, or equivalently, the <span class="math inline"><em>g</em><sup>−1</sup>(<em>τ</em>)</span>th quantile of <span class="math inline"><em>y</em></span> at <span class="math inline"><em>x</em></span>. The ALD is quite often a very poor model for real data, especially when <span class="math inline"><em>τ</em></span> is near zero or one. The transformation <span class="math inline"><em>g</em></span> offers a pathway to significantly improve the model adequacy, while still targeting the desired quantile of the data.</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>z</mi><mi>i</mi></msub><mo>=</mo><msub><mi>x</mi><mi>i</mi></msub><mi>′</mi><mi>θ</mi><mo>+</mo><mi>σ</mi><msub><mi>ϵ</mi><mi>i</mi></msub><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>ϵ</mi><mi>i</mi></msub><mover><mo>∼</mo><mrow><mi>i</mi><mi>i</mi><mi>d</mi></mrow></mover><mi>A</mi><mi>L</mi><mi>D</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>τ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+z_i = x_i'\theta + \sigma\epsilon_i, \quad \epsilon_i \stackrel{iid}{\sim} ALD(\tau)
+</annotation></semantics></math></p>
+<p>to target the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>τ</mi><annotation encoding="application/x-tex">\tau</annotation></semantics></math>th quantile of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math> at <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>, or equivalently, the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>g</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>τ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">g^{-1}(\tau)</annotation></semantics></math>th quantile of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math> at <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>. The ALD is quite often a very poor model for real data, especially when <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>τ</mi><annotation encoding="application/x-tex">\tau</annotation></semantics></math> is near zero or one. The transformation <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math> offers a pathway to significantly improve the model adequacy, while still targeting the desired quantile of the data.</p>
 <ol start="3" style="list-style-type: decimal">
 <li>The <strong>Gaussian process (GP) model</strong> generalizes the linear model to include a nonparametric regression function,</li>
 </ol>
-<p><span class="math display">$$
-z_i = f_\theta(x_i) + \epsilon_i, \quad  \epsilon_i \stackrel{iid}{\sim} N(0, \sigma_\epsilon^2)
-$$</span></p>
-<p>where <span class="math inline"><em>f</em><sub><em>θ</em></sub></span> is a GP and <span class="math inline"><em>θ</em></span> parameterizes the mean and covariance functions. Although GPs offer substantial flexibility for the regression function <span class="math inline"><em>f</em><sub><em>θ</em></sub></span>, this model may be inadequate when <span class="math inline"><em>y</em></span> has irregular marginal features or a restricted domain (e.g., positive or compact).</p>
-<p><strong>Challenges:</strong> The goal is to provide fully Bayesian posterior inference for the unknowns <span class="math inline">(<em>g</em>,<em>θ</em>)</span> and posterior predictive inference for future/unobserved data <span class="math inline"><em>ỹ</em>(<em>x</em>)</span>. We prefer a model and algorithm that offer both (i) flexible modeling of <span class="math inline"><em>g</em></span> and (ii) efficient posterior and predictive computations.</p>
-<p><strong>Innovations:</strong> Our approach (<a href="https://arxiv.org/abs/2306.05498" class="external-link uri">https://arxiv.org/abs/2306.05498</a>) specifies a <em>nonparametric</em> model for <span class="math inline"><em>g</em></span>, yet also provides <em>Monte Carlo</em> (not MCMC) sampling for the posterior and predictive distributions. As a result, we control the approximation accuracy via the number of simulations, but do <em>not</em> require the lengthy runs, burn-in periods, convergence diagnostics, or inefficiency factors that accompany MCMC. The Monte Carlo sampling is typically quite fast.</p>
-</div>
-<div class="section level1">
-<h1 id="using-sebr">Using <code>SeBR</code>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>z</mi><mi>i</mi></msub><mo>=</mo><msub><mi>f</mi><mi>θ</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mi>σ</mi><msub><mi>ϵ</mi><mi>i</mi></msub><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>ϵ</mi><mi>i</mi></msub><mover><mo>∼</mo><mrow><mi>i</mi><mi>i</mi><mi>d</mi></mrow></mover><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+z_i = f_\theta(x_i) + \sigma \epsilon_i, \quad  \epsilon_i \stackrel{iid}{\sim} N(0, 1)
+</annotation></semantics></math></p>
+<p>where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>θ</mi></msub><annotation encoding="application/x-tex">f_\theta</annotation></semantics></math> is a GP and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math> parameterizes the mean and covariance functions. Although GPs offer substantial flexibility for the regression function <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>θ</mi></msub><annotation encoding="application/x-tex">f_\theta</annotation></semantics></math>, this model may be inadequate when <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math> has irregular marginal features or a restricted domain (e.g., positive or compact).</p>
+<p><strong>Challenges:</strong> The goal is to provide fully Bayesian posterior inference for the unknowns <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mi>g</mi><mo>,</mo><mi>θ</mi><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(g, \theta)</annotation></semantics></math> and posterior predictive inference for future/unobserved data <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>y</mi><mo accent="true">̃</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\tilde y(x)</annotation></semantics></math>. We prefer a model and algorithm that offer both (i) flexible modeling of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math> and (ii) efficient posterior and predictive computations.</p>
+<p><strong>Innovations:</strong> Our approach (<a href="https://doi.org/10.1080/01621459.2024.2395586" class="external-link uri">https://doi.org/10.1080/01621459.2024.2395586</a>) specifies a <em>nonparametric</em> model for <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>, yet also provides <em>Monte Carlo</em> (not MCMC) sampling for the posterior and predictive distributions. As a result, we control the approximation accuracy via the number of simulations, but do <em>not</em> require the lengthy runs, burn-in periods, convergence diagnostics, or inefficiency factors that accompany MCMC. The Monte Carlo sampling is typically quite fast.</p>
+<div class="section level2">
+<h2 id="using-sebr">Using <code>SeBR</code>
 <a class="anchor" aria-label="anchor" href="#using-sebr"></a>
-</h1>
+</h2>
 <p>The package <code>SeBR</code> is installed and loaded as follows:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># CRAN version:</span></span>
@@ -134,15 +99,20 @@ $$</span></p>
 <p>The main functions in <code>SeBR</code> are:</p>
 <ul>
 <li><p><code><a href="reference/sblm.html">sblm()</a></code>: Monte Carlo sampling for posterior and predictive inference with the <em>semiparametric Bayesian linear model</em>;</p></li>
-<li><p><code><a href="reference/sbsm.html">sbsm()</a></code>: Monte Carlo sampling for posterior and predictive inference with the <em>semiparametric Bayesian spline model</em>, which replaces the linear model with a spline for nonlinear modeling of <span class="math inline"><em>x</em> ∈ ℝ</span>;</p></li>
+<li><p><code><a href="reference/sbsm.html">sbsm()</a></code>: Monte Carlo sampling for posterior and predictive inference with the <em>semiparametric Bayesian spline model</em>, which replaces the linear model with a spline for nonlinear modeling of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>∈</mo><mi>ℝ</mi></mrow><annotation encoding="application/x-tex">x \in \mathbb{R}</annotation></semantics></math>;</p></li>
 <li><p><code><a href="reference/sbqr.html">sbqr()</a></code>: blocked Gibbs sampling for posterior and predictive inference with the <em>semiparametric Bayesian quantile regression</em>; and</p></li>
 <li><p><code><a href="reference/sbgp.html">sbgp()</a></code>: Monte Carlo sampling for predictive inference with the <em>semiparametric Bayesian Gaussian process model</em>.</p></li>
 </ul>
-<p>Each function returns a point estimate of <span class="math inline"><em>θ</em></span> (<code>coefficients</code>), point predictions at some specified testing points (<code>fitted.values</code>), posterior samples of the transformation <span class="math inline"><em>g</em></span> (<code>post_g</code>), and posterior predictive samples of <span class="math inline"><em>ỹ</em>(<em>x</em>)</span> at the testing points (<code>post_ypred</code>), as well as other function-specific quantities (e.g., posterior draws of <span class="math inline"><em>θ</em></span>, <code>post_theta</code>). The calls <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> and <code><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted()</a></code> extract the point estimates and point predictions, respectively.</p>
-<p><strong>Note:</strong> The package also includes Box-Cox variants of these functions, i.e., restricting <span class="math inline"><em>g</em></span> to the (signed) Box-Cox parametric family <span class="math inline"><em>g</em>(<em>t</em>;<em>λ</em>) = {sign(<em>t</em>)|<em>t</em>|<sup><em>λ</em></sup> − 1}/<em>λ</em></span> with known or unknown <span class="math inline"><em>λ</em></span>. The parametric transformation is less flexible, especially for irregular marginals or restricted domains, and requires MCMC sampling. These functions (e.g., <code><a href="reference/blm_bc.html">blm_bc()</a></code>, etc.) are primarily for benchmarking.</p>
+<p>Each function returns a point estimate of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math> (<code>coefficients</code>), point predictions at some specified testing points (<code>fitted.values</code>), posterior samples of the transformation <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math> (<code>post_g</code>), and posterior predictive samples of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>y</mi><mo accent="true">̃</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\tilde y(x)</annotation></semantics></math> at the testing points (<code>post_ypred</code>), as well as other function-specific quantities (e.g., posterior draws of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>, <code>post_theta</code>). The calls <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> and <code><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted()</a></code> extract the point estimates and point predictions, respectively.</p>
+<p><strong>Note:</strong> The package also includes Box-Cox variants of these functions, i.e., restricting <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math> to the (signed) Box-Cox parametric family <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>;</mo><mi>λ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mo stretchy="false" form="prefix">{</mo><mtext mathvariant="normal">sign</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="false" form="postfix">|</mo><mi>t</mi><msup><mo stretchy="false" form="postfix">|</mo><mi>λ</mi></msup><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">}</mo><mi>/</mi><mi>λ</mi></mrow><annotation encoding="application/x-tex">g(t; \lambda) = \{\mbox{sign}(t) \vert t \vert^\lambda - 1\}/\lambda</annotation></semantics></math> with known or unknown <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>. The parametric transformation is less flexible, especially for irregular marginals or restricted domains, and requires MCMC sampling. These functions (e.g., <code><a href="reference/blm_bc.html">blm_bc()</a></code>, etc.) are primarily for benchmarking.</p>
 <p>Detailed documentation and examples are available at <a href="https://drkowal.github.io/SeBR/" class="uri">https://drkowal.github.io/SeBR/</a>.</p>
 </div>
-
+<div class="section level2">
+<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
+<p>Kowal, D. and Wu, B. (2024). Monte Carlo inference for semiparametric Bayesian regression. <em>JASA</em>. <a href="https://doi.org/10.1080/01621459.2024.2395586" class="external-link uri">https://doi.org/10.1080/01621459.2024.2395586</a></p>
+</div>
+</div>
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
@@ -182,21 +152,19 @@ $$</span></p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p>
-<p>Developed by Dan Kowal.</p>
+  <p>Developed by Dan Kowal.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
     </footer>
 </div>
 
-  
 
-  
+
+
 
   </body>
 </html>
