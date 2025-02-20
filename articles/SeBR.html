@@ -8,8 +8,8 @@
 <title>Introduction to SeBR • SeBR</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Introduction to SeBR">
 </head>
 <body>
@@ -239,10 +239,10 @@ under the semiparametric Bayesian linear model:</p>
 <span><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/sblm.html">sblm</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, </span>
 <span>           X <span class="op">=</span> <span class="va">X</span>, </span>
 <span>           X_test <span class="op">=</span> <span class="va">X_test</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "8 seconds remaining"</span></span>
-<span><span class="co">#&gt; [1] "6 seconds remaining"</span></span>
+<span><span class="co">#&gt; [1] "7 seconds remaining"</span></span>
+<span><span class="co">#&gt; [1] "5 seconds remaining"</span></span>
 <span><span class="co">#&gt; [1] "3 seconds remaining"</span></span>
-<span><span class="co">#&gt; [1] "Total time:  9 seconds"</span></span>
+<span><span class="co">#&gt; [1] "Total time:  8 seconds"</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="co"># what is returned</span></span>
 <span><span class="co">#&gt;  [1] "coefficients"  "fitted.values" "post_theta"    "post_ypred"   </span></span>
@@ -276,7 +276,7 @@ a built-in function for this:</p>
 <span>            <span class="va">y_test</span>, </span>
 <span>            alpha_level <span class="op">=</span> <span class="fl">0.10</span><span class="op">)</span> <span class="co"># coverage should be &gt;= 90% </span></span></code></pre></div>
 <p><img src="SeBR_files/figure-html/pi-1.png" width="576"></p>
-<pre><code><span><span class="co">#&gt; [1] 0.929</span></span></code></pre>
+<pre><code><span><span class="co">#&gt; [1] 0.93</span></span></code></pre>
 <p>The out-of-sample predictive distributions are well-calibrated.</p>
 <p>Finally, we summarize the posterior inference for the transformation
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>
@@ -301,13 +301,13 @@ and compare them to the ground truth:</p>
 <span></span>
 <span><span class="co"># Posterior means:</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  [1]  0.07520723  0.47740611  0.44575728  0.48713751  0.34049175  0.39362801</span></span>
-<span><span class="co">#&gt;  [7]  0.08074457  0.12889488 -0.04967264 -0.08190572  0.08144391</span></span>
+<span><span class="co">#&gt;  [1]  0.07314744  0.47686070  0.44598444  0.48627809  0.34035855  0.39385554</span></span>
+<span><span class="co">#&gt;  [7]  0.08038143  0.12864699 -0.04873447 -0.08244957  0.08042865</span></span>
 <span></span>
 <span><span class="co"># Check: correlation with true coefficients</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">beta_true</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span>,</span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="co"># excluding the intercept</span></span>
-<span><span class="co">#&gt; [1] 0.9431343</span></span>
+<span><span class="co">#&gt; [1] 0.9435131</span></span>
 <span></span>
 <span><span class="co"># 95% credible intervals:</span></span>
 <span><span class="va">theta_ci</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_theta</span>, <span class="fl">2</span>, <span class="va">quantile</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.025</span>, <span class="fl">0.975</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -447,9 +447,9 @@ and the 90% prediction interval coverage is 0.98.</p>
 <span>                            <span class="va">y_test</span>, </span>
 <span>                            alpha_level <span class="op">=</span> <span class="fl">0.10</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="SeBR_files/figure-html/sbqr-test-1.png" width="576"></p>
-<pre><code><span><span class="co">#&gt; [1] 0.968</span></span></code></pre>
+<pre><code><span><span class="co">#&gt; [1] 0.97</span></span></code></pre>
 <p>Now the out-of-sample empirical quantile is 0.034 and the 90%
-prediction interval coverage is 0.968. <code>sbqr</code> is better
+prediction interval coverage is 0.97. <code>sbqr</code> is better
 calibrated to
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>τ</mi><annotation encoding="application/x-tex">\tau</annotation></semantics></math>,
 while both methods are slightly overconservative in the prediction
@@ -531,7 +531,7 @@ performance:</p>
 <span></span>
 <span><span class="co"># Average PI width:</span></span>
 <span><span class="op">(</span><span class="va">width_bc</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">pi_y_bc</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">pi_y_bc</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.2668766</span></span>
+<span><span class="co">#&gt; [1] 0.2668767</span></span>
 <span></span>
 <span><span class="co"># Empirical PI coverage:</span></span>
 <span><span class="op">(</span><span class="va">emp_cov_bc</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">pi_y_bc</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span> <span class="op">&lt;=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">*</span><span class="op">(</span><span class="va">pi_y_bc</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span> <span class="op">&gt;=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -575,7 +575,7 @@ the data.</p>
 <span><span class="co">#&gt;  [9] "approx_g"      "sigma_epsilon"</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="co"># estimated regression coefficients (here, just an intercept)</span></span>
-<span><span class="co">#&gt; [1] 0.02256626</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.02256575</span></span></code></pre></div>
 <p>Evaluate the out-of-sample predictive performance on the testing
 data:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
@@ -587,11 +587,11 @@ data:</p>
 <span></span>
 <span><span class="co"># Average PI width:</span></span>
 <span><span class="op">(</span><span class="va">width</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">pi_y</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">pi_y</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.2150783</span></span>
+<span><span class="co">#&gt; [1] 0.2130283</span></span>
 <span></span>
 <span><span class="co"># Empirical PI coverage:</span></span>
 <span><span class="op">(</span><span class="va">emp_cov</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">pi_y</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span> <span class="op">&lt;=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">*</span><span class="op">(</span><span class="va">pi_y</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span> <span class="op">&gt;=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.955</span></span>
+<span><span class="co">#&gt; [1] 0.953</span></span>
 <span></span>
 <span><span class="co"># Plot these together with the actual testing points:</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x_test</span>, <span class="va">y_test</span>, type<span class="op">=</span><span class="st">'n'</span>, </span>
@@ -609,7 +609,7 @@ data:</p>
 the data
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒴</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">\mathcal{Y} = [0,1]</annotation></semantics></math>,
 captures the trend, and provides narrower intervals (average widths are
-0.215 compared to 0.267) with better coverage (0.955 for
+0.213 compared to 0.267) with better coverage (0.953 for
 <code>sbgp</code> and 0.894 for Box-Cox).</p>
 <p>Despite the significant complexities in the data, <code>sbgp</code>
 performs quite well out-of-the-box:</p>
@@ -648,7 +648,7 @@ Bayesian regression. <em>JASA</em>. <a href="https://doi.org/10.1080/01621459.20
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer>
