@@ -116,6 +116,76 @@ simulate_tlm = function(n, p,
     g_true = z
   ))
 }
+#' Bayesian bootstrap posterior sampler for the CDF
+#'
+#' Compute one Monte Carlo draw from the Bayesian bootstrap (BB)
+#' posterior distribution of the cumulative distribution function (CDF).
+#'
+#' @param y the data from which to infer the CDF (preferably sorted)
+#' @return a function that can evaluate the sampled CDF at any argument(s)
+#'
+#' @details Assuming the data \code{y} are iid from an unknown distribution,
+#' the Bayesian bootstrap (BB) is a nonparametric model for this distribution. The
+#' BB is a limiting case of a Dirichlet process prior (without
+#' any hyperparameters) that admits direct Monte Carlo (not MCMC) sampling.
+#' This function computes one draw from the BB posterior
+#' distribution for the CDF \code{Fy}.
+#'
+#' @note This code is inspired by \code{ggdist::weighted_ecdf}.
+#'
+#' @examples
+#' # Simulate data:
+#' y = rnorm(n = 100)
+#'
+#' # One draw from the BB posterior:
+#' Fy = bb(y)
+#'
+#' class(Fy) # this is a function
+#'#' Fy(0) # some example use (for this one draw)
+#' Fy(c(.5, 1.2))
+#'
+#' # Plot several draws from the BB posterior distribution:
+#' ys = seq(-3, 3, length.out=1000)
+#' plot(ys, ys, type='n', ylim = c(0,1), main = 'Draws from BB posterior')
+#' temp = sapply(1:50, function(...) lines(ys, bb(y)(ys), col='gray'))
+#'
+#' @importFrom stats rgamma approxfun
+#' @export
+bb = function(y){
+
+  # Length of data:
+  n = length(y)
+
+  # Sort the y's, if unsorted
+  if(is.unsorted(y)) y = y[order(y)]
+
+  # Dirichlet(1) weights:
+  weights_y = rgamma(n = n, shape = 1)
+  weights_y  = weights_y/sum(weights_y)
+
+  # Key input (with rescaling by n/(n+1) as in the paper for boundary reasons)
+  sum_weights_y = n/(n+1)*cumsum(weights_y)
+
+  # Use approxfun() for fast computing (w/ n/(n+1) rescaling as above)
+  Fy = approxfun(y, sum_weights_y,
+                 yleft = 0, yright = n/(n+1),
+                 ties = "ordered",
+                 method = "constant")
+  return(Fy)
+}
+
+# Hierarchical Bayesian bootstrap posterior sampler for the CDF
+# parameters: y, groups, alphas (right? or sample those?)
+# hbb = (...)
+#   get group info
+#   sample F0 from BB, like usual
+#   sample Fc using these weights
+#   what do we return? all functions? or just the "combined" one needed for sampling g?
+#   and what about predictive sampling?
+  # A = matrix(NA, nrow = n, ncol = K)
+  # for(c in 1:K){
+  #   A[,c] = alphas[c]*weights_y + I(groups==c)
+  # }
 #----------------------------------------------------------------------------
 #' Plot point and interval predictions on testing data
 #'

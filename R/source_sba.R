@@ -238,17 +238,12 @@ sblm = function(y, X, X_test = X,
 
       # Bayesian bootstrap for the CDFs
 
-      # Dirichlet(1) weights for y:
-      weights_y = rgamma(n = n, shape = 1)
-      weights_y  = weights_y/sum(weights_y)
+      # BB CDF of y:
+      Fy_eval = bb(y)(y0) # applied to y, evaluated at y0
 
       # Dirichlet(1) weights for x:
       weights_x = rgamma(n = n, shape = 1)
       weights_x  = weights_x/sum(weights_x)
-
-      # BB CDF of y:
-      Fy_eval = sapply(y0, function(t)
-        n/(n+1)*sum(weights_y[y <= t]))
 
       # BB CDF of z:
       Fz_eval = Fz_fun(z = z_grid,
@@ -541,17 +536,12 @@ sbsm = function(y, x = NULL,
 
       # Bayesian bootstrap for the CDFs
 
-      # Dirichlet(1) weights for y:
-      weights_y = rgamma(n = n, shape = 1)
-      weights_y  = weights_y/sum(weights_y)
+      # BB CDF of y:
+      Fy_eval = bb(y)(y0) # applied to y, evaluated at y0
 
       # Dirichlet(1) weights for x:
       weights_x = rgamma(n = n, shape = 1)
       weights_x  = weights_x/sum(weights_x)
-
-      # BB CDF of y: (NOTE could be faster!)
-      Fy_eval = sapply(y0, function(t)
-        n/(n+1)*sum(weights_y[y <= t]))
 
       # BB CDF of z:
       Fz_eval = Fz_fun(z = z_grid,
@@ -917,17 +907,12 @@ sbgp = function(y, locs,
 
       # Bayesian bootstrap for the CDFs
 
-      # Dirichlet(1) weights for y:
-      weights_y = rgamma(n = n, shape = 1)
-      weights_y  = weights_y/sum(weights_y)
+      # BB CDF of y:
+      Fy_eval = bb(y)(y0) # applied to y, evaluated at y0
 
       # Dirichlet(1) weights for x:
       weights_x = rgamma(n = n, shape = 1)
       weights_x  = weights_x/sum(weights_x)
-
-      # BB CDF of y:
-      Fy_eval = sapply(y0, function(t)
-        n/(n+1)*sum(weights_y[y <= t]))
 
       # BB CDF of z:
       Fz_eval = Fz_fun(z = z_grid,
@@ -1222,17 +1207,12 @@ sbqr = function(y, X, tau = 0.5,
 
       # Bayesian bootstrap for the CDFs
 
-      # Dirichlet(1) weights for y:
-      weights_y = rgamma(n = n, shape = 1)
-      weights_y  = weights_y/sum(weights_y)
+      # BB CDF of y:
+      Fy_eval = bb(y)(y0) # applied to y, evaluated at y0
 
       # Dirichlet(1) weights for x:
       weights_x = rgamma(n = n, shape = 1)
       weights_x  = weights_x/sum(weights_x)
-
-      # BB CDF of y:
-      Fy_eval = sapply(y0, function(t)
-        n/(n+1)*sum(weights_y[y <= t]))
 
       # BB CDF of z:
       # (MC averages are good even for few replicates!)
