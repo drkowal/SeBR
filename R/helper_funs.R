@@ -177,18 +177,18 @@ bb = function(y){
                  method = "constant")
   return(Fy)
 }
-#' Hierarchical Bayesian bootstrap posterior sampler for the CDF
+#' Hierarchical Bayesian bootstrap posterior sampler
 #'
 #' Compute one Monte Carlo draw from the hierarchical Bayesian bootstrap (HBB)
 #' posterior distribution of the cumulative distribution function (CDF) for
-#' each group.
+#' each group. The group-specific HBB weights are also returned.
 #'
-#' @param y the data from which to infer the CDF
+#' @param y the data from which to infer the group-specific CDFs
 #' @param groups the group assignment for each element of \code{y}
-#' @param alphas (optional) vector of concentration parameters correspond
+#' @param alphas (optional) vector of concentration parameters corresponding
 #' to the unique levels in \code{groups}
-#' @param M a scaling term to set the default value of \code{alphas} if
-#' it is unspecified (NULL)
+#' @param M a positive scaling term to set a default value of \code{alphas} if
+#' it is unspecified (or \code{NULL})
 #' @return a list with the following elements:
 #' \itemize{
 #'  \item \code{Fyc}: a list of \code{K} functions where each entry corresponds to a group

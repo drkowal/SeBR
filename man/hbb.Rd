@@ -2,20 +2,20 @@
 % Please edit documentation in R/helper_funs.R
 \name{hbb}
 \alias{hbb}
-\title{Hierarchical Bayesian bootstrap posterior sampler for the CDF}
+\title{Hierarchical Bayesian bootstrap posterior sampler}
 \usage{
 hbb(y, groups, alphas = NULL, M = 100)
 }
 \arguments{
-\item{y}{the data from which to infer the CDF}
+\item{y}{the data from which to infer the group-specific CDFs}
 
 \item{groups}{the group assignment for each element of \code{y}}
 
-\item{alphas}{(optional) vector of concentration parameters correspond
+\item{alphas}{(optional) vector of concentration parameters corresponding
 to the unique levels in \code{groups}}
 
-\item{M}{a scaling term to set the default value of \code{alphas} if
-it is unspecified (NULL)}
+\item{M}{a positive scaling term to set a default value of \code{alphas} if
+it is unspecified (or \code{NULL})}
 }
 \value{
 a list with the following elements:
@@ -29,7 +29,7 @@ a list with the following elements:
 \description{
 Compute one Monte Carlo draw from the hierarchical Bayesian bootstrap (HBB)
 posterior distribution of the cumulative distribution function (CDF) for
-each group.
+each group. The group-specific HBB weights are also returned.
 }
 \details{
 Assuming the data \code{y} are independently drawn from unknown,
