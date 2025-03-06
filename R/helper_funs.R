@@ -141,13 +141,17 @@ simulate_tlm = function(n, p,
 #' Fy = bb(y)
 #'
 #' class(Fy) # this is a function
-#'#' Fy(0) # some example use (for this one draw)
+#' Fy(0) # some example use (for this one draw)
 #' Fy(c(.5, 1.2))
 #'
 #' # Plot several draws from the BB posterior distribution:
 #' ys = seq(-3, 3, length.out=1000)
-#' plot(ys, ys, type='n', ylim = c(0,1), main = 'Draws from BB posterior')
-#' temp = sapply(1:50, function(...) lines(ys, bb(y)(ys), col='gray'))
+#' plot(ys, ys, type='n', ylim = c(0,1),
+#'      main = 'Draws from BB posterior', xlab = 'y', ylab = 'F(y)')
+#' for(s in 1:50) lines(ys, bb(y)(ys), col='gray')
+#'
+#' # Add ECDF for reference:
+#' lines(ys, ecdf(y)(ys), lty=2)
 #'
 #' @importFrom stats rgamma approxfun
 #' @export
@@ -173,19 +177,187 @@ bb = function(y){
                  method = "constant")
   return(Fy)
 }
+#' Hierarchical Bayesian bootstrap posterior sampler for the CDF
+#'
+#' Compute one Monte Carlo draw from the hierarchical Bayesian bootstrap (HBB)
+#' posterior distribution of the cumulative distribution function (CDF) for
+#' each group.
+#'
+#' @param y the data from which to infer the CDF
+#' @param groups the group assignment for each element of \code{y}
+#' @param alphas (optional) vector of concentration parameters correspond
+#' to the unique levels in \code{groups}
+#' @param M a scaling term to set the default value of \code{alphas} if
+#' it is unspecified (NULL)
+#' @return a list with the following elements:
+#' \itemize{
+#'  \item \code{Fyc}: a list of \code{K} functions where each entry corresponds to a group
+#'  and that group-specific function can evaluate the sampled CDF at any argument(s)
+#'  \item \code{weights_y}: sampled weights from the common (BB) distribution (\code{n}-dimensional)
+#'  \item \code{weights_yc}: sampled weights from each of the \code{K} groups (\code{K x n})
+#' }
+#'
+#' @details Assuming the data \code{y} are independently drawn from unknown,
+#' group-specific distributions, the hierarchical Bayesian bootstrap (HBB) from
+#' Oganisian et al. (\url{https://doi.org/10.1515/ijb-2022-0051}) is a nonparametric model
+#' for each distribution. The HBB includes hierarchical shrinkage across these
+#' groups toward a common distribution (the BB \code{\link{bb}}). The HBB admits
+#' direct Monte Carlo (not MCMC) sampling.
+#'
+#' When \code{alphas} is unspecified (or \code{NULL}), we adopt the default from Oganisian et al.
+#' which sets the \code{c}th entry to \code{M*n/nc} where \code{M} is user-specified and
+#' \code{nc} is the number of observations in group \code{c}. Note that \code{alphas}
+#' is the hyperparameter that determines the amount pooling toward the common (BB) distribution.
+#' Here, larger \code{M} (and \code{alphas}) encourages more shrinkage toward a common distribution, while
+#' smaller \code{M} (and \code{alphas}) allows the group-specific distributions to vary more substantially
+#' from each other.
+#'
+#'
+#' @note Reference: Oganisian et al. (\url{https://doi.org/10.1515/ijb-2022-0051})
+#'
+#' @examples
+#' # Sample size and number of groups:
+#' n = 500
+#' K = 3
+#'
+#' # Define the groups, then assign:
+#' ugroups = paste('g', 1:K, sep='') # groups
+#' groups = sample(ugroups, n, replace = TRUE) # assignments
+#'
+#' # Simulate the data: iid normal, then add group-specific features
+#' y = rnorm(n = n) # data
+#' for(g in ugroups)
+#'   y[groups==g] = y[groups==g] + 3*rnorm(1) # group-specific
+#'
+#' # One draw from the HBB posterior of the CDF:
+#' samp_hbb = hbb(y, groups)
+#'
+#' names(samp_hbb) # items returned
+#' Fyc = samp_hbb$Fyc # list of CDFs
+#' class(Fyc) # this is a list
+#' class(Fyc[[1]]) # each element is a function
+#'
+#' c = 1 # try: vary in 1:K
+#' Fyc[[c]](0) # some example use (for this one draw)
+#' Fyc[[c]](c(.5, 1.2))
+#'
+#' # Plot several draws from the HBB posterior distribution:
+#' ys = seq(min(y), max(y), length.out=1000)
+#' plot(ys, ys, type='n', ylim = c(0,1),
+#'      main = 'Draws from HBB posteriors', xlab = 'y', ylab = 'F_c(y)')
+#' for(s in 1:50){ # some draws
+#'
+#'   # BB CDF:
+#'   Fy = bb(y)
+#'   lines(ys, Fy(ys), lwd=3) # plot CDF
+#'
+#'   # HBB:
+#'   Fyc = hbb(y, groups, M = 25)$Fyc
+#'
+#'   # Plot CDFs by group:
+#'   for(c in 1:K) lines(ys, Fyc[[c]](ys), col=c+1, lwd=3)
+#' }
+#'
+#' # For reference, add the ECDFs by group:
+#' for(c in 1:K) lines(ys, ecdf(y[groups==ugroups[c]])(ys), lty=2)
+#'
+#' legend('bottomright', c('BB', paste('HBB:', ugroups)), col = 1:(K+1), lwd=3)
+#'
+#' @importFrom stats rgamma approxfun
+#' @export
+hbb = function(y, groups, alphas = NULL, M = 100){
 
-# Hierarchical Bayesian bootstrap posterior sampler for the CDF
-# parameters: y, groups, alphas (right? or sample those?)
-# hbb = (...)
-#   get group info
-#   sample F0 from BB, like usual
-#   sample Fc using these weights
-#   what do we return? all functions? or just the "combined" one needed for sampling g?
-#   and what about predictive sampling?
-  # A = matrix(NA, nrow = n, ncol = K)
-  # for(c in 1:K){
-  #   A[,c] = alphas[c]*weights_y + I(groups==c)
+  #----------------------------------------------------------------------------
+  # Start with checks and basic definitions
+
+  # Length of data:
+  n = length(y)
+
+  # Check: lengths:
+  if(length(groups) != n)
+    stop('y and groups must have the same length')
+
+  # Unique groups (levels) and their number:
+  ugroups = sort(unique(groups))
+  K = length(ugroups)
+
+  # Sort the y's (and groups), if unsorted
+  if(is.unsorted(y)) {
+    ord = order(y)
+    y = y[ord]
+    groups = groups[ord]
+  }
+
+  # When hyperparameters are unspecified, use the default from Organisian et al:
+  if(is.null(alphas)){
+    nc = table(groups)[ugroups] # number of observations by group
+    alphas = M*n/nc
+  }
+
+  # Check whether the alphas
+  #   1) have the right length and
+  #   2) can be mapped to the right groups
+  if(length(alphas) != K)
+    stop('alphas must have length equal to the number of unique groups')
+
+  if(any(names(alphas) != ugroups))
+    stop('alphas must have names that match the unique group names')
+
+  #----------------------------------------------------------------------------
+  # NOTE: this may be useful for sampling/estimates alphas later,
+  # but does not involve the current function
+
+  # # Log-likelihood for each group's alpha:
+  # loglike_alpha = function(alphac, nc){
+  #   lgamma(alphac) + nc*log(alphac) - lgamma(alphac + nc)
   # }
+  #----------------------------------------------------------------------------
+  # Step 1: sample the "global" CDF (using BB)
+
+  # Dirichlet(1) weights:
+  weights_y = rgamma(n = n, shape = 1)
+  weights_y  = weights_y/sum(weights_y)
+
+  # Key input (with rescaling by n/(n+1) as in the paper for boundary reasons)
+  sum_weights_y = n/(n+1)*cumsum(weights_y)
+
+  # Use approxfun() for fast computing (w/ n/(n+1) rescaling as above)
+  #   Note: this is never used, so no need to compute it...
+  # Fy0 = approxfun(y, sum_weights_y,
+  #                 yleft = 0, yright = n/(n+1),
+  #                 ties = "ordered",
+  #                 method = "constant")
+  #----------------------------------------------------------------------------
+  # Step 2: sample the group-specific CDFs
+  Fyc = vector('list', K) # list of functions...
+  names(Fyc) = ugroups
+  weights_yc = matrix(NA, nrow = K, ncol = n) # to store the sampled weights
+
+  # For each group:
+  for(c in 1:K){
+
+    # Dirichlet(ac) weights:
+    ac = alphas[c]*weights_y + I(groups==ugroups[c])
+    weights_yc[c,] = rgamma(n = n, shape = ac)
+    weights_yc[c,]  = weights_yc[c,]/sum(weights_yc[c,])
+
+    # Key input (with rescaling by n/(n+1) as in the paper for boundary reasons)
+    sum_weights_yc = n/(n+1)*cumsum(weights_yc[c,])
+
+    # Use approxfun() for fast computing (w/ n/(n+1) rescaling as above)
+    Fyc[[c]] = approxfun(y, sum_weights_yc,
+                         yleft = 0, yright = n/(n+1),
+                         ties = "ordered",
+                         method = "constant")
+  }
+
+  return(list(
+    #Fy0 = Fy0, # not needed
+    Fyc = Fyc,
+    weights_y = weights_y,
+    weights_yc = weights_yc
+  ))
+}
 #----------------------------------------------------------------------------
 #' Plot point and interval predictions on testing data
 #'

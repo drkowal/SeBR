@@ -35,12 +35,16 @@ y = rnorm(n = 100)
 Fy = bb(y)
 
 class(Fy) # this is a function
-#' Fy(0) # some example use (for this one draw)
+Fy(0) # some example use (for this one draw)
 Fy(c(.5, 1.2))
 
 # Plot several draws from the BB posterior distribution:
 ys = seq(-3, 3, length.out=1000)
-plot(ys, ys, type='n', ylim = c(0,1), main = 'Draws from BB posterior')
-temp = sapply(1:50, function(...) lines(ys, bb(y)(ys), col='gray'))
+plot(ys, ys, type='n', ylim = c(0,1),
+     main = 'Draws from BB posterior', xlab = 'y', ylab = 'F(y)')
+for(s in 1:50) lines(ys, bb(y)(ys), col='gray')
+
+# Add ECDF for reference:
+lines(ys, ecdf(y)(ys), lty=2)
 
 }
