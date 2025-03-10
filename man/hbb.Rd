@@ -4,51 +4,86 @@
 \alias{hbb}
 \title{Hierarchical Bayesian bootstrap posterior sampler}
 \usage{
-hbb(y, groups, alphas = NULL, M = 100)
+hbb(
+  y,
+  groups,
+  sample_alphas = FALSE,
+  shape_alphas = NULL,
+  rate_alphas = NULL,
+  alphas = NULL,
+  M = 30
+)
 }
 \arguments{
 \item{y}{the data from which to infer the group-specific CDFs}
 
 \item{groups}{the group assignment for each element of \code{y}}
 
-\item{alphas}{(optional) vector of concentration parameters corresponding
-to the unique levels in \code{groups}}
+\item{sample_alphas}{logical; if TRUE, sample the concentration hyperparameters
+from their marginal posterior distribution}
 
-\item{M}{a positive scaling term to set a default value of \code{alphas} if
-it is unspecified (or \code{NULL})}
+\item{shape_alphas}{(optional) shape parameter for the Gamma prior on each \code{alphas} (if sampled)}
+
+\item{rate_alphas}{(optional) rate parameter for the Gamma prior on each \code{alphas} (if sampled)}
+
+\item{alphas}{(optional) vector of fixed concentration hyperparameters corresponding
+to the unique levels in \code{groups} (used when \code{sample_alphas = FALSE})}
+
+\item{M}{a positive scaling term to set a default value of \code{alphas} when
+it is unspecified (\code{alphas = NULL}) and not sampled (\code{sample_alphas = FALSE})}
 }
 \value{
 a list with the following elements:
 \itemize{
- \item \code{Fyc}: a list of \code{K} functions where each entry corresponds to a group
+ \item \code{Fyc}: a list of functions where each entry corresponds to a group
  and that group-specific function can evaluate the sampled CDF at any argument(s)
  \item \code{weights_y}: sampled weights from the common (BB) distribution (\code{n}-dimensional)
  \item \code{weights_yc}: sampled weights from each of the \code{K} groups (\code{K x n})
+ \item \code{alphas}: the (fixed or sampled) concentration hyperparameters
 }
 }
 \description{
 Compute one Monte Carlo draw from the hierarchical Bayesian bootstrap (HBB)
 posterior distribution of the cumulative distribution function (CDF) for
-each group. The group-specific HBB weights are also returned.
+each group. The common (BB) and group-specific (HBB) weights are also returned.
 }
 \details{
-Assuming the data \code{y} are independently drawn from unknown,
+Assuming the data \code{y} are independent with unknown,
 group-specific distributions, the hierarchical Bayesian bootstrap (HBB) from
 Oganisian et al. (\url{https://doi.org/10.1515/ijb-2022-0051}) is a nonparametric model
 for each distribution. The HBB includes hierarchical shrinkage across these
-groups toward a common distribution (the BB \code{\link{bb}}). The HBB admits
+groups toward a common distribution (the \code{\link{bb}}). The HBB admits
 direct Monte Carlo (not MCMC) sampling.
 
-When \code{alphas} is unspecified (or \code{NULL}), we adopt the default from Oganisian et al.
-which sets the \code{c}th entry to \code{M*n/nc} where \code{M} is user-specified and
-\code{nc} is the number of observations in group \code{c}. Note that \code{alphas}
-is the hyperparameter that determines the amount pooling toward the common (BB) distribution.
-Here, larger \code{M} (and \code{alphas}) encourages more shrinkage toward a common distribution, while
-smaller \code{M} (and \code{alphas}) allows the group-specific distributions to vary more substantially
-from each other.
+The shrinkage toward this common distribution is determined by the concentration
+hyperparameters \code{alphas}. Each component of \code{alphas} corresponds to
+one of the groups. Larger values encourage more shrinkage toward
+the common distribution, while smaller values allow more substantial deviations for that group.
+
+When \code{sample_alphas=TRUE}, each component of \code{alphas} is sampled from its marginal
+posterior distribution, assuming independent Gamma(\code{shape_alphas}, \code{rate_alphas})
+priors. This step uses a simple grid approximation to enable efficient sampling that
+preserves joint Monte Carlo sampling with the group-specific and common distributions.
+See \code{\link{concen_hbb}} for details. Note that diffuse priors on \code{alphas}
+tends to produce more aggressive shrinkage toward the common distribution (complete pooling).
+For moderate shrinkage, we use the default values \code{shape_alphas = 30*K} and \code{rate_alphas = 1}
+where \code{K} is the number of groups.
+
+When \code{sample_alphas=FALSE}, these concentration hyperparameters are fixed
+at user-specified values. That can be done by specifying \code{alphas} directly.
+Alternatively, if \code{alphas} is left unspecified (\code{alphas = NULL}),
+we adopt the default from Oganisian et al. which sets the \code{c}th entry to \code{M*n/nc}
+where \code{M} is user-specified and \code{nc} is the number of observations in group \code{c}.
+For further guidance on the choice of \code{M}:
+\itemize{
+\item \code{M = 0.01/K} approximates separate BB's by group (no pooling);
+\item \code{M} between 10 and 100 gives moderate shrinkage (partial pooling); and
+\item \code{M = 100*max(nc)} approximates a common BB (complete pooling).
+}
 }
 \note{
-Reference: Oganisian et al. (\url{https://doi.org/10.1515/ijb-2022-0051})
+If supplying \code{alphas} with distinct entries, make sure that the
+groups are ordered properly; these entries should match \code{sort(unique(groups))}.
 }
 \examples{
 # Sample size and number of groups:
@@ -87,7 +122,7 @@ for(s in 1:50){ # some draws
   lines(ys, Fy(ys), lwd=3) # plot CDF
 
   # HBB:
-  Fyc = hbb(y, groups, M = 25)$Fyc
+  Fyc = hbb(y, groups)$Fyc
 
   # Plot CDFs by group:
   for(c in 1:K) lines(ys, Fyc[[c]](ys), col=c+1, lwd=3)
@@ -98,4 +133,7 @@ for(c in 1:K) lines(ys, ecdf(y[groups==ugroups[c]])(ys), lty=2)
 
 legend('bottomright', c('BB', paste('HBB:', ugroups)), col = 1:(K+1), lwd=3)
 
+}
+\references{
+Oganisian et al. (\url{https://doi.org/10.1515/ijb-2022-0051})
 }

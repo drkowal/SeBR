@@ -21,6 +21,7 @@ Assuming the data \code{y} are iid from an unknown distribution,
 the Bayesian bootstrap (BB) is a nonparametric model for this distribution. The
 BB is a limiting case of a Dirichlet process prior (without
 any hyperparameters) that admits direct Monte Carlo (not MCMC) sampling.
+
 This function computes one draw from the BB posterior
 distribution for the CDF \code{Fy}.
 }

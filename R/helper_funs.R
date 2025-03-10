@@ -128,6 +128,7 @@ simulate_tlm = function(n, p,
 #' the Bayesian bootstrap (BB) is a nonparametric model for this distribution. The
 #' BB is a limiting case of a Dirichlet process prior (without
 #' any hyperparameters) that admits direct Monte Carlo (not MCMC) sampling.
+#'
 #' This function computes one draw from the BB posterior
 #' distribution for the CDF \code{Fy}.
 #'
@@ -181,39 +182,65 @@ bb = function(y){
 #'
 #' Compute one Monte Carlo draw from the hierarchical Bayesian bootstrap (HBB)
 #' posterior distribution of the cumulative distribution function (CDF) for
-#' each group. The group-specific HBB weights are also returned.
+#' each group. The common (BB) and group-specific (HBB) weights are also returned.
 #'
 #' @param y the data from which to infer the group-specific CDFs
 #' @param groups the group assignment for each element of \code{y}
-#' @param alphas (optional) vector of concentration parameters corresponding
-#' to the unique levels in \code{groups}
-#' @param M a positive scaling term to set a default value of \code{alphas} if
-#' it is unspecified (or \code{NULL})
+#' @param sample_alphas logical; if TRUE, sample the concentration hyperparameters
+#' from their marginal posterior distribution
+#' @param shape_alphas (optional) shape parameter for the Gamma prior on each \code{alphas} (if sampled)
+#' @param rate_alphas (optional) rate parameter for the Gamma prior on each \code{alphas} (if sampled)
+#' @param alphas (optional) vector of fixed concentration hyperparameters corresponding
+#' to the unique levels in \code{groups} (used when \code{sample_alphas = FALSE})
+#' @param M a positive scaling term to set a default value of \code{alphas} when
+#' it is unspecified (\code{alphas = NULL}) and not sampled (\code{sample_alphas = FALSE})
+#'
 #' @return a list with the following elements:
 #' \itemize{
-#'  \item \code{Fyc}: a list of \code{K} functions where each entry corresponds to a group
+#'  \item \code{Fyc}: a list of functions where each entry corresponds to a group
 #'  and that group-specific function can evaluate the sampled CDF at any argument(s)
 #'  \item \code{weights_y}: sampled weights from the common (BB) distribution (\code{n}-dimensional)
 #'  \item \code{weights_yc}: sampled weights from each of the \code{K} groups (\code{K x n})
+#'  \item \code{alphas}: the (fixed or sampled) concentration hyperparameters
 #' }
 #'
-#' @details Assuming the data \code{y} are independently drawn from unknown,
+#' @details Assuming the data \code{y} are independent with unknown,
 #' group-specific distributions, the hierarchical Bayesian bootstrap (HBB) from
 #' Oganisian et al. (\url{https://doi.org/10.1515/ijb-2022-0051}) is a nonparametric model
 #' for each distribution. The HBB includes hierarchical shrinkage across these
-#' groups toward a common distribution (the BB \code{\link{bb}}). The HBB admits
+#' groups toward a common distribution (the \code{\link{bb}}). The HBB admits
 #' direct Monte Carlo (not MCMC) sampling.
 #'
-#' When \code{alphas} is unspecified (or \code{NULL}), we adopt the default from Oganisian et al.
-#' which sets the \code{c}th entry to \code{M*n/nc} where \code{M} is user-specified and
-#' \code{nc} is the number of observations in group \code{c}. Note that \code{alphas}
-#' is the hyperparameter that determines the amount pooling toward the common (BB) distribution.
-#' Here, larger \code{M} (and \code{alphas}) encourages more shrinkage toward a common distribution, while
-#' smaller \code{M} (and \code{alphas}) allows the group-specific distributions to vary more substantially
-#' from each other.
+#' The shrinkage toward this common distribution is determined by the concentration
+#' hyperparameters \code{alphas}. Each component of \code{alphas} corresponds to
+#' one of the groups. Larger values encourage more shrinkage toward
+#' the common distribution, while smaller values allow more substantial deviations for that group.
 #'
+#' When \code{sample_alphas=TRUE}, each component of \code{alphas} is sampled from its marginal
+#' posterior distribution, assuming independent Gamma(\code{shape_alphas}, \code{rate_alphas})
+#' priors. This step uses a simple grid approximation to enable efficient sampling that
+#' preserves joint Monte Carlo sampling with the group-specific and common distributions.
+#' See \code{\link{concen_hbb}} for details. Note that diffuse priors on \code{alphas}
+#' tends to produce more aggressive shrinkage toward the common distribution (complete pooling).
+#' For moderate shrinkage, we use the default values \code{shape_alphas = 30*K} and \code{rate_alphas = 1}
+#' where \code{K} is the number of groups.
 #'
-#' @note Reference: Oganisian et al. (\url{https://doi.org/10.1515/ijb-2022-0051})
+#' When \code{sample_alphas=FALSE}, these concentration hyperparameters are fixed
+#' at user-specified values. That can be done by specifying \code{alphas} directly.
+#' Alternatively, if \code{alphas} is left unspecified (\code{alphas = NULL}),
+#' we adopt the default from Oganisian et al. which sets the \code{c}th entry to \code{M*n/nc}
+#' where \code{M} is user-specified and \code{nc} is the number of observations in group \code{c}.
+#' For further guidance on the choice of \code{M}:
+#' \itemize{
+#' \item \code{M = 0.01/K} approximates separate BB's by group (no pooling);
+#' \item \code{M} between 10 and 100 gives moderate shrinkage (partial pooling); and
+#' \item \code{M = 100*max(nc)} approximates a common BB (complete pooling).
+#' }
+#'
+#' @note If supplying \code{alphas} with distinct entries, make sure that the
+#' groups are ordered properly; these entries should match \code{sort(unique(groups))}.
+#'
+#' @references Oganisian et al. (\url{https://doi.org/10.1515/ijb-2022-0051})
 #'
 #' @examples
 #' # Sample size and number of groups:
@@ -252,7 +279,7 @@ bb = function(y){
 #'   lines(ys, Fy(ys), lwd=3) # plot CDF
 #'
 #'   # HBB:
-#'   Fyc = hbb(y, groups, M = 25)$Fyc
+#'   Fyc = hbb(y, groups)$Fyc
 #'
 #'   # Plot CDFs by group:
 #'   for(c in 1:K) lines(ys, Fyc[[c]](ys), col=c+1, lwd=3)
@@ -265,7 +292,11 @@ bb = function(y){
 #'
 #' @importFrom stats rgamma approxfun
 #' @export
-hbb = function(y, groups, alphas = NULL, M = 100){
+hbb = function(y, groups,
+               sample_alphas = FALSE,
+               shape_alphas = NULL,
+               rate_alphas = NULL,
+               alphas = NULL, M = 30){
 
   #----------------------------------------------------------------------------
   # Start with checks and basic definitions
@@ -288,29 +319,33 @@ hbb = function(y, groups, alphas = NULL, M = 100){
     groups = groups[ord]
   }
 
-  # When hyperparameters are unspecified, use the default from Organisian et al:
-  if(is.null(alphas)){
-    nc = table(groups)[ugroups] # number of observations by group
-    alphas = M*n/nc
-  }
-
-  # Check whether the alphas
-  #   1) have the right length and
-  #   2) can be mapped to the right groups
-  if(length(alphas) != K)
-    stop('alphas must have length equal to the number of unique groups')
-
-  if(any(names(alphas) != ugroups))
-    stop('alphas must have names that match the unique group names')
-
   #----------------------------------------------------------------------------
-  # NOTE: this may be useful for sampling/estimates alphas later,
-  # but does not involve the current function
+  # Step 0: sample or fix the concentration hyperparameters
+  if(sample_alphas){
 
-  # # Log-likelihood for each group's alpha:
-  # loglike_alpha = function(alphac, nc){
-  #   lgamma(alphac) + nc*log(alphac) - lgamma(alphac + nc)
-  # }
+    # Default values:
+    if(is.null(shape_alphas)) shape_alphas = 30*K
+    if(is.null(rate_alphas)) rate_alphas = 1
+
+    # One draw of alphas:
+    alphas = concen_hbb(groups = groups,
+                           shape_alphas = shape_alphas,
+                           rate_alphas = rate_alphas,
+                           nsave = 1,
+                           ngrid = 500)
+
+  } else {
+
+    # When hyperparameters are unspecified, use the default from Organisian et al:
+    if(is.null(alphas)){
+      nc = table(groups)[ugroups] # number of observations by group
+      alphas = M*n/nc
+    }
+
+    # Check whether the alphas have the right length and
+    if(length(alphas) != K)
+      stop('alphas must have length equal to the number of unique groups')
+  }
   #----------------------------------------------------------------------------
   # Step 1: sample the "global" CDF (using BB)
 
@@ -355,8 +390,134 @@ hbb = function(y, groups, alphas = NULL, M = 100){
     #Fy0 = Fy0, # not needed
     Fyc = Fyc,
     weights_y = weights_y,
-    weights_yc = weights_yc
+    weights_yc = weights_yc,
+    alphas = alphas
   ))
+}
+#' Posterior sampling algorithm for the HBB concentration hyperparameters
+#'
+#' Compute Monte Carlo draws from the (marginal) posterior distribution of the
+#' concentration hyperparameters of the hierarchical Bayesian bootstrap
+#' (\code{\link{hbb}}). The HBB is a nonparametric model for group-specific
+#' distributions; each group has a concentration parameter, where
+#' larger values encourage more shrinkage toward a common distribution.
+#'
+#' @param groups the group assignments in the observed data
+#' @param shape_alphas (optional) shape parameter for the Gamma prior
+#' @param rate_alphas (optional) rate parameter for the Gamma prior
+#' @param nsave (optional) number of Monte Carlo simulations
+#' @param ngrid (optional) number of grid points
+#' @return \code{nsave x K} samples of the concentration hyperparameters
+#' corresponding to the \code{K} groups
+#'
+#' @details The concentration hyperparameters are assigned
+#' independent Gamma(\code{shape_alphas}, \code{rate_alphas}) priors.
+#' This function uses a grid approximation to the marginal posterior
+#' with the goal of producing a simple algorithm. Because this is a
+#' *marginal* posterior sampler, it can be used with the \code{\link{hbb}}
+#' sampler (which conditions on \code{alphas}) to provide a joint
+#' Monte Carlo (not MCMC) sampling algorithm for the concentration
+#' hyperparameters, the group-specific CDFs, and the common CDF.
+
+#' Note that diffuse priors on \code{alphas} tend to put posterior mass on
+#' large values, which leads to more aggressive shrinkage toward the common distribution
+#' (complete pooling). For moderate shrinkage, we use the default values
+#' \code{shape_alphas = 30*K} and \code{rate_alphas = 1}, where \code{K} is the
+#' number of groups.
+#'
+#' @references Oganisian et al. (\url{https://doi.org/10.1515/ijb-2022-0051})
+#'
+#' @examples
+#' # Dimensions:
+#' n = 500 # number of observations
+#' K = 3 # number of groups
+#'
+#' # Assign groups w/ unequal probabilities:
+#' ugroups = paste('g', 1:K, sep='') # groups
+#' groups = sample(ugroups,
+#'                 size = n,
+#'                 replace = TRUE,
+#'                 prob = 1:K) # unequally weighted (unnormalized)
+#'
+#' # Summarize:
+#' table(groups)/n
+#'
+#' # Marginal posterior sampling for alpha:
+#' post_alpha = concen_hbb(groups)
+#'
+#' # Summarize: posterior distributions
+#' for(c in 1:K) {
+#'   hist(post_alpha[,c],
+#'        main = paste("Concentration parameter: group", ugroups[c]),
+#'        xlim = range(post_alpha))
+#'   abline(v = mean(post_alpha[,c]), lwd=3) # posterior mean
+#' }
+#'
+#' @importFrom stats dgamma
+#' @export
+concen_hbb = function(groups,
+                         shape_alphas = NULL,
+                         rate_alphas = NULL,
+                         nsave = 1000,
+                         ngrid = 500){
+
+  # Unique groups (levels) and their number:
+  ugroups = sort(unique(groups))
+  K = length(ugroups)
+
+  # Number of observations by group:
+  nc = table(groups)[ugroups]
+
+  # Total number of observations:
+  n = length(groups)
+
+  # Default values:
+  if(is.null(shape_alphas)) shape_alphas = 30*K
+  if(is.null(rate_alphas)) rate_alphas = 1
+
+  # Establish a grid
+  #   alpha = 0.01 ~ separate BBs by group
+  #   alpha = 100*n ~ common BB
+  # Use a regular grid for "small" values, then log-grid for "large" values
+  a_grid = c(seq(0.01, 10, length.out = ceiling(ngrid/5)),
+             exp(seq(log(10.01), log(100*n), length.out = ngrid - ceiling(ngrid/5))))
+
+  # Log-likelihood for each group's alpha:
+  #   NOTE: use recurring terms instead to save compute time
+  # loglike_alpha = function(alphac, nc) lgamma(alphac) + nc*log(alphac) - lgamma(alphac + nc)
+
+  # Recurring terms shared for all c = 1:K (and all simulations)
+  lga = lgamma(a_grid)
+  log_prior = dgamma(a_grid,
+                     shape = shape_alphas,
+                     rate = rate_alphas,
+                     log = TRUE)
+
+  # Storage:
+  post_alphas = matrix(NA, nrow = nsave, ncol = K); colnames(post_alphas) = ugroups
+
+  # For each group:
+  for(c in 1:K){
+
+    # Log-posterior (up to a constant) on the grid:
+    log_post = log_prior +
+      lga + nc[c]*log(a_grid) - lgamma(a_grid + nc[c]) # log-likelihood on grid
+
+    # Add a constant to avoid (some) numerical issues:
+    log_post = log_post + abs(max(log_post))
+
+    # Also exclude very low probability grid points:
+    sub_c = which(exp(log_post) > 10^-16)
+    post_alphas[, c] = sample(x = a_grid[sub_c],
+                              size = nsave,
+                              replace = TRUE,
+                              prob = exp(log_post[sub_c]))
+  }
+
+  # For a single draw, convert to a vector
+  if(nsave==1) post_alphas = post_alphas[1,]
+
+  return(post_alphas)
 }
 #----------------------------------------------------------------------------
 #' Plot point and interval predictions on testing data
@@ -465,7 +626,7 @@ g_bc = function(t, lambda) {
 #' the square-root transformation (\code{lambda = 1/2}),
 #' and the log transformation (\code{lambda = 0}).
 #'
-#'#' @examples
+#' @examples
 #' # (Inverse) log-transformation:
 #' g_inv_bc(1:5, lambda = 0); exp(1:5)
 #'
