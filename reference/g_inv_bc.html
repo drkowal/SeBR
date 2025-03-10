@@ -65,13 +65,22 @@
 the identity transformation (<code>lambda = 1</code>),
 the square-root transformation (<code>lambda = 1/2</code>),
 and the log transformation (<code>lambda = 0</code>).</p>
-<p>#' @examples
-# (Inverse) log-transformation:
-g_inv_bc(1:5, lambda = 0); exp(1:5)</p>
-<p># (Inverse) square-root transformation: note the shift and scaling
-g_inv_bc(1:5, lambda = 1/2); (1:5)^2</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># (Inverse) log-transformation:</span></span></span>
+<span class="r-in"><span><span class="fu">g_inv_bc</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, lambda <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1]   2.718282   7.389056  20.085537  54.598150 148.413159</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1]   2.718282   7.389056  20.085537  54.598150 148.413159</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># (Inverse) square-root transformation: note the shift and scaling</span></span></span>
+<span class="r-in"><span><span class="fu">g_inv_bc</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, lambda <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="fl">2</span><span class="op">)</span>; <span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  2.25  4.00  6.25  9.00 12.25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  1  4  9 16 25</span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
