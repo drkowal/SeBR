@@ -20,7 +20,7 @@ blm_bc(
 \arguments{
 \item{y}{\code{n x 1} vector of observed counts}
 
-\item{X}{\code{n x p} matrix of predictors}
+\item{X}{\code{n x p} matrix of predictors (no intercept)}
 
 \item{X_test}{\code{n_test x p} matrix of predictors for test data;
 default is the observed covariates \code{X}}
@@ -73,6 +73,11 @@ That parameter may be fixed in advanced or learned from the data.
 Box-Cox transformations may be useful in some cases, but
 in general we recommend the nonparametric transformation (with
 Monte Carlo, not MCMC sampling) in \code{\link{sblm}}.
+
+An intercept is automatically added to \code{X} and
+\code{X_test}. The coefficients reported do *not* include
+this intercept parameter, since it is not identified
+under more general transformation models (e.g., \code{\link{sblm}}).
 }
 \examples{
 # Simulate some data:

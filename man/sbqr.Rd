@@ -11,6 +11,7 @@ sbqr(
   X_test = X,
   psi = length(y),
   laplace_approx = TRUE,
+  fixedX = TRUE,
   approx_g = FALSE,
   nsave = 1000,
   nburn = 100,
@@ -21,7 +22,7 @@ sbqr(
 \arguments{
 \item{y}{\code{n x 1} response vector}
 
-\item{X}{\code{n x p} matrix of predictors}
+\item{X}{\code{n x p} matrix of predictors (no intercept)}
 
 \item{tau}{the target quantile (between zero and one)}
 
@@ -33,6 +34,9 @@ default is the observed covariates \code{X}}
 \item{laplace_approx}{logical; if TRUE, use a normal approximation
 to the posterior in the definition of the transformation;
 otherwise the prior is used}
+
+\item{fixedX}{logical; if TRUE, treat the design as fixed (non-random) when sampling
+the transformation; otherwise treat covariates as random with an unknown distribution}
 
 \item{approx_g}{logical; if TRUE, apply large-sample
 approximation for the transformation}
@@ -81,7 +85,15 @@ a point approximation). This model applies for real-valued data, positive data, 
 compactly-supported data (the support is automatically deduced from the observed \code{y} values).
 The results are typically unchanged whether \code{laplace_approx} is TRUE/FALSE;
 setting it to TRUE may reduce sensitivity to the prior, while setting it to FALSE
-may speed up computations for very large datasets.
+may speed up computations for very large datasets. Similarly, treating the
+covariates as fixed (\code{fixedX = TRUE}) can substantially improve
+computing efficiency, so we make this the default.
+}
+\note{
+The location (intercept) is not identified, so any intercepts
+in \code{X} and \code{X_test} will be removed. The model-fitting *does*
+include an internal location-scale adjustment, but the function only outputs
+inferential summaries for the identifiable parameters.
 }
 \examples{
 \donttest{

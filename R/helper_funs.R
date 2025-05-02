@@ -3,9 +3,10 @@
 #'
 #' Generate training data (X, y) and testing data (X_test, y_test)
 #' for a transformed linear model. The covariates are correlated
-#' Gaussian variables. Half of the true regression coefficients
-#' are zero and the other half are one. There are multiple options
-#' for the transformation, which define the support of the data (see below).
+#' Gaussian variables. A user-specified proportion (\code{prop_sig})
+#' of the regression coefficients are nonozero (= 1) and the rest are zero.
+#' There are multiple options for the transformation, which define the support
+#' of the data (see below).
 #'
 #' @param n number of observations in the training data
 #' @param p number of covariates
@@ -14,6 +15,7 @@
 #' @param n_test number of observations in the testing data
 #' @param heterosked logical; if TRUE, simulate the latent data with heteroskedasticity
 #' @param lambda Box-Cox parameter (only applies for \code{g_type = 'box-cox'})
+#' @param prop_sig proportion of signals (nonzero coefficients)
 #' @return a list with the following elements:
 #' \itemize{
 #' \item \code{y}: the response variable in the training data
@@ -33,6 +35,13 @@
 #' which generates real-valued data with examples including identity,
 #' square-root, and log transformations.
 #'
+#' @note The design matrices \code{X} and \code{X_test}
+#' do not include an intercept and there is no
+#' intercept parameter in \code{beta_true}. The
+#' location/scale of the data are not identified
+#' in general transformed regression models, so
+#' recovering them is not a goal.
+#'
 #' @examples
 #' # Simulate data:
 #' dat = simulate_tlm(n = 100, p = 5, g_type = 'beta')
@@ -45,7 +54,8 @@ simulate_tlm = function(n, p,
                         g_type = 'beta',
                         n_test = 1000,
                         heterosked = FALSE,
-                        lambda = 1){
+                        lambda = 1,
+                        prop_sig = 0.5){
   #----------------------------------------------------------------------------
   # Checks:
   if(!is.element(g_type, c("beta", "step", "box-cox")))
@@ -56,20 +66,18 @@ simulate_tlm = function(n, p,
   #----------------------------------------------------------------------------
   # Simulate a design matrix with correlated predictors:
   ar1 = 0.75
-  X = cbind(1,
-            t(apply(matrix(0, nrow = n, ncol = p), 1, function(x)
-              arima.sim(n = p, list(ar = ar1), sd = sqrt(1-ar1^2)))))
+  X = t(apply(matrix(0, nrow = n, ncol = p), 1, function(x)
+              arima.sim(n = p, list(ar = ar1), sd = sqrt(1-ar1^2))))
 
   # Shuffle the columns:
   ind_shuff = sample(1:p)
-  X[,-1] = X[,-1][,ind_shuff]
+  X = X[,ind_shuff]
 
   # Covariates on the testing data:
-  X_test = cbind(1,
-                 t(apply(matrix(0, nrow = n_test, ncol = p), 1, function(x)
-                   arima.sim(n = p, list(ar = ar1), sd = sqrt(1-ar1^2)))))
+  X_test = t(apply(matrix(0, nrow = n_test, ncol = p), 1, function(x)
+                   arima.sim(n = p, list(ar = ar1), sd = sqrt(1-ar1^2))))
   # Match the column shuffling:
-  X_test[,-1] = X_test[,-1][,ind_shuff]
+  X_test = X_test[,ind_shuff]
   #----------------------------------------------------------------------------
   # True transformation:
   if(g_type =='beta'){
@@ -90,9 +98,8 @@ simulate_tlm = function(n, p,
   }
 
   # True coefficients:
-  beta_true = c(0, # intercept is not needed
-                rep(1, ceiling(p/2)),
-                rep(0, floor(p/2)))
+  beta_true = c(rep(1, ceiling(p*prop_sig)),
+                rep(0, floor(p*(1-prop_sig))))
   #----------------------------------------------------------------------------
   # Simulate the training and testing observations:
 
@@ -702,11 +709,12 @@ rank_approx = function(y, X){
 #' @param timer0 Initial timer value, returned from \code{proc.time()[3]}
 #' @param nsims Total number of simulations
 #' @param nrep Print the estimated time remaining every \code{nrep} iterations
+#' @param ninit Print the first estimated time remaining at \code{ninit}
 #' @return Table of summary statistics using the function \code{summary}
-computeTimeRemaining = function(nsi, timer0, nsims, nrep=1000){
+computeTimeRemaining = function(nsi, timer0, nsims, nrep=1000, ninit = 500){
 
   # Only print occasionally:
-  if(nsi%%nrep == 0 || nsi==100) {
+  if(nsi%%nrep == 0 || nsi==ninit) {
     # Current time:
     timer = proc.time()[3]
 

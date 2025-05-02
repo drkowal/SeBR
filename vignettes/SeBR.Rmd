@@ -161,10 +161,8 @@ temp = sapply(1:nrow(fit$post_g), function(s)
 # Add the posterior mean of g:
 lines(y0, colMeans(fit$post_g), lwd = 3) # posterior mean
 
-# Add the true transformation, rescaled for easier comparisons:
-lines(y, 
-      scale(dat$g_true)*sd(colMeans(fit$post_g)) + mean(colMeans(fit$post_g)), 
-      type='p', pch=2)
+# Add the true transformation:
+lines(y, dat$g_true, type='p', pch=2) # true transformation
 
 legend('bottomright', c('Truth'), pch = 2) # annotate the true transformation
 ```
@@ -181,8 +179,7 @@ Next, we compute point and interval summaries for $\theta$ and compare them to t
 coef(fit)
 
 # Check: correlation with true coefficients
-cor(dat$beta_true[-1],
-    coef(fit)[-1]) # excluding the intercept
+cor(dat$beta_true, coef(fit))
 
 # 95% credible intervals:
 theta_ci = t(apply(fit$post_theta, 2, quantile, c(.025, 0.975)))
@@ -194,7 +191,8 @@ which(dat$beta_true != 0) # truly nonzero
 The point estimates of $\theta$ closely track the ground truth, and inference based on the 95\% credible intervals correctly selects the truly nonzero regression coefficients. 
 
 
-**Remark:** The location-scale of the data-generating process and the model may not match exactly. Thus, we use correlations to compare the regression coefficients $\theta$ (while omitting the intercept) and apply location-scale shifts of the transformations $g$ to ensure comparability. This is only a byproduct of the simulated data setting and does not matter for real data analysis (or for variable selection). 
+**Remark:** For identifiability, the location (intercept $\theta_0= 0$) and scale ($\sigma =1$) are fixed in the regression model; otherwise they cannot be identified
+from the location/scale of the transformation $g$. 
 
 **Note:** Try repeating this exercise with `blm_bc()` in place of `sblm()`. The Box-Cox transformation cannot recover the transformation $g$ or the coefficients $\theta$ accurately, the model diagnostics are alarming, and the predictions deteriorate substantially.
 

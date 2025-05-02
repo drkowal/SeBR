@@ -8,7 +8,7 @@
 #' for the regression coefficients.
 #'
 #' @param y \code{n x 1} vector of observed counts
-#' @param X \code{n x p} matrix of predictors
+#' @param X \code{n x p} matrix of predictors (no intercept)
 #' @param X_test \code{n_test x p} matrix of predictors for test data;
 #' default is the observed covariates \code{X}
 #' @param psi prior variance (g-prior)
@@ -45,6 +45,11 @@
 #' in general we recommend the nonparametric transformation (with
 #' Monte Carlo, not MCMC sampling) in \code{\link{sblm}}.
 #'
+#' @note An intercept is automatically added to \code{X} and
+#' \code{X_test}. The coefficients reported do *not* include
+#' this intercept parameter, since it is not identified
+#' under more general transformation models (e.g., \code{\link{sblm}}).
+#'
 #' @examples
 #' # Simulate some data:
 #' dat = simulate_tlm(n = 100, p = 5, g_type = 'step')
@@ -71,16 +76,25 @@ blm_bc = function(y, X, X_test = X,
   # For testing:
   # X_test = X; psi = length(y); sample_lambda  = FALSE; lambda = NULL; nsave = 1000; nburn = 1000; nskip = 0; verbose = TRUE
 
-  # Data dimensions:
-  n = length(y); p = ncol(X)
-
   # Testing data points:
   if(!is.matrix(X_test)) X_test = matrix(X_test, nrow  = 1)
 
+  # Here: intercept is 1st column of X, X_test
+  #   This is not part of the target parameter theta
+  is_intercept = apply(X, 2, function(x) length(unique(x)) == 1)
+  X = cbind(1,
+            X[,!is_intercept])
+  is_intercept_test = apply(X_test, 2, function(x) length(unique(x)) == 1)
+  X_test = cbind(1,
+                 X_test[,!is_intercept_test])
+
+  # Data dimensions:
+  n = length(y); p = ncol(X) - 1 # excluding intercept
+
   # And some checks on columns:
   if(p >= n) stop('The g-prior requires p < n')
-  if(p != ncol(X_test)) stop('X_test and X must have the same number of columns')
-
+  if(ncol(X) != ncol(X_test)) stop('X_test and X must have the same number of columns')
+  #----------------------------------------------------------------------------
   # Recurring terms:
   y0 = sort(unique(y))
   XtX = crossprod(X)
@@ -173,7 +187,7 @@ blm_bc = function(y, X, X_test = X,
     ell_theta = 1/sigma_epsilon^2*Xtz
     theta = backsolve(ch_Q,
                       forwardsolve(t(ch_Q), ell_theta) +
-                        rnorm(p))
+                        rnorm(p+1))
     #----------------------------------------------------------------------------
     # Store the MCMC:
     if(nsi > nburn){
@@ -187,7 +201,7 @@ blm_bc = function(y, X, X_test = X,
         isave = isave + 1
 
         # Posterior samples of the model parameters:
-        post_theta[isave,] = theta
+        post_theta[isave,] = theta[-1]
 
         # Predictive samples of ytilde:
         ztilde = X_test%*%theta + sigma_epsilon*rnorm(n = nrow(X_test))
@@ -214,7 +228,7 @@ blm_bc = function(y, X, X_test = X,
     post_theta = post_theta,
     post_ypred = post_ypred,
     post_g = post_g, post_lambda = post_lambda, post_sigma = post_sigma,
-    model = 'blm_bc', y = y, X = X, X_test = X_test, psi = psi))
+    model = 'blm_bc', y = y, X = X[,-1], X_test = X_test[,-1], psi = psi))
 }
 #' Bayesian spline model with a Box-Cox transformation
 #'
@@ -784,7 +798,7 @@ bgp_bc = function(y, locs,
 #' A g-prior is assumed for the regression coefficients.
 #'
 #' @param y \code{n x 1} vector of observed counts
-#' @param X \code{n x p} matrix of predictors
+#' @param X \code{n x p} matrix of predictors (no intercept)
 #' @param tau the target quantile (between zero and one)
 #' @param X_test \code{n_test x p} matrix of predictors for test data;
 #' default is the observed covariates \code{X}
@@ -802,6 +816,7 @@ bgp_bc = function(y, locs,
 #' of the regression coefficients
 #' \item \code{post_ypred}: \code{nsave x n_test} samples
 #' from the posterior predictive distribution at test points \code{X_test}
+#' \item \code{post_qtau}: \code{nsave x n_test} samples of the \code{tau}th conditional quantile at test points \code{X_test}
 #' \item \code{model}: the model fit (here, \code{bqr})
 #' }
 #' as well as the arguments passed
@@ -811,6 +826,10 @@ bgp_bc = function(y, locs,
 #' quantile (\code{tau}). However, it is often a poor model for
 #' observed data, and the semiparametric version \code{\link{sbqr}} is
 #' recommended in general.
+#'
+#' @note An intercept is automatically added to \code{X} and
+#' \code{X_test}. The coefficients reported do *not* include
+#' this intercept parameter.
 #'
 #' @examples
 #' # Simulate some heteroskedastic data (no transformation):
@@ -859,23 +878,33 @@ bqr = function(y, X, tau = 0.5,
     )
   }
 
-  # Data dimensions:
-  n = length(y); p = ncol(X)
-
   # Testing data points:
   if(!is.matrix(X_test)) X_test = matrix(X_test, nrow  = 1)
   n_test = nrow(X_test)
 
+  # Here: intercept is 1st column of X, X_test
+  #   This is not part of the target parameter theta
+  is_intercept = apply(X, 2, function(x) length(unique(x)) == 1)
+  X = cbind(1,
+            X[,!is_intercept])
+  is_intercept_test = apply(X_test, 2, function(x) length(unique(x)) == 1)
+  X_test = cbind(1,
+                 X_test[,!is_intercept_test])
+
+  # Data dimensions:
+  n = length(y); p = ncol(X) - 1 # excluding intercept
+
   # And some checks on columns:
   if(p >= n) stop('The g-prior requires p < n')
-  if(p != ncol(X_test)) stop('X_test and X must have the same number of columns')
-
+  if(ncol(X) != ncol(X_test)) stop('X_test and X must have the same number of columns')
+  #----------------------------------------------------------------------------
   # Recurring terms:
-  y0 = sort(unique(y))
-  XtX = crossprod(X)
-
   a_tau = (1-2*tau)/(tau*(1-tau))
   b_tau = sqrt(2/(tau*(1-tau)))
+
+  # Key matrix quantities:
+  y0 = sort(unique(y))
+  XtX = crossprod(X)
   #----------------------------------------------------------------------------
   # Initialize the parameters:
 
@@ -884,7 +913,7 @@ bqr = function(y, X, tau = 0.5,
   #----------------------------------------------------------------------------
   # Store MCMC output:
   post_theta = array(NA, c(nsave, p))
-  post_ypred = array(NA, c(nsave, n_test))
+  post_ypred = post_qtau = array(NA, c(nsave, n_test))
 
   # Total number of MCMC simulations:
   nstot = nburn+(nskip+1)*(nsave)
@@ -913,7 +942,7 @@ bqr = function(y, X, tau = 0.5,
     ch_Q = chol(Q_theta)
     theta = backsolve(ch_Q,
                       forwardsolve(t(ch_Q), ell_theta) +
-                        rnorm(p))
+                        rnorm(p + 1))
     #----------------------------------------------------------------------------
     # Block 3: sample the error SD
     # sigma_epsilon = 1/sqrt(rgamma(n = 1,
@@ -935,7 +964,10 @@ bqr = function(y, X, tau = 0.5,
         isave = isave + 1
 
         # Posterior samples of the model parameters:
-        post_theta[isave,] = theta
+        post_theta[isave,] = theta[-1]
+
+        # Quantile at the testing point:
+        post_qtau[nsi - nburn,] = X_test%*%theta
 
         # Predictive samples of ytilde:
         xi_test = rexp(n = n_test, rate = 1)
@@ -949,13 +981,11 @@ bqr = function(y, X, tau = 0.5,
   }
   if(verbose) print(paste('Total time: ', round((proc.time()[3] - timer0)), 'seconds'))
 
-  # Coefficients:
-  theta_hat = colMeans(post_theta)
-
   return(list(
-    coefficients = theta_hat,
-    fitted.values = X_test%*%theta_hat,
+    coefficients = colMeans(post_theta),
+    fitted.values = colMeans(post_qtau),
     post_theta = post_theta,
     post_ypred = post_ypred,
-    model = 'bqr', y = y, X = X, X_test = X_test, psi = psi, tau = tau))
+    post_qtau = post_qtau,
+    model = 'bqr', y = y, X = X[,-1], X_test = X_test[,-1], psi = psi, tau = tau))
 }

@@ -19,7 +19,7 @@ bqr(
 \arguments{
 \item{y}{\code{n x 1} vector of observed counts}
 
-\item{X}{\code{n x p} matrix of predictors}
+\item{X}{\code{n x p} matrix of predictors (no intercept)}
 
 \item{tau}{the target quantile (between zero and one)}
 
@@ -46,6 +46,7 @@ a list with the following elements:
 of the regression coefficients
 \item \code{post_ypred}: \code{nsave x n_test} samples
 from the posterior predictive distribution at test points \code{X_test}
+\item \code{post_qtau}: \code{nsave x n_test} samples of the \code{tau}th conditional quantile at test points \code{X_test}
 \item \code{model}: the model fit (here, \code{bqr})
 }
 as well as the arguments passed
@@ -62,6 +63,10 @@ it links the regression model (\code{X\%*\%theta}) to a pre-specified
 quantile (\code{tau}). However, it is often a poor model for
 observed data, and the semiparametric version \code{\link{sbqr}} is
 recommended in general.
+
+An intercept is automatically added to \code{X} and
+\code{X_test}. The coefficients reported do *not* include
+this intercept parameter.
 }
 \examples{
 # Simulate some heteroskedastic data (no transformation):

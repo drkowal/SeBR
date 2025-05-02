@@ -23,10 +23,12 @@ Imports:
     graphics,
     stats
 Suggests: 
+    bayeslm,
     fields,
     GpGp,
     knitr,
     MASS,
+    plyr,
     quantreg,
     rmarkdown,
     spikeSlabGAM,

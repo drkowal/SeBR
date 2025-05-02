@@ -13,6 +13,7 @@ sbgp(
   X_test = NULL,
   nn = 30,
   emp_bayes = TRUE,
+  fixedX = FALSE,
   approx_g = FALSE,
   nsave = 1000,
   ngrid = 100
@@ -38,6 +39,9 @@ default is \code{X}}
 
 \item{emp_bayes}{logical; if TRUE, use a (faster!) empirical Bayes
 approach for estimating the mean function}
+
+\item{fixedX}{logical; if TRUE, treat the design as fixed (non-random) when sampling
+the transformation; otherwise treat covariates as random with an unknown distribution}
 
 \item{approx_g}{logical; if TRUE, apply large-sample
 approximation for the transformation}
@@ -69,14 +73,14 @@ unknown (nonparametric) transformation.
 This function provides Bayesian inference for a
 transformed Gaussian process model using Monte Carlo (not MCMC) sampling.
 The transformation is modeled as unknown and learned jointly
-with the regression function (unless \code{approx_g} = TRUE, which then uses
+with the regression function (unless \code{approx_g = TRUE}, which then uses
 a point approximation). This model applies for real-valued data, positive data, and
 compactly-supported data (the support is automatically deduced from the observed \code{y} values).
 The results are typically unchanged whether \code{laplace_approx} is TRUE/FALSE;
 setting it to TRUE may reduce sensitivity to the prior, while setting it to FALSE
 may speed up computations for very large datasets. For computational efficiency,
 the Gaussian process parameters are fixed at point estimates, and the latent Gaussian
-process is only sampled when \code{emp_bayes} = FALSE. However, the uncertainty
+process is only sampled when \code{emp_bayes = FALSE}. However, the uncertainty
 from this term is often negligible compared to the observation errors, and the
 transformation serves as an additional layer of robustness.
 }
@@ -88,7 +92,7 @@ x = seq(0, 1, length = n) # observation points
 
 # Transform a noisy, periodic function:
 y = g_inv_bc(
-  sin(2*pi*x) + sin(4*pi*x) + rnorm(n, sd = .5),
+  sin(2*pi*x) + sin(4*pi*x) + rnorm(n),
              lambda = .5) # Signed square-root transformation
 
 # Package we use for fast computing w/ Gaussian processes:
@@ -105,7 +109,7 @@ pi_y = t(apply(fit$post_ypred, 2, quantile, c(0.05, .95))) # 90\% PI
 plot(x, y, type='n', ylim = range(pi_y,y),
      xlab = 'x', ylab = 'y', main = paste('Fitted values and prediction intervals'))
 polygon(c(x, rev(x)),c(pi_y[,2], rev(pi_y[,1])),col='gray', border=NA)
-lines(x, y, type='p')
-lines(x, fitted(fit), lwd = 3)
+lines(x, y, type='p') # observed points
+lines(x, fitted(fit), lwd = 3) # fitted curve
 }
 }

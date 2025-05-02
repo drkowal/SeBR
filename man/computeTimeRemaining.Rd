@@ -4,7 +4,7 @@
 \alias{computeTimeRemaining}
 \title{Estimate the remaining time in the MCMC based on previous samples}
 \usage{
-computeTimeRemaining(nsi, timer0, nsims, nrep = 1000)
+computeTimeRemaining(nsi, timer0, nsims, nrep = 1000, ninit = 500)
 }
 \arguments{
 \item{nsi}{Current iteration}
@@ -14,6 +14,8 @@ computeTimeRemaining(nsi, timer0, nsims, nrep = 1000)
 \item{nsims}{Total number of simulations}
 
 \item{nrep}{Print the estimated time remaining every \code{nrep} iterations}
+
+\item{ninit}{Print the first estimated time remaining at \code{ninit}}
 }
 \value{
 Table of summary statistics using the function \code{summary}

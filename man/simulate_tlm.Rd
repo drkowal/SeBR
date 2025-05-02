@@ -10,7 +10,8 @@ simulate_tlm(
   g_type = "beta",
   n_test = 1000,
   heterosked = FALSE,
-  lambda = 1
+  lambda = 1,
+  prop_sig = 0.5
 )
 }
 \arguments{
@@ -26,6 +27,8 @@ simulate_tlm(
 \item{heterosked}{logical; if TRUE, simulate the latent data with heteroskedasticity}
 
 \item{lambda}{Box-Cox parameter (only applies for \code{g_type = 'box-cox'})}
+
+\item{prop_sig}{proportion of signals (nonzero coefficients)}
 }
 \value{
 a list with the following elements:
@@ -41,9 +44,10 @@ a list with the following elements:
 \description{
 Generate training data (X, y) and testing data (X_test, y_test)
 for a transformed linear model. The covariates are correlated
-Gaussian variables. Half of the true regression coefficients
-are zero and the other half are one. There are multiple options
-for the transformation, which define the support of the data (see below).
+Gaussian variables. A user-specified proportion (\code{prop_sig})
+of the regression coefficients are nonozero (= 1) and the rest are zero.
+There are multiple options for the transformation, which define the support
+of the data (see below).
 }
 \details{
 The transformations vary in complexity and support
@@ -54,6 +58,14 @@ inverse transformation and produces positive data; and \code{box-cox}
 refers to the signed Box-Cox family indexed by \code{lambda},
 which generates real-valued data with examples including identity,
 square-root, and log transformations.
+}
+\note{
+The design matrices \code{X} and \code{X_test}
+do not include an intercept and there is no
+intercept parameter in \code{beta_true}. The
+location/scale of the data are not identified
+in general transformed regression models, so
+recovering them is not a goal.
 }
 \examples{
 # Simulate data:

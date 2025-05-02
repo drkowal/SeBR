@@ -4,7 +4,13 @@
 \alias{sir_adjust}
 \title{Post-processing with importance sampling}
 \usage{
-sir_adjust(fit, sir_frac = 0.3, nsims_prior = 100, verbose = TRUE)
+sir_adjust(
+  fit,
+  sir_frac = 0.3,
+  nsims_prior = 100,
+  marg_x = FALSE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{fit}{a fitted model object that includes
@@ -23,6 +29,8 @@ evaluated at the unique \code{y} values
 
 \item{nsims_prior}{number of draws from the prior}
 
+\item{marg_x}{logical; if TRUE, compute the weights marginal over the covariates}
+
 \item{verbose}{logical; if TRUE, print time remaining}
 }
 \value{
@@ -39,14 +47,18 @@ The Monte Carlo sampling for \code{\link{sblm}} and
 \code{\link{sbsm}} uses a surrogate likelihood for posterior inference,
 which enables much faster and easier computing. SIR provides a correction for
 the actual (specified) likelihood. However, this correction
-step is quite slow and typically does not produce any noticeable
+step typically does not produce any noticeable
 discrepancies, even for small sample sizes.
 }
 \note{
-SIR sampling is done WITHOUT replacement, so \code{sir_frac}
+SIR sampling is done *without* replacement, so \code{sir_frac}
 is typically between 0.1 and 0.5. The \code{nsims_priors} draws
 are used to approximate a prior expectation, but larger values
-can significantly slow down this function.
+can significantly slow down this function. The importance weights
+can be computed conditionally (\code{marg_x = FALSE}) or unconditionally
+(\code{marg_x = TRUE}) on the covariates, corresponding to whether
+or not the covariates are marginalized out in the likelihood. The
+conditional version is much faster.
 }
 \examples{
 \donttest{
@@ -63,6 +75,7 @@ names(fit) # what is returned
 
 # Update with SIR:
 fit_sir = sir_adjust(fit)
+names(fit_sir) # what is returned
 
 # Prediction: unadjusted vs. adjusted?
 
