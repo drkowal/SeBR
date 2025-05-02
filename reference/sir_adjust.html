@@ -46,7 +46,13 @@ correct for the true model likelihood.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sir_adjust</span><span class="op">(</span><span class="va">fit</span>, sir_frac <span class="op">=</span> <span class="fl">0.3</span>, nsims_prior <span class="op">=</span> <span class="fl">100</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sir_adjust</span><span class="op">(</span></span>
+<span>  <span class="va">fit</span>,</span>
+<span>  sir_frac <span class="op">=</span> <span class="fl">0.3</span>,</span>
+<span>  nsims_prior <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  marg_x <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -73,6 +79,10 @@ evaluated at the unique <code>y</code> values</p></li>
 <dd><p>number of draws from the prior</p></dd>
 
 
+<dt id="arg-marg-x">marg_x<a class="anchor" aria-label="anchor" href="#arg-marg-x"></a></dt>
+<dd><p>logical; if TRUE, compute the weights marginal over the covariates</p></dd>
+
+
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
 <dd><p>logical; if TRUE, print time remaining</p></dd>
 
@@ -88,15 +98,19 @@ based on the SIR adjustment</p>
 <code><a href="sbsm.html">sbsm</a></code> uses a surrogate likelihood for posterior inference,
 which enables much faster and easier computing. SIR provides a correction for
 the actual (specified) likelihood. However, this correction
-step is quite slow and typically does not produce any noticeable
+step typically does not produce any noticeable
 discrepancies, even for small sample sizes.</p>
     </div>
     <div class="section level2">
     <h2 id="note">Note<a class="anchor" aria-label="anchor" href="#note"></a></h2>
-    <p>SIR sampling is done WITHOUT replacement, so <code>sir_frac</code>
+    <p>SIR sampling is done *without* replacement, so <code>sir_frac</code>
 is typically between 0.1 and 0.5. The <code>nsims_priors</code> draws
 are used to approximate a prior expectation, but larger values
-can significantly slow down this function.</p>
+can significantly slow down this function. The importance weights
+can be computed conditionally (<code>marg_x = FALSE</code>) or unconditionally
+(<code>marg_x = TRUE</code>) on the covariates, corresponding to whether
+or not the covariates are marginalized out in the likelihood. The
+conditional version is much faster.</p>
     </div>
 
     <div class="section level2">
@@ -112,28 +126,21 @@ can significantly slow down this function.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Fit the semiparametric Bayesian linear model:</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="sblm.html">sblm</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, X <span class="op">=</span> <span class="va">X</span>, X_test <span class="op">=</span> <span class="va">X_test</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "4 seconds remaining"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "2 seconds remaining"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "1 seconds remaining"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Total time:  3 seconds"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="co"># what is returned</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "coefficients"  "fitted.values" "post_theta"    "post_ypred"   </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "post_g"        "model"         "y"             "X"            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "X_test"        "psi"           "approx_g"      "sigma_epsilon"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "X_test"        "psi"           "approx_g"     </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Update with SIR:</span></span></span>
 <span class="r-in"><span><span class="va">fit_sir</span> <span class="op">=</span> <span class="fu">sir_adjust</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "26 seconds remaining"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "23 seconds remaining"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "20 seconds remaining"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "17 seconds remaining"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "14 seconds remaining"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "11 seconds remaining"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "9 seconds remaining"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "6 seconds remaining"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "3 seconds remaining"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "0 seconds remaining"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Total time:  29 seconds"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Total time:  1 seconds"</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fit_sir</span><span class="op">)</span> <span class="co"># what is returned</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "coefficients"  "fitted.values" "post_theta"    "post_ypred"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "post_g"        "model"         "y"             "X"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "X_test"        "psi"           "approx_g"     </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Prediction: unadjusted vs. adjusted?</span></span></span>
 <span class="r-in"><span></span></span>
@@ -141,7 +148,7 @@ can significantly slow down this function.</p>
 <span class="r-in"><span><span class="va">y_hat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">y_hat_sir</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted</a></span><span class="op">(</span><span class="va">fit_sir</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">y_hat</span>, <span class="va">y_hat_sir</span><span class="op">)</span> <span class="co"># similar</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9991993</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Interval estimates:</span></span></span>
 <span class="r-in"><span><span class="va">pi_y</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_ypred</span>, <span class="fl">2</span>, <span class="va">quantile</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">.95</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="co"># 90% PI</span></span></span>
@@ -155,14 +162,14 @@ can significantly slow down this function.</p>
 <span class="r-in"><span>    <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">pi_y</span><span class="op">[</span><span class="va">i</span>,<span class="fl">2</span><span class="op">]</span>, <span class="va">pi_y_sir</span><span class="op">[</span><span class="va">i</span>,<span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">pi_y</span><span class="op">[</span><span class="va">i</span>,<span class="fl">1</span><span class="op">]</span>, <span class="va">pi_y_sir</span><span class="op">[</span><span class="va">i</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">overlaps</span><span class="op">)</span> <span class="co"># mostly close to 100%</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   39.77   91.94   97.47   94.57   99.73  100.00 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    5.00   80.05   88.25   86.13   94.22  100.00       1 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Coverage of PIs on testing data (should be ~ 90%)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">pi_y</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span> <span class="op">&lt;=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">*</span><span class="op">(</span><span class="va">pi_y</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span> <span class="op">&gt;=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">)</span> <span class="co"># unadjusted</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.903</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">pi_y_sir</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span> <span class="op">&lt;=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">*</span><span class="op">(</span><span class="va">pi_y_sir</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span> <span class="op">&gt;=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">)</span> <span class="co"># adjusted</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.901</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.849</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot together with testing data:</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">y_test</span>, <span class="va">y_test</span>, type<span class="op">=</span><span class="st">'n'</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">pi_y</span>, <span class="va">pi_y_sir</span>, <span class="va">y_test</span><span class="op">)</span>,</span></span>
@@ -191,7 +198,7 @@ can significantly slow down this function.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
     </footer></div>

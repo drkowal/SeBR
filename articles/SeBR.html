@@ -239,15 +239,13 @@ under the semiparametric Bayesian linear model:</p>
 <span><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/sblm.html">sblm</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, </span>
 <span>           X <span class="op">=</span> <span class="va">X</span>, </span>
 <span>           X_test <span class="op">=</span> <span class="va">X_test</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "7 seconds remaining"</span></span>
-<span><span class="co">#&gt; [1] "5 seconds remaining"</span></span>
-<span><span class="co">#&gt; [1] "3 seconds remaining"</span></span>
+<span><span class="co">#&gt; [1] "4 seconds remaining"</span></span>
 <span><span class="co">#&gt; [1] "Total time:  8 seconds"</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="co"># what is returned</span></span>
 <span><span class="co">#&gt;  [1] "coefficients"  "fitted.values" "post_theta"    "post_ypred"   </span></span>
 <span><span class="co">#&gt;  [5] "post_g"        "model"         "y"             "X"            </span></span>
-<span><span class="co">#&gt;  [9] "X_test"        "psi"           "approx_g"      "sigma_epsilon"</span></span></code></pre></div>
+<span><span class="co">#&gt;  [9] "X_test"        "psi"           "approx_g"</span></span></code></pre></div>
 <p>These are Monte Carlo (not MCMC) samples, so we do <em>not</em> need
 to perform any MCMC diagnostics (e.g., verify convergence, inspect
 autocorrelations, discard a burn-in, re-run multiple chains, etc.).</p>
@@ -301,37 +299,33 @@ and compare them to the ground truth:</p>
 <span></span>
 <span><span class="co"># Posterior means:</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  [1]  0.07314744  0.47686070  0.44598444  0.48627809  0.34035855  0.39385554</span></span>
-<span><span class="co">#&gt;  [7]  0.08038143  0.12864699 -0.04873447 -0.08244957  0.08042865</span></span>
+<span><span class="co">#&gt;  [1]  0.94009109  0.87897201  0.95878521  0.67151935  0.77619097  0.15821173</span></span>
+<span><span class="co">#&gt;  [7]  0.25339490 -0.09715452 -0.16245684  0.15840254</span></span>
 <span></span>
 <span><span class="co"># Check: correlation with true coefficients</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">beta_true</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="co"># excluding the intercept</span></span>
-<span><span class="co">#&gt; [1] 0.9435131</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">beta_true</span>, <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.9435587</span></span>
 <span></span>
 <span><span class="co"># 95% credible intervals:</span></span>
 <span><span class="va">theta_ci</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_theta</span>, <span class="fl">2</span>, <span class="va">quantile</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.025</span>, <span class="fl">0.975</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Check: agreement on nonzero coefficients?</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">theta_ci</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span> <span class="op">&gt;=</span> <span class="fl">0</span> <span class="op">|</span> <span class="va">theta_ci</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span> <span class="op">&lt;=</span><span class="fl">0</span><span class="op">)</span> <span class="co"># 95% CI excludes zero</span></span>
-<span><span class="co">#&gt; [1] 2 3 4 5 6</span></span>
+<span><span class="co">#&gt; [1] 1 2 3 4 5</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">beta_true</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">)</span> <span class="co"># truly nonzero</span></span>
-<span><span class="co">#&gt; [1] 2 3 4 5 6</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 1 2 3 4 5</span></span></code></pre></div>
 <p>The point estimates of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
 closely track the ground truth, and inference based on the 95% credible
 intervals correctly selects the truly nonzero regression
 coefficients.</p>
-<p><strong>Remark:</strong> The location-scale of the data-generating
-process and the model may not match exactly. Thus, we use correlations
-to compare the regression coefficients
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
-(while omitting the intercept) and apply location-scale shifts of the
-transformations
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>
-to ensure comparability. This is only a byproduct of the simulated data
-setting and does not matter for real data analysis (or for variable
-selection).</p>
+<p><strong>Remark:</strong> For identifiability, the location (intercept
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mn>0</mn></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\theta_0= 0</annotation></semantics></math>)
+and scale
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>σ</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\sigma =1</annotation></semantics></math>)
+are fixed in the regression model; otherwise they cannot be identified
+from the location/scale of the transformation
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>.</p>
 <p><strong>Note:</strong> Try repeating this exercise with
 <code><a href="../reference/blm_bc.html">blm_bc()</a></code> in place of <code><a href="../reference/sblm.html">sblm()</a></code>. The Box-Cox
 transformation cannot recover the transformation
@@ -426,13 +420,13 @@ First, consider <code>bqr</code>:</p>
 <span>                           <span class="va">y_test</span>, </span>
 <span>                           alpha_level <span class="op">=</span> <span class="fl">0.10</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="SeBR_files/figure-html/bqr-test-1.png" width="576"></p>
-<pre><code><span><span class="co">#&gt; [1] 0.98</span></span></code></pre>
+<pre><code><span><span class="co">#&gt; [1] 0.978</span></span></code></pre>
 <p>Recall that these are <em>quantile</em> regression models at
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>τ</mi><annotation encoding="application/x-tex">\tau</annotation></semantics></math>,
 so we expect them to be asymmetric about <code>y_test</code>.</p>
 <p>The out-of-sample empirical quantile is 0.026 (the target is
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>τ</mi><mo>=</mo><mn>0.05</mn></mrow><annotation encoding="application/x-tex">\tau = 0.05</annotation></semantics></math>)
-and the 90% prediction interval coverage is 0.98.</p>
+and the 90% prediction interval coverage is 0.978.</p>
 <p>Repeat this evaluation for <code>sbqr</code>:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Quantile point estimates:</span></span>
@@ -440,16 +434,16 @@ and the 90% prediction interval coverage is 0.98.</p>
 <span></span>
 <span><span class="co"># Empirical quantiles on testing data:</span></span>
 <span><span class="op">(</span><span class="va">emp_quant_sbqr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">q_hat</span> <span class="op">&gt;=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.034</span></span>
+<span><span class="co">#&gt; [1] 0.044</span></span>
 <span></span>
 <span><span class="co"># Evaluate posterior predictive means and intervals on the testing data:</span></span>
 <span><span class="op">(</span><span class="va">emp_cov_sbqr</span> <span class="op">=</span> <span class="fu"><a href="../reference/plot_pptest.html">plot_pptest</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_ypred</span>, </span>
 <span>                            <span class="va">y_test</span>, </span>
 <span>                            alpha_level <span class="op">=</span> <span class="fl">0.10</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="SeBR_files/figure-html/sbqr-test-1.png" width="576"></p>
-<pre><code><span><span class="co">#&gt; [1] 0.97</span></span></code></pre>
-<p>Now the out-of-sample empirical quantile is 0.034 and the 90%
-prediction interval coverage is 0.97. <code>sbqr</code> is better
+<pre><code><span><span class="co">#&gt; [1] 0.956</span></span></code></pre>
+<p>Now the out-of-sample empirical quantile is 0.044 and the 90%
+prediction interval coverage is 0.956. <code>sbqr</code> is better
 calibrated to
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>τ</mi><annotation encoding="application/x-tex">\tau</annotation></semantics></math>,
 while both methods are slightly overconservative in the prediction
@@ -531,11 +525,11 @@ performance:</p>
 <span></span>
 <span><span class="co"># Average PI width:</span></span>
 <span><span class="op">(</span><span class="va">width_bc</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">pi_y_bc</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">pi_y_bc</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.2668767</span></span>
+<span><span class="co">#&gt; [1] 0.284099</span></span>
 <span></span>
 <span><span class="co"># Empirical PI coverage:</span></span>
 <span><span class="op">(</span><span class="va">emp_cov_bc</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">pi_y_bc</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span> <span class="op">&lt;=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">*</span><span class="op">(</span><span class="va">pi_y_bc</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span> <span class="op">&gt;=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.894</span></span>
+<span><span class="co">#&gt; [1] 0.899</span></span>
 <span></span>
 <span><span class="co"># Plot these together with the actual testing points:</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x_test</span>, <span class="va">y_test</span>, type<span class="op">=</span><span class="st">'n'</span>, </span>
@@ -570,12 +564,12 @@ the data.</p>
 <span><span class="co">#&gt; [1] "Done!"</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="co"># what is returned</span></span>
-<span><span class="co">#&gt;  [1] "coefficients"  "fitted.values" "fit_gp"        "post_ypred"   </span></span>
-<span><span class="co">#&gt;  [5] "post_g"        "model"         "y"             "X"            </span></span>
-<span><span class="co">#&gt;  [9] "approx_g"      "sigma_epsilon"</span></span>
+<span><span class="co">#&gt; [1] "coefficients"  "fitted.values" "fit_gp"        "post_ypred"   </span></span>
+<span><span class="co">#&gt; [5] "post_g"        "model"         "y"             "X"            </span></span>
+<span><span class="co">#&gt; [9] "approx_g"</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="co"># estimated regression coefficients (here, just an intercept)</span></span>
-<span><span class="co">#&gt; [1] 0.02256615</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] -0.009660044</span></span></code></pre></div>
 <p>Evaluate the out-of-sample predictive performance on the testing
 data:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
@@ -587,11 +581,11 @@ data:</p>
 <span></span>
 <span><span class="co"># Average PI width:</span></span>
 <span><span class="op">(</span><span class="va">width</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">pi_y</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">pi_y</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.2130283</span></span>
+<span><span class="co">#&gt; [1] 0.2325542</span></span>
 <span></span>
 <span><span class="co"># Empirical PI coverage:</span></span>
 <span><span class="op">(</span><span class="va">emp_cov</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">pi_y</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span> <span class="op">&lt;=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">*</span><span class="op">(</span><span class="va">pi_y</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span> <span class="op">&gt;=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.953</span></span>
+<span><span class="co">#&gt; [1] 0.91</span></span>
 <span></span>
 <span><span class="co"># Plot these together with the actual testing points:</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x_test</span>, <span class="va">y_test</span>, type<span class="op">=</span><span class="st">'n'</span>, </span>
@@ -609,8 +603,8 @@ data:</p>
 the data
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒴</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">\mathcal{Y} = [0,1]</annotation></semantics></math>,
 captures the trend, and provides narrower intervals (average widths are
-0.213 compared to 0.267) with better coverage (0.953 for
-<code>sbgp</code> and 0.894 for Box-Cox).</p>
+0.233 compared to 0.284) with better coverage (0.91 for
+<code>sbgp</code> and 0.899 for Box-Cox).</p>
 <p>Despite the significant complexities in the data, <code>sbgp</code>
 performs quite well out-of-the-box:</p>
 <ul>
@@ -648,7 +642,7 @@ Bayesian regression. <em>JASA</em>. <a href="https://doi.org/10.1080/01621459.20
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
     </footer>

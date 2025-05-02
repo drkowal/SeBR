@@ -71,7 +71,7 @@ A g-prior is assumed for the regression coefficients.</p>
 
 
 <dt id="arg-x">X<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p><code>n x p</code> matrix of predictors</p></dd>
+<dd><p><code>n x p</code> matrix of predictors (no intercept)</p></dd>
 
 
 <dt id="arg-tau">tau<a class="anchor" aria-label="anchor" href="#arg-tau"></a></dt>
@@ -112,6 +112,7 @@ i.e., save every (nskip + 1)th draw</p></dd>
 of the regression coefficients</p></li>
 <li><p><code>post_ypred</code>: <code>nsave x n_test</code> samples
 from the posterior predictive distribution at test points <code>X_test</code></p></li>
+<li><p><code>post_qtau</code>: <code>nsave x n_test</code> samples of the <code>tau</code>th conditional quantile at test points <code>X_test</code></p></li>
 <li><p><code>model</code>: the model fit (here, <code>bqr</code>)</p></li>
 </ul><p>as well as the arguments passed</p>
     </div>
@@ -122,6 +123,9 @@ it links the regression model (<code>X%*%theta</code>) to a pre-specified
 quantile (<code>tau</code>). However, it is often a poor model for
 observed data, and the semiparametric version <code><a href="sbqr.html">sbqr</a></code> is
 recommended in general.</p>
+<p>An intercept is automatically added to <code>X</code> and
+<code>X_test</code>. The coefficients reported do *not* include
+this intercept parameter.</p>
     </div>
 
     <div class="section level2">
@@ -140,8 +144,8 @@ recommended in general.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Total time:  0 seconds"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="co"># what is returned</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "coefficients"  "fitted.values" "post_theta"    "post_ypred"   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "model"         "y"             "X"             "X_test"       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "psi"           "tau"          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "post_qtau"     "model"         "y"             "X"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "X_test"        "psi"           "tau"          </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Posterior predictive checks on testing data: empirical CDF</span></span></span>
 <span class="r-in"><span><span class="va">y0</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">y_test</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -168,7 +172,7 @@ recommended in general.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
     </footer></div>

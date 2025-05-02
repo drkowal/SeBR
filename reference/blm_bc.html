@@ -69,7 +69,7 @@ for the regression coefficients.</p>
 
 
 <dt id="arg-x">X<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p><code>n x p</code> matrix of predictors</p></dd>
+<dd><p><code>n x p</code> matrix of predictors (no intercept)</p></dd>
 
 
 <dt id="arg-x-test">X_test<a class="anchor" aria-label="anchor" href="#arg-x-test"></a></dt>
@@ -134,6 +134,10 @@ That parameter may be fixed in advanced or learned from the data.</p>
     <p>Box-Cox transformations may be useful in some cases, but
 in general we recommend the nonparametric transformation (with
 Monte Carlo, not MCMC sampling) in <code><a href="sblm.html">sblm</a></code>.</p>
+<p>An intercept is automatically added to <code>X</code> and
+<code>X_test</code>. The coefficients reported do *not* include
+this intercept parameter, since it is not identified
+under more general transformation models (e.g., <code><a href="sblm.html">sblm</a></code>).</p>
     </div>
 
     <div class="section level2">
@@ -169,7 +173,7 @@ Monte Carlo, not MCMC sampling) in <code><a href="sblm.html">sblm</a></code>.</p
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
     </footer></div>

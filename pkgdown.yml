@@ -1,9 +1,9 @@
 pandoc: 3.1.11
-pkgdown: 2.1.1
+pkgdown: 2.1.2
 pkgdown_sha: ~
 articles:
   SeBR: SeBR.html
-last_built: 2025-03-10T20:52Z
+last_built: 2025-05-02T16:32Z
 urls:
   reference: https://drkowal.github.io/SeBR/reference
   article: https://drkowal.github.io/SeBR/articles
