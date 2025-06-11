@@ -3,6 +3,7 @@
 export(bb)
 export(bgp_bc)
 export(blm_bc)
+export(blm_bc_hs)
 export(bqr)
 export(bsm_bc)
 export(concen_hbb)

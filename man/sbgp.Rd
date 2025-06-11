@@ -13,7 +13,7 @@ sbgp(
   X_test = NULL,
   nn = 30,
   emp_bayes = TRUE,
-  fixedX = FALSE,
+  fixedX = (length(y) >= 500),
   approx_g = FALSE,
   nsave = 1000,
   ngrid = 100
@@ -82,7 +82,8 @@ may speed up computations for very large datasets. For computational efficiency,
 the Gaussian process parameters are fixed at point estimates, and the latent Gaussian
 process is only sampled when \code{emp_bayes = FALSE}. However, the uncertainty
 from this term is often negligible compared to the observation errors, and the
-transformation serves as an additional layer of robustness.
+transformation serves as an additional layer of robustness. By default, \code{fixedX} is
+set to FALSE for smaller datasets (\code{n < 500}) and TRUE for larger datasets (\code{n >= 500}).
 }
 \examples{
 \donttest{

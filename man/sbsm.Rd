@@ -7,10 +7,10 @@
 sbsm(
   y,
   x = NULL,
-  x_test = NULL,
+  x_test = x,
   psi = NULL,
   laplace_approx = TRUE,
-  fixedX = FALSE,
+  fixedX = (length(y) >= 500),
   approx_g = FALSE,
   nsave = 1000,
   ngrid = 100,
@@ -72,7 +72,8 @@ a point approximation). This model applies for real-valued data, positive data, 
 compactly-supported data (the support is automatically deduced from the observed \code{y} values).
 The results are typically unchanged whether \code{laplace_approx} is TRUE/FALSE;
 setting it to TRUE may reduce sensitivity to the prior, while setting it to FALSE
-may speed up computations for very large datasets.
+may speed up computations for very large datasets. By default, \code{fixedX} is
+set to FALSE for smaller datasets (\code{n < 500}) and TRUE for larger datasets (\code{n >= 500}).
 }
 \examples{
 \donttest{
@@ -98,16 +99,5 @@ plot(x, y, type='n', ylim = range(pi_y,y),
 polygon(c(x, rev(x)),c(pi_y[,2], rev(pi_y[,1])),col='gray', border=NA)
 lines(x, y, type='p') # observed points
 lines(x, fitted(fit), lwd = 3) # fitted curve
-
-# Summarize the transformation:
-y0 = sort(unique(y)) # posterior draws of g are evaluated at the unique y observations
-plot(y0, fit$post_g[1,], type='n', ylim = range(fit$post_g),
-     xlab = 'y', ylab = 'g(y)', main = "Posterior draws of the transformation")
-temp = sapply(1:nrow(fit$post_g), function(s)
-  lines(y0, fit$post_g[s,], col='gray')) # posterior draws
-lines(y0, colMeans(fit$post_g), lwd = 3) # posterior mean
-lines(y, g_bc(y, 0.5), type='p', pch=2) # true transformation
-legend('bottomright', c('Truth'), pch = 2) # annotate the true transformation
-
 }
 }

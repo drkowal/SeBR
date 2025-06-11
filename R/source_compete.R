@@ -76,24 +76,26 @@ blm_bc = function(y, X, X_test = X,
   # For testing:
   # X_test = X; psi = length(y); sample_lambda  = FALSE; lambda = NULL; nsave = 1000; nburn = 1000; nskip = 0; verbose = TRUE
 
-  # Testing data points:
-  if(!is.matrix(X_test)) X_test = matrix(X_test, nrow  = 1)
+  # Initial checks:
+  if(!is.matrix(X)) stop("X must be a matrix (rows = observations, columns = variables)")
+  if(!is.matrix(X_test)) stop("X_test must be a matrix (rows = observations, columns = variables)")
+  if(ncol(X) != ncol(X_test)) stop('X_test and X must have the same number of columns (variables)')
+  if(nrow(X) != length(y)) stop('the length of y must equal nrow(X)')
 
   # Here: intercept is 1st column of X, X_test
-  #   This is not part of the target parameter theta
-  is_intercept = apply(X, 2, function(x) length(unique(x)) == 1)
-  X = cbind(1,
-            X[,!is_intercept])
-  is_intercept_test = apply(X_test, 2, function(x) length(unique(x)) == 1)
-  X_test = cbind(1,
-                 X_test[,!is_intercept_test])
+  #   (this is not part of the target parameter theta)
+  is_intercept = apply(X, 2, function(x) all(x == 1))
+  X = cbind(1, X[,!is_intercept])
+  is_intercept_test = apply(X_test, 2, function(x) all(x == 1))
+  X_test = cbind(1, X_test[,!is_intercept_test])
 
   # Data dimensions:
-  n = length(y); p = ncol(X) - 1 # excluding intercept
+  n = length(y) # number of observations
+  p = ncol(X) - 1 # number of variables (excluding intercept)
+  n_test = nrow(X_test) # number of testing data points
 
-  # And some checks on columns:
+  # Requirement for the g-prior:
   if(p >= n) stop('The g-prior requires p < n')
-  if(ncol(X) != ncol(X_test)) stop('X_test and X must have the same number of columns')
   #----------------------------------------------------------------------------
   # Recurring terms:
   y0 = sort(unique(y))
@@ -143,7 +145,7 @@ blm_bc = function(y, X, X_test = X,
   #----------------------------------------------------------------------------
   # Store MCMC output:
   post_theta = array(NA, c(nsave, p))
-  post_ypred = array(NA, c(nsave, nrow(X_test)))
+  post_ypred = array(NA, c(nsave, n_test))
   post_g = array(NA, c(nsave, length(y0)))
   post_lambda = post_sigma = rep(NA, nsave)
 
@@ -177,7 +179,7 @@ blm_bc = function(y, X, X_test = X,
     }
     #----------------------------------------------------------------------------
     # Block 2: sample the error SD
-    SSR_psi = sum(z^2) - psi/(psi+1)*crossprod(z, X%*%XtXinv%*%crossprod(X, z))
+    SSR_psi = sum(z^2) - psi/(psi+1)*crossprod(Xtz, XtXinv%*%Xtz)
     sigma_epsilon = 1/sqrt(rgamma(n = 1,
                                   shape = .001 + n/2,
                                   rate = .001 + SSR_psi/2))
@@ -204,7 +206,7 @@ blm_bc = function(y, X, X_test = X,
         post_theta[isave,] = theta[-1]
 
         # Predictive samples of ytilde:
-        ztilde = X_test%*%theta + sigma_epsilon*rnorm(n = nrow(X_test))
+        ztilde = X_test%*%theta + sigma_epsilon*rnorm(n = n_test)
         post_ypred[isave,] = g_inv_bc(ztilde, lambda = lambda)
 
         # Posterior samples of the transformation:
@@ -218,9 +220,15 @@ blm_bc = function(y, X, X_test = X,
         skipcount = 0
       }
     }
-    if(verbose) computeTimeRemaining(nsi, timer0, nstot, nrep = 5000)
+    if(verbose) computeTimeRemaining(nsi, timer0, nstot)
   }
-  if(verbose) print(paste('Total time: ', round((proc.time()[3] - timer0)), 'seconds'))
+  # Summarize computing time:
+  if(verbose){
+    tfinal = proc.time()[3] - timer0
+    if(tfinal > 60){
+      print(paste('Total time:', round(tfinal/60,1), 'minutes'))
+    } else print(paste('Total time:', round(tfinal), 'seconds'))
+  }
 
   return(list(
     coefficients = colMeans(post_theta),
@@ -298,7 +306,7 @@ blm_bc = function(y, X, X_test = X,
 # #' @importFrom spikeSlabGAM sm
 #' @export
 bsm_bc = function(y, x = NULL,
-                   x_test = NULL,
+                   x_test = x,
                    psi = NULL,
                    lambda = NULL,
                    sample_lambda = TRUE,
@@ -323,7 +331,9 @@ bsm_bc = function(y, x = NULL,
 
   # Observation points:
   if(is.null(x)) x = seq(0, 1, length=n)
-  if(is.null(x_test)) x_test = x
+
+  # Initial checks:
+  if(length(x) != n) stop('x and y must have the same number of observations')
 
   # Recale to [0,1]:
   x = (x - min(x))/(max(x) - min(x))
@@ -419,10 +429,11 @@ bsm_bc = function(y, x = NULL,
     }
     # Block 2: sample the scale adjustment (SD)
     # SSR_psi = sum(z^2) - crossprod(z, X%*%solve(crossprod(X) + diag(1/psi, p))%*%crossprod(X,z))
-    SSR_psi = sum(z^2) - crossprod(1/sqrt(diagXtX + 1/psi)*crossprod(X, z))
+    SSR_psi = sum(z^2) - crossprod(1/sqrt(diagXtX + 1/psi)*Xtz)
     sigma_epsilon = 1/sqrt(rgamma(n = 1,
                                   shape = .001 + n/2,
                                   rate = .001 + SSR_psi/2))
+
     #----------------------------------------------------------------------------
     # Block 3: sample the regression coefficients
     Q_theta = 1/sigma_epsilon^2*diagXtX + 1/(sigma_epsilon^2*psi)
@@ -465,9 +476,15 @@ bsm_bc = function(y, x = NULL,
         skipcount = 0
       }
     }
-    if(verbose) computeTimeRemaining(nsi, timer0, nstot, nrep = 5000)
+    if(verbose) computeTimeRemaining(nsi, timer0, nstot)
   }
-  if(verbose) print(paste('Total time: ', round((proc.time()[3] - timer0)), 'seconds'))
+  # Summarize computing time:
+  if(verbose){
+    tfinal = proc.time()[3] - timer0
+    if(tfinal > 60){
+      print(paste('Total time:', round(tfinal/60,1), 'minutes'))
+    } else print(paste('Total time:', round(tfinal), 'seconds'))
+  }
 
   return(list(
     coefficients = colMeans(post_theta),
@@ -878,25 +895,26 @@ bqr = function(y, X, tau = 0.5,
     )
   }
 
-  # Testing data points:
-  if(!is.matrix(X_test)) X_test = matrix(X_test, nrow  = 1)
-  n_test = nrow(X_test)
+  # Initial checks:
+  if(!is.matrix(X)) stop("X must be a matrix (rows = observations, columns = variables)")
+  if(!is.matrix(X_test)) stop("X_test must be a matrix (rows = observations, columns = variables)")
+  if(ncol(X) != ncol(X_test)) stop('X_test and X must have the same number of columns (variables)')
+  if(nrow(X) != length(y)) stop('the length of y must equal nrow(X)')
 
   # Here: intercept is 1st column of X, X_test
-  #   This is not part of the target parameter theta
-  is_intercept = apply(X, 2, function(x) length(unique(x)) == 1)
-  X = cbind(1,
-            X[,!is_intercept])
-  is_intercept_test = apply(X_test, 2, function(x) length(unique(x)) == 1)
-  X_test = cbind(1,
-                 X_test[,!is_intercept_test])
+  #   (this is not part of the target parameter theta)
+  is_intercept = apply(X, 2, function(x) all(x == 1))
+  X = cbind(1, X[,!is_intercept])
+  is_intercept_test = apply(X_test, 2, function(x) all(x == 1))
+  X_test = cbind(1, X_test[,!is_intercept_test])
 
   # Data dimensions:
-  n = length(y); p = ncol(X) - 1 # excluding intercept
+  n = length(y) # number of observations
+  p = ncol(X) - 1 # number of variables (excluding intercept)
+  n_test = nrow(X_test) # number of testing data points
 
-  # And some checks on columns:
+  # Requirement for the g-prior:
   if(p >= n) stop('The g-prior requires p < n')
-  if(ncol(X) != ncol(X_test)) stop('X_test and X must have the same number of columns')
   #----------------------------------------------------------------------------
   # Recurring terms:
   a_tau = (1-2*tau)/(tau*(1-tau))
@@ -977,9 +995,15 @@ bqr = function(y, X, tau = 0.5,
         skipcount = 0
       }
     }
-    if(verbose) computeTimeRemaining(nsi, timer0, nstot, nrep = 5000)
+    if(verbose) computeTimeRemaining(nsi, timer0, nstot)
   }
-  if(verbose) print(paste('Total time: ', round((proc.time()[3] - timer0)), 'seconds'))
+  # Summarize computing time:
+  if(verbose){
+    tfinal = proc.time()[3] - timer0
+    if(tfinal > 60){
+      print(paste('Total time:', round(tfinal/60,1), 'minutes'))
+    } else print(paste('Total time:', round(tfinal), 'seconds'))
+  }
 
   return(list(
     coefficients = colMeans(post_theta),

@@ -99,7 +99,7 @@ simulate_tlm = function(n, p,
 
   # True coefficients:
   beta_true = c(rep(1, ceiling(p*prop_sig)),
-                rep(0, floor(p*(1-prop_sig))))
+                rep(0, p - ceiling(p*prop_sig)))
   #----------------------------------------------------------------------------
   # Simulate the training and testing observations:
 
@@ -704,17 +704,19 @@ rank_approx = function(y, X){
   #Sigma_hat = vcov(fit) # is this meaningful?
 }
 #----------------------------------------------------------------------------
-#' Estimate the remaining time in the MCMC based on previous samples
-#' @param nsi Current iteration
-#' @param timer0 Initial timer value, returned from \code{proc.time()[3]}
-#' @param nsims Total number of simulations
-#' @param nrep Print the estimated time remaining every \code{nrep} iterations
-#' @param ninit Print the first estimated time remaining at \code{ninit}
-#' @return Table of summary statistics using the function \code{summary}
-computeTimeRemaining = function(nsi, timer0, nsims, nrep=1000, ninit = 500){
+#' Estimate the remaining time in the algorithm
+#' @param nsi current iteration
+#' @param timer0 initial timer value from \code{proc.time()[3]}
+#' @param nsims total number of simulations
+#' @param nprints total number of printed updates
+#' @return estimate of remaining time
+computeTimeRemaining = function(nsi, timer0, nsims, nprints = 2){
+
+  # Print every nrep:
+  nrep = ceiling(nsims/(nprints +1)) + 1
 
   # Only print occasionally:
-  if(nsi%%nrep == 0 || nsi==ninit) {
+  if(nsi%%nrep == 0){ # || nsi==ninit) {
     # Current time:
     timer = proc.time()[3]
 
@@ -726,11 +728,11 @@ computeTimeRemaining = function(nsi, timer0, nsims, nrep=1000, ninit = 500){
 
     # Print the results:
     if(secRemaining > 3600) {
-      print(paste(round(secRemaining/3600, 1), "hours remaining"))
+      print(paste(round(secRemaining/3600, 1), "hr remaining"))
     } else {
       if(secRemaining > 60) {
-        print(paste(round(secRemaining/60, 2), "minutes remaining"))
-      } else print(paste(round(secRemaining), "seconds remaining"))
+        print(paste(ceiling(secRemaining/60), "min remaining"))
+      } else print(paste(ceiling(secRemaining), "sec remaining"))
     }
   }
 }

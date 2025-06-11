@@ -7,7 +7,7 @@
 bsm_bc(
   y,
   x = NULL,
-  x_test = NULL,
+  x_test = x,
   psi = NULL,
   lambda = NULL,
   sample_lambda = TRUE,

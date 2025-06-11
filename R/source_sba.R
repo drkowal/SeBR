@@ -44,7 +44,8 @@
 #' compactly-supported data (the support is automatically deduced from the observed \code{y} values).
 #' The results are typically unchanged whether \code{laplace_approx} is TRUE/FALSE;
 #' setting it to TRUE may reduce sensitivity to the prior, while setting it to FALSE
-#' may speed up computations for very large datasets.
+#' may speed up computations for very large datasets. By default, \code{fixedX} is
+#' set to FALSE for smaller datasets (\code{n < 500}) and TRUE for larger datasets (\code{n >= 500}).
 #'
 #' @note The location (intercept) and scale (\code{sigma_epsilon}) are
 #' not identified, so any intercepts in \code{X} and \code{X_test} will
@@ -98,7 +99,7 @@
 sblm = function(y, X, X_test = X,
                 psi = length(y),
                 laplace_approx = TRUE,
-                fixedX = FALSE,
+                fixedX = (length(y) >= 500),
                 approx_g = FALSE,
                 nsave = 1000,
                 ngrid = 100,
@@ -107,43 +108,43 @@ sblm = function(y, X, X_test = X,
   # For testing:
   # X_test = X; psi = length(y); laplace_approx = TRUE; fixedX = FALSE; approx_g = FALSE; nsave = 1000; verbose = TRUE; ngrid = 100
 
+  # Initial checks:
+  if(!is.matrix(X)) stop("X must be a matrix (rows = observations, columns = variables)")
+  if(!is.matrix(X_test)) stop("X_test must be a matrix (rows = observations, columns = variables)")
+  if(ncol(X) != ncol(X_test)) stop('X_test and X must have the same number of columns (variables)')
+  if(nrow(X) != length(y)) stop('the length of y must equal nrow(X)')
+
   # Data dimensions:
-  n = length(y); p = ncol(X)
-
-  # Testing data points:
-  if(!is.matrix(X_test)) X_test = matrix(X_test, nrow  = 1)
-
-  # And some checks on columns:
-  if(p >= n) stop('The g-prior requires p < n')
-  if(p != ncol(X_test)) stop('X_test and X must have the same number of columns')
+  n = length(y) # number of observations
+  p = ncol(X) # number of variables
+  n_test = nrow(X_test) # number of testing data points
 
   # Make sure that X does not include an intercept
   #   Note: one will be added later for location (+ scale) adjustment,
   #   but this is not part of the target parameter 'theta'
-  is_intercept = apply(X, 2, function(x) length(unique(x)) == 1)
+  is_intercept = apply(X, 2, function(x) all(x == 1))
   if(any(is_intercept)){
 
     # Quick check: need more than just an intercept here!
     if(p==1) stop('X must include at least one (non-intercept) covariate')
 
-    # Remove the intercept & make sure X is still a matrix:
-    X = matrix(X[, !is_intercept],
-               ncol = sum(!is_intercept))
+    # Remove the intercept:
+    X = X[, !is_intercept, drop=FALSE]
+
     # Update dimensions:
     p = ncol(X)
   }
 
   # For X_test: remove intercepts anywhere, then make X_test[,1] an intercept
   #   (This will match X later)
-  is_intercept_test = apply(X_test, 2, function(x) length(unique(x)) == 1)
-  X_test = cbind(1,
-                 X_test[,!is_intercept_test])
-  #----------------------------------------------------------------------------
-  # Key matrix quantities:
-  XtX = crossprod(X)
-  XtXinv = chol2inv(chol(XtX))
-  xt_Sigma_x = sapply(1:n, function(i)
-    crossprod(X[i,], XtXinv)%*%X[i,])
+  is_intercept_test = apply(X_test, 2, function(x) all(x == 1))
+  X_test = cbind(1, X_test[,!is_intercept_test])
+
+  # Requirement for the g-prior:
+  if(p >= n) stop('The g-prior requires p < n')
+
+  # Hyperparameters for Gamma(a_sigma, b_sigma) prior on error precision
+  a_sigma = b_sigma = 0.001
   #----------------------------------------------------------------------------
   # Initialize the transformation:
 
@@ -153,6 +154,11 @@ sblm = function(y, X, X_test = X,
   # Evaluate at the unique y-values:
   y0 = sort(unique(y))
   Fy_eval = Fy(y0)
+
+  # Matrix quantities for the initialization:
+  XtXinv = chol2inv(chol(crossprod(X))) # inverse of (X'X)
+  xt_Sigma_x = sapply(1:n, function(i)
+    crossprod(X[i,], XtXinv)%*%X[i,])
 
   # Grid of values for the CDF of z (based on the prior)
   z_grid = sort(unique(
@@ -250,11 +256,14 @@ sblm = function(y, X, X_test = X,
   #----------------------------------------------------------------------------
   # Add an intercept:
   X = cbind(1, X) # update to include intercept
-  XtX = crossprod(X); XtXinv = chol2inv(chol(XtX))
+
+  # One-time computing cost to sample (theta, sigma) efficiently:
+  chXtX_psi = sqrt((1+psi)/(psi))*chol(crossprod(X))
+  Xtz = crossprod(X, z) # this changes with z = g(y) (unless approx_g = TRUE)
   #----------------------------------------------------------------------------
   # Store MC output:
   post_theta = array(NA, c(nsave, p))
-  post_ypred = array(NA, c(nsave, nrow(X_test)))
+  post_ypred = array(NA, c(nsave, n_test))
   post_g = array(NA, c(nsave, length(y0)))
 
   # Run the MC:
@@ -291,23 +300,28 @@ sblm = function(y, X, X_test = X,
 
       # Update z:
       z = g(y)
+      Xtz = crossprod(X, z)
 
       # Update the inverse transformation function:
       g_inv = g_inv_approx(g = g, t_grid = y_grid)
     }
     #----------------------------------------------------------------------------
+    # Recurring term for Blocks 2-3:
+    fsolve_theta = forwardsolve(t(chXtX_psi), Xtz)
+
     # Block 2: sample the scale adjustment (SD)
-    SSR_psi = sum(z^2) - psi/(psi+1)*crossprod(z, X%*%XtXinv%*%crossprod(X, z))
+    SSR_psi = sum(z^2) - crossprod(Xtz, backsolve(chXtX_psi, fsolve_theta)) # SSR_psi = sum(z^2) - psi/(psi+1)*crossprod(Xtz, XtXinv%*%Xtz)
     sigma_epsilon = 1/sqrt(rgamma(n = 1,
-                                  shape = .001 + n/2,
-                                  rate = .001 + SSR_psi/2))
+                                  shape = a_sigma + n/2,
+                                  rate = b_sigma + SSR_psi/2))
     #----------------------------------------------------------------------------
     # Block 3: sample the regression coefficients
-    ch_Q = chol(1/sigma_epsilon^2*(1+psi)/(psi)*XtX)
-    ell_theta = 1/sigma_epsilon^2*crossprod(X, z)
-    theta = backsolve(ch_Q,
-                     forwardsolve(t(ch_Q), ell_theta) +
-                       rnorm(p + 1))
+    theta = backsolve(chXtX_psi/sigma_epsilon,
+                      fsolve_theta/sigma_epsilon + rnorm(p+1))
+    # Previously:
+    # ch_Q = chol(1/sigma_epsilon^2*(1+psi)/(psi)*XtX)
+    # ell_theta = 1/sigma_epsilon^2*Xtz
+    # theta = backsolve(ch_Q, forwardsolve(t(ch_Q), ell_theta) + rnorm(p + 1))
     #----------------------------------------------------------------------------
     # Store the MC:
 
@@ -315,15 +329,21 @@ sblm = function(y, X, X_test = X,
     post_theta[nsi,] = theta[-1]/sigma_epsilon # omit the intercept & undo scaling (not identified)
 
     # Predictive samples of ytilde:
-    ztilde = X_test%*%theta + sigma_epsilon*rnorm(n = nrow(X_test))
+    ztilde = X_test%*%theta + sigma_epsilon*rnorm(n = n_test)
     post_ypred[nsi,] = g_inv(ztilde)
 
     # Posterior samples of the transformation:
     post_g[nsi,] = (g(y0) - theta[1])/sigma_epsilon # undo location/scale (not identified)
     #----------------------------------------------------------------------------
-    if(verbose) computeTimeRemaining(nsi, timer0, nsave, nrep = 2500)
+    if(verbose) computeTimeRemaining(nsi, timer0, nsave)
   }
-  if(verbose) print(paste('Total time: ', round((proc.time()[3] - timer0)), 'seconds'))
+  # Summarize computing time:
+  if(verbose){
+    tfinal = proc.time()[3] - timer0
+    if(tfinal > 60){
+      print(paste('Total time:', round(tfinal/60,1), 'minutes'))
+    } else print(paste('Total time:', round(tfinal), 'seconds'))
+  }
 
   return(list(
     coefficients = colMeans(post_theta),
@@ -331,7 +351,7 @@ sblm = function(y, X, X_test = X,
     post_theta = post_theta,
     post_ypred = post_ypred,
     post_g = post_g,
-    model = 'sblm', y = y, X = X[,-1], X_test = X_test[,-1], psi = psi, approx_g = approx_g))
+    model = 'sblm', y = y, X = X[,-1], X_test = X_test[,-1], psi = psi, laplace_approx = laplace_approx, fixedX = fixedX, approx_g = approx_g))
 }
 #---------------------------------------------------------------
 #' Semiparametric Bayesian spline model
@@ -377,7 +397,8 @@ sblm = function(y, X, X_test = X,
 #' compactly-supported data (the support is automatically deduced from the observed \code{y} values).
 #' The results are typically unchanged whether \code{laplace_approx} is TRUE/FALSE;
 #' setting it to TRUE may reduce sensitivity to the prior, while setting it to FALSE
-#' may speed up computations for very large datasets.
+#' may speed up computations for very large datasets. By default, \code{fixedX} is
+#' set to FALSE for smaller datasets (\code{n < 500}) and TRUE for larger datasets (\code{n >= 500}).
 #'
 #' @examples
 #' \donttest{
@@ -403,32 +424,21 @@ sblm = function(y, X, X_test = X,
 #' polygon(c(x, rev(x)),c(pi_y[,2], rev(pi_y[,1])),col='gray', border=NA)
 #' lines(x, y, type='p') # observed points
 #' lines(x, fitted(fit), lwd = 3) # fitted curve
-#'
-#' # Summarize the transformation:
-#' y0 = sort(unique(y)) # posterior draws of g are evaluated at the unique y observations
-#' plot(y0, fit$post_g[1,], type='n', ylim = range(fit$post_g),
-#'      xlab = 'y', ylab = 'g(y)', main = "Posterior draws of the transformation")
-#' temp = sapply(1:nrow(fit$post_g), function(s)
-#'   lines(y0, fit$post_g[s,], col='gray')) # posterior draws
-#' lines(y0, colMeans(fit$post_g), lwd = 3) # posterior mean
-#' lines(y, g_bc(y, 0.5), type='p', pch=2) # true transformation
-#' legend('bottomright', c('Truth'), pch = 2) # annotate the true transformation
-#'
 #' }
 # #' @importFrom spikeSlabGAM sm
 #' @export
 sbsm = function(y, x = NULL,
-                x_test = NULL,
+                x_test = x,
                 psi = NULL,
                 laplace_approx = TRUE,
-                fixedX = FALSE,
+                fixedX = (length(y) >= 500),
                 approx_g = FALSE,
                 nsave = 1000,
                 ngrid = 100,
                 verbose = TRUE){
 
   # For testing:
-  # psi = length(y); laplace_approx = TRUE; fixedX = FALSE; approx_g = FALSE; nsave = 1000; verbose = TRUE; x_test = sort(runif(100)); ngrid = 100
+  # psi = length(y); laplace_approx = TRUE; fixedX = FALSE; approx_g = FALSE; nsave = 1000; verbose = TRUE; ngrid = 100
 
   # Library required here:
   if (!requireNamespace("spikeSlabGAM", quietly = TRUE)) {
@@ -443,15 +453,19 @@ sbsm = function(y, x = NULL,
 
   # Observation points:
   if(is.null(x)) x = seq(0, 1, length=n)
-  if(is.null(x_test)) x_test = x
+
+  # Initial checks:
+  if(length(x) != n) stop('x and y must have the same number of observations')
 
   # Recale to [0,1]:
   x = (x - min(x))/(max(x) - min(x))
   x_test = (x_test - min(x_test))/(max(x_test) - min(x_test))
+
+  # Hyperparameters for Gamma(a_sigma, b_sigma) prior on error precision
+  a_sigma = b_sigma = 0.001
   #----------------------------------------------------------------------------
   # Orthogonalized P-spline and related quantities:
   X = cbind(poly(x, 1), spikeSlabGAM::sm(x)) # omit intercept to initialize
-  #X = cbind(1/sqrt(n), poly(x, 1), spikeSlabGAM::sm(x)) # DELETE
   #X = X/sqrt(sum(diag(crossprod(X))))
   diagXtX = colSums(X^2)
   p = length(diagXtX)
@@ -572,6 +586,7 @@ sbsm = function(y, x = NULL,
   # Add an intercept:
   X = cbind(1/sqrt(n), X)
   diagXtX = c(1, diagXtX)  # update
+  Xtz = crossprod(X, z) # changes w/ z (unless approx_g = TRUE)
   #----------------------------------------------------------------------------
   # Store MC output:
   post_theta = array(NA, c(nsave, p))
@@ -611,6 +626,7 @@ sbsm = function(y, x = NULL,
 
       # Update z:
       z = g(y)
+      Xtz = crossprod(X, z)
 
       # Update the inverse transformation function:
       g_inv = g_inv_approx(g = g, t_grid = y_grid)
@@ -618,14 +634,14 @@ sbsm = function(y, x = NULL,
     #----------------------------------------------------------------------------
     # Block 2: sample the scale adjustment (SD)
     # SSR_psi = sum(z^2) - crossprod(z, X%*%solve(crossprod(X) + diag(1/psi, p+1))%*%crossprod(X,z))
-    SSR_psi = sum(z^2) - crossprod(1/sqrt(diagXtX + 1/psi)*crossprod(X, z))
+    SSR_psi = sum(z^2) - crossprod(1/sqrt(diagXtX + 1/psi)*Xtz)
     sigma_epsilon = 1/sqrt(rgamma(n = 1,
-                                  shape = .001 + n/2,
-                                  rate = .001 + SSR_psi/2))
+                                  shape = a_sigma + n/2,
+                                  rate = b_sigma + SSR_psi/2))
     #----------------------------------------------------------------------------
     # Block 3: sample the regression coefficients
     Q_theta = 1/sigma_epsilon^2*(diagXtX + 1/psi)
-    ell_theta = 1/sigma_epsilon^2*crossprod(X, z)
+    ell_theta = 1/sigma_epsilon^2*Xtz
     theta = rnorm(n = p+1,
                  mean = Q_theta^-1*ell_theta,
                  sd = sqrt(Q_theta^-1))
@@ -655,9 +671,15 @@ sbsm = function(y, x = NULL,
     # Posterior samples of the prior variance (inverse smoothing parameter)
     post_psi[nsi] = psi
     #----------------------------------------------------------------------------
-    if(verbose) computeTimeRemaining(nsi, timer0, nsave, nrep = 2500)
+    if(verbose) computeTimeRemaining(nsi, timer0, nsave)
   }
-  if(verbose) print(paste('Total time: ', round((proc.time()[3] - timer0)), 'seconds'))
+  # Summarize computing time:
+  if(verbose){
+    tfinal = proc.time()[3] - timer0
+    if(tfinal > 60){
+      print(paste('Total time:', round(tfinal/60,1), 'minutes'))
+    } else print(paste('Total time:', round(tfinal), 'seconds'))
+  }
 
   return(list(
     coefficients = colMeans(post_theta),
@@ -665,7 +687,7 @@ sbsm = function(y, x = NULL,
     post_theta = post_theta,
     post_ypred = post_ypred,
     post_g = post_g,  post_psi = post_psi,
-    model = 'sbsm', y = y, X = X[,-1], approx_g = approx_g))
+    model = 'sbsm', y = y, X = X[,-1], sample_psi = sample_psi, laplace_approx = laplace_approx, fixedX = fixedX, approx_g = approx_g))
 }
 #---------------------------------------------------------------
 #' Semiparametric Bayesian Gaussian processes
@@ -717,7 +739,8 @@ sbsm = function(y, x = NULL,
 #' the Gaussian process parameters are fixed at point estimates, and the latent Gaussian
 #' process is only sampled when \code{emp_bayes = FALSE}. However, the uncertainty
 #' from this term is often negligible compared to the observation errors, and the
-#' transformation serves as an additional layer of robustness.
+#' transformation serves as an additional layer of robustness. By default, \code{fixedX} is
+#' set to FALSE for smaller datasets (\code{n < 500}) and TRUE for larger datasets (\code{n >= 500}).
 #'
 #' @examples
 #' \donttest{
@@ -756,7 +779,7 @@ sbgp = function(y, locs,
                 X_test = NULL,
                 nn = 30,
                 emp_bayes = TRUE,
-                fixedX = FALSE,
+                fixedX = (length(y) >= 500),
                 approx_g = FALSE,
                 nsave = 1000,
                 ngrid = 100){
@@ -1037,7 +1060,7 @@ sbgp = function(y, locs,
     fit_gp = fit_gp,
     post_ypred = post_ypred,
     post_g = post_g,
-    model = 'sbgp', y = y, X = X, approx_g = approx_g))
+    model = 'sbgp', y = y, X = X, X_test = X_test, nn = nn, emp_bayes = emp_bayes, fixedX = fixedX, approx_g = approx_g))
 }
 #' Semiparametric Bayesian quantile regression
 #'
@@ -1157,25 +1180,26 @@ sbqr = function(y, X, tau = 0.5,
     )
   }
 
-  # Testing data points:
-  if(!is.matrix(X_test)) X_test = matrix(X_test, nrow  = 1)
-  n_test = nrow(X_test)
+  # Initial checks:
+  if(!is.matrix(X)) stop("X must be a matrix (rows = observations, columns = variables)")
+  if(!is.matrix(X_test)) stop("X_test must be a matrix (rows = observations, columns = variables)")
+  if(ncol(X) != ncol(X_test)) stop('X_test and X must have the same number of columns (variables)')
+  if(nrow(X) != length(y)) stop('the length of y must equal nrow(X)')
 
   # Here: intercept is 1st column of X, X_test
-  #   This is not part of the target parameter theta
-  is_intercept = apply(X, 2, function(x) length(unique(x)) == 1)
-  X = cbind(1,
-            X[,!is_intercept])
-  is_intercept_test = apply(X_test, 2, function(x) length(unique(x)) == 1)
-  X_test = cbind(1,
-                 X_test[,!is_intercept_test])
+  #   (this is not part of the target parameter theta)
+  is_intercept = apply(X, 2, function(x) all(x == 1))
+  X = cbind(1, X[,!is_intercept])
+  is_intercept_test = apply(X_test, 2, function(x) all(x == 1))
+  X_test = cbind(1, X_test[,!is_intercept_test])
 
   # Data dimensions:
-  n = length(y); p = ncol(X) - 1 # excluding intercept
+  n = length(y) # number of observations
+  p = ncol(X) - 1 # number of variables (excluding intercept)
+  n_test = nrow(X_test) # number of testing data points
 
-  # And some checks on columns:
+  # Requirement for the g-prior:
   if(p >= n) stop('The g-prior requires p < n')
-  if(ncol(X) != ncol(X_test)) stop('X_test and X must have the same number of columns')
   #----------------------------------------------------------------------------
   # Recurring terms:
   a_tau = (1-2*tau)/(tau*(1-tau))
@@ -1366,9 +1390,15 @@ sbqr = function(y, X, tau = 0.5,
       post_g[nsi - nburn,] = g(y0) - theta[1] # undo location (not identified; no scale here)
     }
     #----------------------------------------------------------------------------
-    if(verbose) computeTimeRemaining(nsi, timer0, nsave, nrep = 2500)
+    if(verbose) computeTimeRemaining(nsi, timer0, nsave)
   }
-  if(verbose) print(paste('Total time: ', round((proc.time()[3] - timer0)), 'seconds'))
+  # Summarize computing time:
+  if(verbose){
+    tfinal = proc.time()[3] - timer0
+    if(tfinal > 60){
+      print(paste('Total time:', round(tfinal/60,1), 'minutes'))
+    } else print(paste('Total time:', round(tfinal), 'seconds'))
+  }
 
   return(list(
     coefficients = colMeans(post_theta),
@@ -1377,7 +1407,7 @@ sbqr = function(y, X, tau = 0.5,
     post_ypred = post_ypred,
     post_qtau = post_qtau,
     post_g = post_g,
-    model = 'sbqr', y = y, X = X[,-1], X_test = X_test[,-1], psi = psi, approx_g = approx_g, tau = tau))
+    model = 'sbqr', y = y, X = X[,-1], X_test = X_test[,-1], psi = psi, laplace_approx = laplace_approx, fixedX = fixedX, approx_g = approx_g, tau = tau))
 }
 #---------------------------------------------------------------
 #' Post-processing with importance sampling
@@ -1601,9 +1631,15 @@ sir_adjust = function(fit,
     post_logw[nsi] = log_numer - log_denom
 
     # Check the timing:
-    if(verbose) computeTimeRemaining(nsi, timer0, nsave, nrep = 2500)
+    if(verbose) computeTimeRemaining(nsi, timer0, nsave)
   }
-  if(verbose) print(paste('Total time: ', round((proc.time()[3] - timer0)), 'seconds'))
+  # Summarize computing time:
+  if(verbose){
+    tfinal = proc.time()[3] - timer0
+    if(tfinal > 60){
+      print(paste('Total time:', round(tfinal/60,1), 'minutes'))
+    } else print(paste('Total time:', round(tfinal), 'seconds'))
+  }
 
   # Indices to keep:
   ind_sir = sample(1:nsave,

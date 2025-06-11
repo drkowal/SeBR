@@ -10,7 +10,7 @@ sblm(
   X_test = X,
   psi = length(y),
   laplace_approx = TRUE,
-  fixedX = FALSE,
+  fixedX = (length(y) >= 500),
   approx_g = FALSE,
   nsave = 1000,
   ngrid = 100,
@@ -72,7 +72,8 @@ a point approximation). This model applies for real-valued data, positive data, 
 compactly-supported data (the support is automatically deduced from the observed \code{y} values).
 The results are typically unchanged whether \code{laplace_approx} is TRUE/FALSE;
 setting it to TRUE may reduce sensitivity to the prior, while setting it to FALSE
-may speed up computations for very large datasets.
+may speed up computations for very large datasets. By default, \code{fixedX} is
+set to FALSE for smaller datasets (\code{n < 500}) and TRUE for larger datasets (\code{n >= 500}).
 }
 \note{
 The location (intercept) and scale (\code{sigma_epsilon}) are
