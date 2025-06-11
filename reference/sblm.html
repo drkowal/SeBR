@@ -52,7 +52,7 @@ for the regression coefficients.</p>
 <span>  X_test <span class="op">=</span> <span class="va">X</span>,</span>
 <span>  psi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>,</span>
 <span>  laplace_approx <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  fixedX <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  fixedX <span class="op">=</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">500</span><span class="op">)</span>,</span>
 <span>  approx_g <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  nsave <span class="op">=</span> <span class="fl">1000</span>,</span>
 <span>  ngrid <span class="op">=</span> <span class="fl">100</span>,</span>
@@ -132,7 +132,8 @@ a point approximation). This model applies for real-valued data, positive data, 
 compactly-supported data (the support is automatically deduced from the observed <code>y</code> values).
 The results are typically unchanged whether <code>laplace_approx</code> is TRUE/FALSE;
 setting it to TRUE may reduce sensitivity to the prior, while setting it to FALSE
-may speed up computations for very large datasets.</p>
+may speed up computations for very large datasets. By default, <code>fixedX</code> is
+set to FALSE for smaller datasets (<code>n &lt; 500</code>) and TRUE for larger datasets (<code>n &gt;= 500</code>).</p>
     </div>
     <div class="section level2">
     <h2 id="note">Note<a class="anchor" aria-label="anchor" href="#note"></a></h2>
@@ -156,12 +157,14 @@ identifiable parameters.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Fit the semiparametric Bayesian linear model:</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">=</span> <span class="fu">sblm</span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, X <span class="op">=</span> <span class="va">X</span>, X_test <span class="op">=</span> <span class="va">X_test</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "2 seconds remaining"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Total time:  3 seconds"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "3 sec remaining"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "2 sec remaining"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Total time: 3 seconds"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="co"># what is returned</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "coefficients"  "fitted.values" "post_theta"    "post_ypred"   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "post_g"        "model"         "y"             "X"            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "X_test"        "psi"           "approx_g"     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "coefficients"   "fitted.values"  "post_theta"     "post_ypred"    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "post_g"         "model"          "y"              "X"             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "X_test"         "psi"            "laplace_approx" "fixedX"        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "approx_g"      </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Note: this is Monte Carlo sampling...no need for MCMC diagnostics!</span></span></span>
 <span class="r-in"><span></span></span>
@@ -169,11 +172,11 @@ identifiable parameters.</p>
 <span class="r-in"><span><span class="fu"><a href="plot_pptest.html">plot_pptest</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_ypred</span>, <span class="va">y_test</span>,</span></span>
 <span class="r-in"><span>            alpha_level <span class="op">=</span> <span class="fl">0.10</span><span class="op">)</span> <span class="co"># coverage should be about 90%</span></span></span>
 <span class="r-plt img"><img src="sblm-2.png" alt="" width="700" height="433"></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.885</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Check: correlation with true coefficients</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">beta_true</span>, <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.985565</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.959766</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Summarize the transformation:</span></span></span>
 <span class="r-in"><span><span class="va">y0</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="co"># posterior draws of g are evaluated at the unique y observations</span></span></span>
@@ -208,7 +211,7 @@ identifiable parameters.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

@@ -44,7 +44,7 @@ the joint posterior (predictive) distribution."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Semiparametric Bayesian linear model with stochastic search variable selection</h1>
-      <small class="dont-index">Source: <a href="https://github.com/drkowal/SeBR/blob/master/R/experimental_funs.R" class="external-link"><code>R/experimental_funs.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/drkowal/SeBR/blob/master/R/source_varsel.R" class="external-link"><code>R/source_varsel.R</code></a></small>
       <div class="d-none name"><code>sblm_ssvs.Rd</code></div>
     </div>
 
@@ -66,7 +66,7 @@ the joint posterior (predictive) distribution.</p>
 <span>  <span class="va">X</span>,</span>
 <span>  X_test <span class="op">=</span> <span class="va">X</span>,</span>
 <span>  psi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>,</span>
-<span>  fixedX <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  fixedX <span class="op">=</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">500</span><span class="op">)</span>,</span>
 <span>  approx_g <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  init_screen <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  a_pi <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -143,6 +143,7 @@ to pre-screen (necessary when <code>p &gt; n</code>); if NULL, use n/log(n)</p><
     <p>a list with the following elements:</p><ul><li><p><code>coefficients</code> the posterior mean of the regression coefficients</p></li>
 <li><p><code>fitted.values</code> the posterior predictive mean at the test points <code>X_test</code></p></li>
 <li><p><code>selected</code>: the variables (indices) selected by the median probability model</p></li>
+<li><p><code>pip</code>: (marginal) posterior inclusion probabilities for each variable</p></li>
 <li><p><code>post_theta</code>: <code>nsave x p</code> samples from the posterior distribution
 of the regression coefficients</p></li>
 <li><p><code>post_gamma</code>: <code>nsave x p</code> samples from the posterior distribution
@@ -161,7 +162,9 @@ transformed linear model with sparse g-priors on the regression coefficients.
 The transformation is modeled as unknown and learned jointly
 with the regression coefficients (unless <code>approx_g</code> = TRUE, which then uses
 a point approximation). This model applies for real-valued data, positive data, and
-compactly-supported data (the support is automatically deduced from the observed <code>y</code> values).</p>
+compactly-supported data (the support is automatically deduced from the observed <code>y</code> values).
+By default, <code>fixedX</code> is set to FALSE for smaller datasets (<code>n &lt; 500</code>)
+and TRUE for larger datasets (<code>n &gt;= 500</code>).</p>
 <p>The sparsity prior is especially useful for variable selection. Compared
 to the horseshoe prior version (<code><a href="sblm_hs.html">sblm_hs</a></code>), the sparse g-prior
 is advantageous because 1) it truly allows for sparse (i.e., exactly zero)
@@ -171,7 +174,7 @@ under both sparse and non-sparse regimes, while the horseshoe version only
 performs well under sparse regimes. The disadvantage is that
 SSVS does not scale nearly as well in <code>p</code>.</p>
 <p>Following Scott and Berger (<a href="https://doi.org/10.1214/10-AOS792" class="external-link">https://doi.org/10.1214/10-AOS792</a>),
-we include a Beta prior on the prior inclusion probability. This term
+we include a <code>Beta(a_pi, b_pi)</code> prior on the prior inclusion probability. This term
 is then sampled with the variable inclusion indicators <code>gamma</code> in a
 Gibbs sampling block. All other terms are sampled using direct Monte Carlo
 (not MCMC) sampling.</p>
@@ -190,7 +193,7 @@ identifiable parameters.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="co"># Simulate some data:</span></span></span>
+<span class="r-in"><span><span class="co"># Simulate data from a transformed (sparse) linear model:</span></span></span>
 <span class="r-in"><span><span class="va">dat</span> <span class="op">=</span> <span class="fu"><a href="simulate_tlm.html">simulate_tlm</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">100</span>, p <span class="op">=</span> <span class="fl">15</span>, g_type <span class="op">=</span> <span class="st">'step'</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">y</span> <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">y</span>; <span class="va">X</span> <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">X</span> <span class="co"># training data</span></span></span>
 <span class="r-in"><span><span class="va">y_test</span> <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">y_test</span>; <span class="va">X_test</span> <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">X_test</span> <span class="co"># testing data</span></span></span>
@@ -200,23 +203,25 @@ identifiable parameters.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Fit the semiparametric Bayesian linear model with sparsity priors:</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">=</span> <span class="fu">sblm_ssvs</span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, X <span class="op">=</span> <span class="va">X</span>, X_test <span class="op">=</span> <span class="va">X_test</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "28 seconds remaining"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Total time:  49 seconds"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "25 sec remaining"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "14 sec remaining"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Total time: 47 seconds"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="co"># what is returned</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "coefficients"  "fitted.values" "selected"      "post_theta"   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "post_gamma"    "post_ypred"    "post_g"        "model"        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "y"             "X"             "X_test"        "init_screen"  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "approx_g"     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "coefficients"  "fitted.values" "selected"      "pip"          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "post_theta"    "post_gamma"    "post_ypred"    "post_g"       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "model"         "y"             "X"             "X_test"       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "psi"           "fixedX"        "approx_g"      "init_screen"  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [17] "a_pi"          "b_pi"         </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Evaluate posterior predictive means and intervals on the testing data:</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="plot_pptest.html">plot_pptest</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_ypred</span>, <span class="va">y_test</span>,</span></span>
 <span class="r-in"><span>            alpha_level <span class="op">=</span> <span class="fl">0.10</span><span class="op">)</span> <span class="co"># coverage should be about 90%</span></span></span>
 <span class="r-plt img"><img src="sblm_ssvs-2.png" alt="" width="700" height="433"></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.877</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.973</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Check: correlation with true coefficients</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">beta_true</span>, <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9702049</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9100479</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Selected coefficients under median probability model:</span></span></span>
 <span class="r-in"><span><span class="va">fit</span><span class="op">$</span><span class="va">selected</span></span></span>
@@ -233,11 +238,7 @@ identifiable parameters.</p>
 <span class="r-in"><span><span class="va">temp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_g</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">y0</span>, <span class="va">fit</span><span class="op">$</span><span class="va">post_g</span><span class="op">[</span><span class="va">s</span>,<span class="op">]</span>, col<span class="op">=</span><span class="st">'gray'</span><span class="op">)</span><span class="op">)</span> <span class="co"># posterior draws</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">y0</span>, <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_g</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="co"># posterior mean</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Add the true transformation, rescaled for easier comparisons:</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">y</span>,</span></span>
-<span class="r-in"><span>      <span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">g_true</span><span class="op">)</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_g</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_g</span><span class="op">)</span><span class="op">)</span>, type<span class="op">=</span><span class="st">'p'</span>, pch<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">'bottomright'</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Truth'</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="co"># annotate the true transformation</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">dat</span><span class="op">$</span><span class="va">g_true</span>, type<span class="op">=</span><span class="st">'p'</span>, pch<span class="op">=</span><span class="fl">2</span><span class="op">)</span> <span class="co"># true transformation</span></span></span>
 <span class="r-plt img"><img src="sblm_ssvs-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Posterior predictive checks on testing data: empirical CDF</span></span></span>
@@ -263,7 +264,7 @@ identifiable parameters.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>
