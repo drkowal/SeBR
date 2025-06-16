@@ -126,7 +126,6 @@
 #' lines(y0, ecdf(y_test)(y0),  # ECDF of testing data
 #'      col='black', type = 's', lwd = 3)
 #' }
-# #' @import bayeslm
 #' @importFrom stats cor median
 #' @export
 sblm_hs = function(y, X, X_test = X,
