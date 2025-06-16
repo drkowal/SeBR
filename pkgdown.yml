@@ -3,7 +3,7 @@ pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   SeBR: SeBR.html
-last_built: 2025-06-16T19:52Z
+last_built: 2025-06-16T22:10Z
 urls:
   reference: https://drkowal.github.io/SeBR/reference
   article: https://drkowal.github.io/SeBR/articles

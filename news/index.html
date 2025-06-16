@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">SeBR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,10 +34,38 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.0" id="sebr-100">SeBR 1.0.0<a class="anchor" aria-label="anchor" href="#sebr-100"></a></h2><p class="text-muted">CRAN release: 2023-07-03</p>
-<ul><li>Initial CRAN submission.</li>
+<h2 class="pkg-version" data-toc-text="1.1.0" id="sebr-110">SeBR 1.1.0<a class="anchor" aria-label="anchor" href="#sebr-110"></a></h2>
+<div class="section level3">
+<h3 id="improvements-to-previous-functionality-1-1-0">Improvements to previous functionality<a class="anchor" aria-label="anchor" href="#improvements-to-previous-functionality-1-1-0"></a></h3>
+<ul><li>Added <code><a href="../reference/bb.html">bb()</a></code> to sample from the Bayesian bootstrap (BB) posterior more efficiently.</li>
+<li>Added a <code>fixedX</code> case for when the covariates are fixed (not random), which also improves computing time for all semiparametric regression functions.</li>
+<li>Since location (intercept) and scale (error standard deviation) are not identifiable in the general transformed regression model, these are no longer reported as coefficients/parameters.</li>
+<li>The posterior draws of the transformation <code>post_g</code> now report <code>(g - intercept)/scale</code> instead of <code>g</code>, which properly corresponds to the transformation under the location-scale identified model. Now, <code>post_g</code> can be compared directly to the “true” transformations from simulated data without any further location-scale matching.</li>
 </ul></div>
-  </main></div>
+<div class="section level3">
+<h3 id="fewer-dependencies-1-1-0">Fewer dependencies<a class="anchor" aria-label="anchor" href="#fewer-dependencies-1-1-0"></a></h3>
+<ul><li>
+<code>fields</code> and <code>GpGp</code> are only needed for <code><a href="../reference/sbgp.html">sbgp()</a></code> and <code><a href="../reference/bgp_bc.html">bgp_bc()</a></code>.</li>
+<li>
+<code>plyr</code> is only needed for <code><a href="../reference/sblm_modelsel.html">sblm_modelsel()</a></code>.</li>
+<li>
+<code>statmod</code> is only needed for <code><a href="../reference/sbqr.html">sbqr()</a></code> and <code><a href="../reference/bqr.html">bqr()</a></code>.</li>
+<li>
+<code>quantreg</code> is only needed for <code><a href="../reference/sbqr.html">sbqr()</a></code>.<br></li>
+<li>
+<code>spikeSlabGAM</code> is only needed for <code><a href="../reference/sbsm.html">sbsm()</a></code> and <code><a href="../reference/bsm_bc.html">bsm_bc()</a></code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-functions-1-1-0">New functions<a class="anchor" aria-label="anchor" href="#new-functions-1-1-0"></a></h3>
+<ul><li>Added <code><a href="../reference/sblm_hs.html">sblm_hs()</a></code> for semiparametric regression with horseshoe priors.</li>
+<li>Added <code><a href="../reference/blm_bc_hs.html">blm_bc_hs()</a></code> for Box-Cox transformed regression with horseshoe priors.</li>
+<li>Added <code><a href="../reference/sblm_ssvs.html">sblm_ssvs()</a></code> for stochastic search variable selection for semiparametric regression with sparsity priors.</li>
+<li>Added <code><a href="../reference/sblm_modelsel.html">sblm_modelsel()</a></code> for model/variable selection for semiparametric regression with sparsity priors.</li>
+<li>Added <code><a href="../reference/hbb.html">hbb()</a></code> function to sample from the hierarchical BB (HBB) posterior. <code><a href="../reference/concen_hbb.html">concen_hbb()</a></code> samples from the marginal posterior distribution of the HBB concentration parameters.</li>
+</ul></div>
+</div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
