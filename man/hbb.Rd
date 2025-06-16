@@ -50,7 +50,7 @@ each group. The common (BB) and group-specific (HBB) weights are also returned.
 \details{
 Assuming the data \code{y} are independent with unknown,
 group-specific distributions, the hierarchical Bayesian bootstrap (HBB) from
-Oganisian et al. (\url{https://doi.org/10.1515/ijb-2022-0051}) is a nonparametric model
+Oganisian et al. (<https://doi.org/10.1515/ijb-2022-0051>) is a nonparametric model
 for each distribution. The HBB includes hierarchical shrinkage across these
 groups toward a common distribution (the \code{\link{bb}}). The HBB admits
 direct Monte Carlo (not MCMC) sampling.
@@ -135,5 +135,5 @@ legend('bottomright', c('BB', paste('HBB:', ugroups)), col = 1:(K+1), lwd=3)
 
 }
 \references{
-Oganisian et al. (\url{https://doi.org/10.1515/ijb-2022-0051})
+Oganisian et al. (<https://doi.org/10.1515/ijb-2022-0051>)
 }

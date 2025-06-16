@@ -99,7 +99,7 @@ under both sparse and non-sparse regimes, while the horseshoe version only
 performs well under sparse regimes. The disadvantage is that
 SSVS does not scale nearly as well in \code{p}.
 
-Following Scott and Berger (\url{https://doi.org/10.1214/10-AOS792}),
+Following Scott and Berger (<https://doi.org/10.1214/10-AOS792>),
 we include a \code{Beta(a_pi, b_pi)} prior on the prior inclusion probability. This term
 is then sampled with the variable inclusion indicators \code{gamma} in a
 Gibbs sampling block. All other terms are sampled using direct Monte Carlo

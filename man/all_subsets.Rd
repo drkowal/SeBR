@@ -18,5 +18,5 @@ Given a set of variables, compute the inclusion indicators for
 all possible subsets.
 }
 \references{
-Code adapted from \url{https://www.r-bloggers.com/2012/04/generating-all-subsets-of-a-set/}
+Code adapted from <https://www.r-bloggers.com/2012/04/generating-all-subsets-of-a-set/>
 }

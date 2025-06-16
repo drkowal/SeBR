@@ -213,7 +213,7 @@ bb = function(y){
 #'
 #' @details Assuming the data \code{y} are independent with unknown,
 #' group-specific distributions, the hierarchical Bayesian bootstrap (HBB) from
-#' Oganisian et al. (\url{https://doi.org/10.1515/ijb-2022-0051}) is a nonparametric model
+#' Oganisian et al. (<https://doi.org/10.1515/ijb-2022-0051>) is a nonparametric model
 #' for each distribution. The HBB includes hierarchical shrinkage across these
 #' groups toward a common distribution (the \code{\link{bb}}). The HBB admits
 #' direct Monte Carlo (not MCMC) sampling.
@@ -247,7 +247,7 @@ bb = function(y){
 #' @note If supplying \code{alphas} with distinct entries, make sure that the
 #' groups are ordered properly; these entries should match \code{sort(unique(groups))}.
 #'
-#' @references Oganisian et al. (\url{https://doi.org/10.1515/ijb-2022-0051})
+#' @references Oganisian et al. (<https://doi.org/10.1515/ijb-2022-0051>)
 #'
 #' @examples
 #' # Sample size and number of groups:
@@ -432,7 +432,7 @@ hbb = function(y, groups,
 #' \code{shape_alphas = 30*K} and \code{rate_alphas = 1}, where \code{K} is the
 #' number of groups.
 #'
-#' @references Oganisian et al. (\url{https://doi.org/10.1515/ijb-2022-0051})
+#' @references Oganisian et al. (<https://doi.org/10.1515/ijb-2022-0051>)
 #'
 #' @examples
 #' # Dimensions:

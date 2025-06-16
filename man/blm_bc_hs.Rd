@@ -73,7 +73,7 @@ That parameter may be fixed in advanced or learned from the data.
 The horseshoe prior is especially useful for high-dimensional settings with
 many (possibly correlated) covariates. This function
 uses a fast Cholesky-forward/backward sampler when \code{p < n}
-and the Bhattacharya et al. (\url{https://doi.org/10.1093/biomet/asw042}) sampler
+and the Bhattacharya et al. (<https://doi.org/10.1093/biomet/asw042>) sampler
 when \code{p > n}. Thus, the sampler can scale linear in \code{n}
 (for fixed/small \code{p}) or linear in \code{p} (for fixed/small \code{n}).
 }

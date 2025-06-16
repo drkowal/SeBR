@@ -84,7 +84,7 @@ many (possibly correlated) covariates. Compared to sparse or spike-and-slab
 alternatives (see \code{\link{sblm_ssvs}}), the horseshoe prior
 delivers more scalable computing in \code{p}. This function
 uses a fast Cholesky-forward/backward sampler when \code{p < n}
-and the Bhattacharya et al. (\url{https://doi.org/10.1093/biomet/asw042}) sampler
+and the Bhattacharya et al. (<https://doi.org/10.1093/biomet/asw042>) sampler
 when \code{p > n}. Thus, the sampler can scale linear in \code{n}
 (for fixed/small \code{p}) or linear in \code{p} (for fixed/small \code{n}).
 Empirically, the horseshoe prior performs best under sparse regimes,

@@ -24,5 +24,5 @@ and mu = Sigma*crossprod(Phi, alpha):
 Assumes D is diagonal, but extensions are available
 }
 \references{
-Bhattacharya, Chakraborty, and Mallick (2016, \url{https://doi.org/10.1093/biomet/asw042})
+Bhattacharya, Chakraborty, and Mallick (2016, <https://doi.org/10.1093/biomet/asw042>)
 }

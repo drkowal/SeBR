@@ -77,5 +77,5 @@ for(c in 1:K) {
 
 }
 \references{
-Oganisian et al. (\url{https://doi.org/10.1515/ijb-2022-0051})
+Oganisian et al. (<https://doi.org/10.1515/ijb-2022-0051>)
 }

@@ -51,7 +51,7 @@
 #' alternatives (see \code{\link{sblm_ssvs}}), the horseshoe prior
 #' delivers more scalable computing in \code{p}. This function
 #' uses a fast Cholesky-forward/backward sampler when \code{p < n}
-#' and the Bhattacharya et al. (\url{https://doi.org/10.1093/biomet/asw042}) sampler
+#' and the Bhattacharya et al. (<https://doi.org/10.1093/biomet/asw042>) sampler
 #' when \code{p > n}. Thus, the sampler can scale linear in \code{n}
 #' (for fixed/small \code{p}) or linear in \code{p} (for fixed/small \code{n}).
 #' Empirically, the horseshoe prior performs best under sparse regimes,
@@ -522,7 +522,7 @@ sblm_hs = function(y, X, X_test = X,
 #' performs well under sparse regimes. The disadvantage is that
 #' SSVS does not scale nearly as well in \code{p}.
 #'
-#' Following Scott and Berger (\url{https://doi.org/10.1214/10-AOS792}),
+#' Following Scott and Berger (<https://doi.org/10.1214/10-AOS792>),
 #' we include a \code{Beta(a_pi, b_pi)} prior on the prior inclusion probability. This term
 #' is then sampled with the variable inclusion indicators \code{gamma} in a
 #' Gibbs sampling block. All other terms are sampled using direct Monte Carlo
@@ -1217,7 +1217,7 @@ sblm_modelsel = function(y, X,
 
 #' @note Assumes D is diagonal, but extensions are available
 #'
-#' @references Bhattacharya, Chakraborty, and Mallick (2016, \url{https://doi.org/10.1093/biomet/asw042})
+#' @references Bhattacharya, Chakraborty, and Mallick (2016, <https://doi.org/10.1093/biomet/asw042>)
 #'
 #' @export
 sampleFastGaussian = function(Phi, Ddiag, alpha){
@@ -1285,7 +1285,7 @@ SSR_gprior = function(y, X = NULL, psi){
 #' @param set the set from which to compute all subsets (e.g., \code{1:p})
 #' @return a data frame where the rows indicate the \code{2^p} different subsets
 #' and the columns indicate inclusion (logical) for each element in that subset
-#' @references Code adapted from \url{https://www.r-bloggers.com/2012/04/generating-all-subsets-of-a-set/}
+#' @references Code adapted from <https://www.r-bloggers.com/2012/04/generating-all-subsets-of-a-set/>
 # #' @examples
 # #' library(plyr) # required for this function
 # #' all_subsets(1:3) # all subsets from {1,2,3}
