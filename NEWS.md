@@ -1,6 +1,5 @@
-# SeBR 1.2.0
-
 # SeBR 1.1.0
+
 
 ## Improvements to previous functionality
 * Added `bb()` to sample from the Bayesian bootstrap (BB) posterior more efficiently.
