@@ -18,9 +18,9 @@
 #' @param approx_g logical; if TRUE, apply large-sample
 #' approximation for the transformation
 #' @param init_screen for the initial approximation, number of covariates
-#' to pre-screen (necessary when \code{p > n}); if NULL, use n/log(n)
+#' to pre-screen (necessary when \code{p > n}); if NULL, use \code{n/log(n)}
 #' @param pilot_hs logical; if TRUE, use a short pilot run with a horseshoe
-#' prior to estimate the marginal CDF of the latent z (otherwise, use Laplace approximation)
+#' prior to estimate the marginal CDF of the latent z (otherwise, use a sparse Laplace approximation)
 #' @param nsave number of MCMC simulations to save
 #' @param nburn number of MCMC iterations to discard
 #' @param ngrid number of grid points for inverse approximations
@@ -59,16 +59,16 @@
 #' is a small fraction of the total number of variables.
 #'
 #' To learn the transformation, \code{SeBR} infers the marginal CDF
-#' of the latent data model \code{Fz} by averaging over the covariates
+#' of the latent data model \code{Fz} by integrating over the covariates
 #' \code{X} and the coefficients \code{theta}. When \code{fixedX = TRUE}, the
 #' \code{X} averaging is empirical; otherwise it uses the Bayesian bootstrap (\code{\link{bb}}).
-#' By default, \code{fixedX} is set to FALSE for smaller datasets (\code{n < 500})
-#' and TRUE for larger datasets (\code{n >= 500}). When \code{pilot_hs = TRUE},
+#' By default, \code{fixedX} is set to \code{FALSE} for smaller datasets (\code{n < 500})
+#' and \code{TRUE} for larger datasets. When \code{pilot_hs = TRUE},
 #' the algorithm fits an initial linear regression model
 #' with a horseshoe prior (\code{\link{blm_bc_hs}}) to transformed data
 #' (under a preliminary point estimate of the transformation) and
-#' uses that posterior distribution to marginalize over \code{theta}.
-#' Otherwise, this marginalization is done using a Laplace approximation
+#' uses that posterior distribution to integrate over \code{theta}.
+#' Otherwise, this marginalization is done using a sparse Laplace approximation
 #' for speed and simplicity.
 #'
 #' @note The location (intercept) and scale (\code{sigma_epsilon}) are
@@ -254,7 +254,6 @@ sblm_hs = function(y, X, X_test = X,
     post_theta = blm_bc_hs(y = z, X = X,
                            lambda = 1, sample_lambda = FALSE, # fixed identity transformation
                            only_theta = TRUE,  nsave = 500, nburn = 500, verbose = FALSE)$post_theta # quick run; only returns post_theta
-
 
     # Initialize coefficients:
     theta = colMeans(post_theta)
@@ -480,7 +479,7 @@ sblm_hs = function(y, X, X_test = X,
 #' @param approx_g logical; if TRUE, apply large-sample
 #' approximation for the transformation
 #' @param init_screen for the initial approximation, number of covariates
-#' to pre-screen (necessary when \code{p > n}); if NULL, use n/log(n)
+#' to pre-screen (necessary when \code{p > n}); if NULL, use \code{n/log(n)}
 #' @param a_pi shape1 parameter of the (Beta) prior inclusion probability
 #' @param b_pi shape2 parameter of the (Beta) prior inclusion probability
 #' @param nsave number of MCMC simulations to save
@@ -491,7 +490,7 @@ sblm_hs = function(y, X, X_test = X,
 #' \itemize{
 #' \item \code{coefficients} the posterior mean of the regression coefficients
 #' \item \code{fitted.values} the posterior predictive mean at the test points \code{X_test}
-#' \item \code{selected}: the variables (indices) selected by the median probability model
+#' \item \code{selected}: the variables (columns of \code{X}) selected by the median probability model
 #' \item \code{pip}: (marginal) posterior inclusion probabilities for each variable
 #' \item \code{post_theta}: \code{nsave x p} samples from the posterior distribution
 #' of the regression coefficients
@@ -511,8 +510,8 @@ sblm_hs = function(y, X, X_test = X,
 #' with the regression coefficients (unless \code{approx_g} = TRUE, which then uses
 #' a point approximation). This model applies for real-valued data, positive data, and
 #' compactly-supported data (the support is automatically deduced from the observed \code{y} values).
-#' By default, \code{fixedX} is set to FALSE for smaller datasets (\code{n < 500})
-#' and TRUE for larger datasets (\code{n >= 500}).
+#' By default, \code{fixedX} is set to \code{FALSE} for smaller datasets (\code{n < 500})
+#' and \code{TRUE} for larger datasets.
 #'
 #' The sparsity prior is especially useful for variable selection. Compared
 #' to the horseshoe prior version (\code{\link{sblm_hs}}), the sparse g-prior
@@ -913,7 +912,7 @@ sblm_ssvs = function(y, X, X_test = X,
 #' @param fixedX logical; if TRUE, treat the design as fixed (non-random) when sampling
 #' the transformation; otherwise treat covariates as random with an unknown distribution
 #' @param init_screen for the initial approximation, number of covariates
-#' to pre-screen (necessary when \code{p > n}); if NULL, use n/log(n)
+#' to pre-screen (necessary when \code{p > n}); if NULL, use \code{n/log(n)}
 #' @param nsave number of Monte Carlo simulations
 #' @param override logical; if TRUE, the user may override the default
 #' cancellation of the function call when \code{p > 15}
@@ -933,8 +932,8 @@ sblm_ssvs = function(y, X, X_test = X,
 #' The transformation is modeled as unknown and learned jointly
 #' with the model probabilities. This model applies for real-valued data, positive data, and
 #' compactly-supported data (the support is automatically deduced from the observed \code{y} values).
-#' By default, \code{fixedX} is set to FALSE for smaller datasets (\code{n < 500})
-#' and TRUE for larger datasets (\code{n >= 500}).
+#' By default, \code{fixedX} is set to \code{FALSE} for smaller datasets (\code{n < 500})
+#' and \code{TRUE} for larger datasets.
 #'
 #' Enumeration of all possible subsets is computationally demanding and
 #' should be reserved only for small \code{p}. The function will exit for
@@ -1204,280 +1203,6 @@ sblm_modelsel = function(y, X,
     post_probs = colMeans(post_probs_mc),
     all_models = all_models[,-1], # omit the intercept
     model = 'sblm_modelsel', y = y, X = X[,-1], prob_inclusion = prob_inclusion, psi = psi, fixedX = fixedX, init_screen = init_screen))
-}
-#' Bayesian linear model with a Box-Cox transformation and a horseshoe prior
-#'
-#' MCMC sampling for Bayesian linear regression with 1) a
-#' (known or unknown) Box-Cox transformation and 2) a horseshoe prior for
-#' the (possibly high-dimensional) regression coefficients.
-#'
-#' @param y \code{n x 1} vector of observed counts
-#' @param X \code{n x p} matrix of predictors (no intercept)
-#' @param X_test \code{n_test x p} matrix of predictors for test data;
-#' default is the observed covariates \code{X}
-#' @param lambda Box-Cox transformation; if NULL, estimate this parameter
-#' @param sample_lambda logical; if TRUE, sample lambda, otherwise
-#' use the fixed value of lambda above or the MLE (if lambda unspecified)
-#' @param only_theta logical; if TRUE, only return posterior draws of the
-#' regression coefficients (for speed)
-#' @param nsave number of MCMC iterations to save
-#' @param nburn number of MCMC iterations to discard
-#' @param nskip number of MCMC iterations to skip between saving iterations,
-#' i.e., save every (nskip + 1)th draw
-#' @param verbose logical; if TRUE, print time remaining
-#' @return a list with the following elements:
-#' \itemize{
-#' \item \code{coefficients} the posterior mean of the regression coefficients
-#' \item \code{fitted.values} the posterior predictive mean at the test points \code{X_test}
-#' \item \code{post_theta}: \code{nsave x p} samples from the posterior distribution
-#' of the regression coefficients
-#' \item \code{post_ypred}: \code{nsave x n_test} samples
-#' from the posterior predictive distribution at test points \code{X_test}
-#' \item \code{post_g}: \code{nsave} posterior samples of the transformation
-#' evaluated at the unique \code{y} values
-#' \item \code{post_lambda}: \code{nsave} posterior samples of lambda
-#' \item \code{post_sigma}: \code{nsave} posterior samples of sigma
-#' \item \code{model}: the model fit (here, \code{blm_bc_hs})
-#' }
-#' as well as the arguments passed in.
-#'
-#' @details This function provides fully Bayesian inference for a
-#' transformed linear model via MCMC sampling. The transformation is
-#' parametric from the Box-Cox family, which has one parameter \code{lambda}.
-#' That parameter may be fixed in advanced or learned from the data.
-#'
-#' The horseshoe prior is especially useful for high-dimensional settings with
-#' many (possibly correlated) covariates. This function
-#' uses a fast Cholesky-forward/backward sampler when \code{p < n}
-#' and the Bhattacharya et al. (\url{https://doi.org/10.1093/biomet/asw042}) sampler
-#' when \code{p > n}. Thus, the sampler can scale linear in \code{n}
-#' (for fixed/small \code{p}) or linear in \code{p} (for fixed/small \code{n}).
-#'
-#' @note Box-Cox transformations may be useful in some cases, but
-#' in general we recommend the nonparametric transformation in \code{\link{sblm_hs}}.
-#'
-#' @note An intercept is automatically added to \code{X} and
-#' \code{X_test}. The coefficients reported do *not* include
-#' this intercept parameter, since it is not identified
-#' under more general transformation models (e.g., \code{\link{sblm_hs}}).
-#'
-#' @examples
-#' # Simulate data from a transformed (sparse) linear model:
-#' dat = simulate_tlm(n = 100, p = 50, g_type = 'step', prop_sig = 0.1)
-#' y = dat$y; X = dat$X # training data
-#' y_test = dat$y_test; X_test = dat$X_test # testing data
-#'
-#' hist(y, breaks = 25) # marginal distribution
-#'
-#' # Fit the Bayesian linear model with a Box-Cox transformation & a horseshoe prior:
-#' fit = blm_bc_hs(y = y, X = X, X_test = X_test)
-#' names(fit) # what is returned
-#'
-#' @export
-blm_bc_hs = function(y, X, X_test = X,
-                  lambda = NULL,
-                  sample_lambda = TRUE,
-                  only_theta = FALSE,
-                  nsave = 1000,
-                  nburn = 1000,
-                  nskip = 0,
-                  verbose = TRUE){
-
-  # For testing:
-  # X_test = X; sample_lambda  = FALSE; lambda = NULL; nsave = 1000; nburn = 1000; nskip = 0; verbose = TRUE
-
-  # Initial checks:
-  if(!is.matrix(X)) stop("X must be a matrix (rows = observations, columns = variables)")
-  if(!is.matrix(X_test)) stop("X_test must be a matrix (rows = observations, columns = variables)")
-  if(ncol(X) != ncol(X_test)) stop('X_test and X must have the same number of columns (variables)')
-  if(nrow(X) != length(y)) stop('the length of y must equal nrow(X)')
-
-  # Here: intercept is 1st column of X, X_test
-  #   (this is not part of the target parameter theta)
-  is_intercept = apply(X, 2, function(x) all(x == 1))
-  X = cbind(1, X[,!is_intercept])
-  is_intercept_test = apply(X_test, 2, function(x) all(x == 1))
-  X_test = cbind(1, X_test[,!is_intercept_test])
-
-  # Data dimensions:
-  n = length(y) # number of observations
-  p = ncol(X) - 1 # number of variables (excluding intercept)
-  n_test = nrow(X_test) # number of testing data points
-
-  # Here, we require that lambda is either input or sampled
-  if(is.null(lambda) & !sample_lambda) stop('If sample_lambda = FALSE, the user must input a value of lambda')
-
-  # Hyperparameters for Gamma(a_sigma, b_sigma) prior on error precision
-  a_sigma = b_sigma = 0.001
-  #----------------------------------------------------------------------------
-  # Recurring terms:
-  y0 = sort(unique(y))
-  XtX = crossprod(X)
-  #----------------------------------------------------------------------------
-  # Initialize the parameters:
-
-  # The scale is not well-identified for unknown lambda, so initialize at one
-  sigma_epsilon = 1
-
-  # Box-Cox parameter, if unspecified
-  if(is.null(lambda)) lambda = 0.5
-
-  # Latent data:
-  z = g_bc(y, lambda = lambda)
-  Xtz = crossprod(X, z) # only changes if sample_lambda = TRUE
-
-  # Coefficients:
-  if(p < n){
-    theta = chol2inv(chol(XtX))%*%Xtz
-  } else {
-    theta = sampleFastGaussian(Phi = X/sigma_epsilon,
-                               Ddiag = rep(100, p+1),
-                               alpha = z/sigma_epsilon)
-  }
-  # Horseshoe prior parameters:
-  #         theta_j ~ N(0, lambda_j^2)
-  #         lambda_j ~ C+(0, tau)
-  #         tau ~ C+(0,1)
-  # Local precision parameters: eta_lambda_j = 1/lambda_j^2
-  eta_lambda_j = c(10^-6, # flat prior for intercept
-                   1/square_stabilize(theta[-1]))
-  xi_lambda_j = rep(1, p)
-
-  # Global precision parameters: eta_tau = 1/tau^2
-  eta_tau = xi_tau = 1
-  #----------------------------------------------------------------------------
-  # Store MCMC output:
-  post_theta = array(NA, c(nsave, p))
-  if(only_theta){
-    post_ypred = post_g = post_lambda = post_sigma = NULL
-  } else {
-    post_ypred = array(NA, c(nsave, n_test))
-    post_g = array(NA, c(nsave, length(y0)))
-    post_lambda = post_sigma = rep(NA, nsave)
-  }
-
-  # Total number of MCMC simulations:
-  nstot = nburn+(nskip+1)*(nsave)
-  skipcount = 0; isave = 0 # For counting
-
-  # Run the MCMC:
-  if(verbose) timer0 = proc.time()[3] # For timing the sampler
-  for(nsi in 1:nstot){
-
-    #----------------------------------------------------------------------------
-    # Block 1: sample the transformation
-    if(sample_lambda){
-      # Sample lambda:
-      lambda = uni.slice(x0 = lambda,
-                         g = function(l_bc){
-                           # Likelihood for lambda:
-                           sum(dnorm(g_bc(y, lambda = l_bc),
-                                     mean = X%*%theta,
-                                     sd = sigma_epsilon, log = TRUE)) +
-                             # This is the prior on lambda, truncated to [0, 2]
-                             dnorm(l_bc, mean = 1/2, sd = 1/2, log = TRUE)
-                         },
-                         w = 1/2, m = 50, lower = 0, upper = 2)
-
-      # Update z:
-      z = g_bc(y, lambda = lambda)
-      Xtz = crossprod(X, z)
-    }
-    #----------------------------------------------------------------------------
-    # Recurring terms for Blocks 2-3
-    ch_Q = chol(XtX + diag(eta_lambda_j, p + 1))
-    fsolve_theta = forwardsolve(t(ch_Q), Xtz)
-
-    # Block 2: sample the error SD (unconditional on theta!)
-    SSR_hs = sum(z^2) - crossprod(Xtz, backsolve(ch_Q, fsolve_theta))
-    sigma_epsilon = 1/sqrt(rgamma(n = 1,
-                                  shape = a_sigma + n/2,
-                                  rate = b_sigma + SSR_hs/2))
-    #----------------------------------------------------------------------------
-    # Block 3: sample the regression coefficients
-    if(p >= n){
-      # Fast sampler for p >= n (BHATTACHARYA et al., 2016)
-      theta = sampleFastGaussian(Phi = X/sigma_epsilon,
-                                 Ddiag = sigma_epsilon^2/eta_lambda_j,
-                                 alpha = z/sigma_epsilon)
-    } else {
-      # Fast sampler for p < n (Rue, 2001)
-      theta = backsolve(ch_Q/sigma_epsilon,
-                        fsolve_theta/sigma_epsilon + rnorm(p+1))
-
-      # Previously:
-      # ch_Q = 1/sigma_epsilon*chol(XtX + diag(eta_lambda_j, p+1))
-      # ell_theta = 1/sigma_epsilon^2*crossprod(X, z)
-      # theta = backsolve(ch_Q, forwardsolve(t(ch_Q), ell_theta) + rnorm(p+1))
-    }
-    #----------------------------------------------------------------------------
-    # Block 4: sample the horseshoe prior variance parameters
-
-    # Precision parameters & parameter expansions (local):
-    eta_lambda_j[-1] = rgamma(n = p,
-                              shape = 1,
-                              rate = xi_lambda_j + square_stabilize(theta[-1]/sigma_epsilon)/2
-    )
-    xi_lambda_j = rgamma(n = p,
-                         shape = 1,
-                         rate = eta_lambda_j[-1] + eta_tau)
-
-    # Precision parameters & parameter expansions (global):
-    eta_tau = rgamma(n = 1,
-                     shape = p/2 + 1/2,
-                     rate = sum(xi_lambda_j) + xi_tau)
-    xi_tau = rgamma(n = 1,
-                    shape = 1,
-                    rate = eta_tau + 1)
-    #----------------------------------------------------------------------------
-    # Store the MCMC:
-    if(nsi > nburn){
-
-      # Increment the skip counter:
-      skipcount = skipcount + 1
-
-      # Save the iteration:
-      if(skipcount > nskip){
-        # Increment the save index
-        isave = isave + 1
-
-        # Posterior samples of the model parameters:
-        post_theta[isave,] = theta[-1]
-
-        if(!only_theta){
-          # Predictive samples of ytilde:
-          ztilde = X_test%*%theta + sigma_epsilon*rnorm(n = n_test)
-          post_ypred[isave,] = g_inv_bc(ztilde, lambda = lambda)
-
-          # Posterior samples of the transformation:
-          post_g[isave,] = g_bc(y0, lambda = lambda)
-          post_lambda[isave] = lambda
-
-          # Posterior samples of the error SD:
-          post_sigma[isave] = sigma_epsilon
-        }
-
-        # And reset the skip counter:
-        skipcount = 0
-      }
-    }
-    if(verbose) computeTimeRemaining(nsi, timer0, nstot)
-  }
-  # Summarize computing time:
-  if(verbose){
-    tfinal = proc.time()[3] - timer0
-    if(tfinal > 60){
-      print(paste('Total time:', round(tfinal/60,1), 'minutes'))
-    } else print(paste('Total time:', round(tfinal), 'seconds'))
-  }
-
-  return(list(
-    coefficients = colMeans(post_theta),
-    fitted.values = ifelse(only_theta, NA, colMeans(post_ypred)),
-    post_theta = post_theta,
-    post_ypred = post_ypred,
-    post_g = post_g, post_lambda = post_lambda, post_sigma = post_sigma,
-    model = 'blm_bc_hs', y = y, X = X[,-1], X_test = X_test[,-1], sample_lambda = sample_lambda, only_theta = only_theta))
 }
 #----------------------------------------------------------------------------
 #' Sample a Gaussian vector using Bhattacharya et al. (2016)

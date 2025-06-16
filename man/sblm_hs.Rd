@@ -34,10 +34,10 @@ the transformation; otherwise treat covariates as random with an unknown distrib
 approximation for the transformation}
 
 \item{init_screen}{for the initial approximation, number of covariates
-to pre-screen (necessary when \code{p > n}); if NULL, use n/log(n)}
+to pre-screen (necessary when \code{p > n}); if NULL, use \code{n/log(n)}}
 
 \item{pilot_hs}{logical; if TRUE, use a short pilot run with a horseshoe
-prior to estimate the marginal CDF of the latent z (otherwise, use Laplace approximation)}
+prior to estimate the marginal CDF of the latent z (otherwise, use a sparse Laplace approximation)}
 
 \item{nsave}{number of MCMC simulations to save}
 
@@ -92,16 +92,16 @@ i.e., when the number of true signals (nonzero regression coefficients)
 is a small fraction of the total number of variables.
 
 To learn the transformation, \code{SeBR} infers the marginal CDF
-of the latent data model \code{Fz} by averaging over the covariates
+of the latent data model \code{Fz} by integrating over the covariates
 \code{X} and the coefficients \code{theta}. When \code{fixedX = TRUE}, the
 \code{X} averaging is empirical; otherwise it uses the Bayesian bootstrap (\code{\link{bb}}).
-By default, \code{fixedX} is set to FALSE for smaller datasets (\code{n < 500})
-and TRUE for larger datasets (\code{n >= 500}). When \code{pilot_hs = TRUE},
+By default, \code{fixedX} is set to \code{FALSE} for smaller datasets (\code{n < 500})
+and \code{TRUE} for larger datasets. When \code{pilot_hs = TRUE},
 the algorithm fits an initial linear regression model
 with a horseshoe prior (\code{\link{blm_bc_hs}}) to transformed data
 (under a preliminary point estimate of the transformation) and
-uses that posterior distribution to marginalize over \code{theta}.
-Otherwise, this marginalization is done using a Laplace approximation
+uses that posterior distribution to integrate over \code{theta}.
+Otherwise, this marginalization is done using a sparse Laplace approximation
 for speed and simplicity.
 }
 \note{

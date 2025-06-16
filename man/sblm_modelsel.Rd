@@ -30,7 +30,7 @@ sblm_modelsel(
 the transformation; otherwise treat covariates as random with an unknown distribution}
 
 \item{init_screen}{for the initial approximation, number of covariates
-to pre-screen (necessary when \code{p > n}); if NULL, use n/log(n)}
+to pre-screen (necessary when \code{p > n}); if NULL, use \code{n/log(n)}}
 
 \item{nsave}{number of Monte Carlo simulations}
 
@@ -63,8 +63,8 @@ transformed linear model with sparse g-priors on the regression coefficients.
 The transformation is modeled as unknown and learned jointly
 with the model probabilities. This model applies for real-valued data, positive data, and
 compactly-supported data (the support is automatically deduced from the observed \code{y} values).
-By default, \code{fixedX} is set to FALSE for smaller datasets (\code{n < 500})
-and TRUE for larger datasets (\code{n >= 500}).
+By default, \code{fixedX} is set to \code{FALSE} for smaller datasets (\code{n < 500})
+and \code{TRUE} for larger datasets.
 
 Enumeration of all possible subsets is computationally demanding and
 should be reserved only for small \code{p}. The function will exit for

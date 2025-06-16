@@ -37,7 +37,7 @@ the transformation; otherwise treat covariates as random with an unknown distrib
 approximation for the transformation}
 
 \item{init_screen}{for the initial approximation, number of covariates
-to pre-screen (necessary when \code{p > n}); if NULL, use n/log(n)}
+to pre-screen (necessary when \code{p > n}); if NULL, use \code{n/log(n)}}
 
 \item{a_pi}{shape1 parameter of the (Beta) prior inclusion probability}
 
@@ -56,7 +56,7 @@ a list with the following elements:
 \itemize{
 \item \code{coefficients} the posterior mean of the regression coefficients
 \item \code{fitted.values} the posterior predictive mean at the test points \code{X_test}
-\item \code{selected}: the variables (indices) selected by the median probability model
+\item \code{selected}: the variables (columns of \code{X}) selected by the median probability model
 \item \code{pip}: (marginal) posterior inclusion probabilities for each variable
 \item \code{post_theta}: \code{nsave x p} samples from the posterior distribution
 of the regression coefficients
@@ -87,8 +87,8 @@ The transformation is modeled as unknown and learned jointly
 with the regression coefficients (unless \code{approx_g} = TRUE, which then uses
 a point approximation). This model applies for real-valued data, positive data, and
 compactly-supported data (the support is automatically deduced from the observed \code{y} values).
-By default, \code{fixedX} is set to FALSE for smaller datasets (\code{n < 500})
-and TRUE for larger datasets (\code{n >= 500}).
+By default, \code{fixedX} is set to \code{FALSE} for smaller datasets (\code{n < 500})
+and \code{TRUE} for larger datasets.
 
 The sparsity prior is especially useful for variable selection. Compared
 to the horseshoe prior version (\code{\link{sblm_hs}}), the sparse g-prior
