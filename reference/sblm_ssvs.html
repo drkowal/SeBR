@@ -173,7 +173,7 @@ dependencies via the g-prior structure, and 3) it tends to perform well
 under both sparse and non-sparse regimes, while the horseshoe version only
 performs well under sparse regimes. The disadvantage is that
 SSVS does not scale nearly as well in <code>p</code>.</p>
-<p>Following Scott and Berger (<a href="https://doi.org/10.1214/10-AOS792" class="external-link">https://doi.org/10.1214/10-AOS792</a>),
+<p>Following Scott and Berger (&lt;https://doi.org/10.1214/10-AOS792&gt;),
 we include a <code>Beta(a_pi, b_pi)</code> prior on the prior inclusion probability. This term
 is then sampled with the variable inclusion indicators <code>gamma</code> in a
 Gibbs sampling block. All other terms are sampled using direct Monte Carlo
@@ -204,8 +204,8 @@ identifiable parameters.</p>
 <span class="r-in"><span><span class="co"># Fit the semiparametric Bayesian linear model with sparsity priors:</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">=</span> <span class="fu">sblm_ssvs</span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, X <span class="op">=</span> <span class="va">X</span>, X_test <span class="op">=</span> <span class="va">X_test</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "25 sec remaining"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "14 sec remaining"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Total time: 47 seconds"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "15 sec remaining"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Total time: 48 seconds"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="co"># what is returned</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "coefficients"  "fitted.values" "selected"      "pip"          </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "post_theta"    "post_gamma"    "post_ypred"    "post_g"       </span>

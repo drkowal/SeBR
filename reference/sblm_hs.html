@@ -152,7 +152,7 @@ many (possibly correlated) covariates. Compared to sparse or spike-and-slab
 alternatives (see <code><a href="sblm_ssvs.html">sblm_ssvs</a></code>), the horseshoe prior
 delivers more scalable computing in <code>p</code>. This function
 uses a fast Cholesky-forward/backward sampler when <code>p &lt; n</code>
-and the Bhattacharya et al. (<a href="https://doi.org/10.1093/biomet/asw042" class="external-link">https://doi.org/10.1093/biomet/asw042</a>) sampler
+and the Bhattacharya et al. (&lt;https://doi.org/10.1093/biomet/asw042&gt;) sampler
 when <code>p &gt; n</code>. Thus, the sampler can scale linear in <code>n</code>
 (for fixed/small <code>p</code>) or linear in <code>p</code> (for fixed/small <code>n</code>).
 Empirically, the horseshoe prior performs best under sparse regimes,
@@ -195,7 +195,7 @@ identifiable parameters.</p>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">=</span> <span class="fu">sblm_hs</span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, X <span class="op">=</span> <span class="va">X</span>, X_test <span class="op">=</span> <span class="va">X_test</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "3 sec remaining"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "3 sec remaining"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Total time: 8 seconds"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Total time: 9 seconds"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="co"># what is returned</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "coefficients"  "fitted.values" "post_theta"    "post_ypred"   </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "post_g"        "post_sigma"    "model"         "y"            </span>
