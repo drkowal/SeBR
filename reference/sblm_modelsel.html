@@ -90,7 +90,7 @@ the transformation; otherwise treat covariates as random with an unknown distrib
 
 <dt id="arg-init-screen">init_screen<a class="anchor" aria-label="anchor" href="#arg-init-screen"></a></dt>
 <dd><p>for the initial approximation, number of covariates
-to pre-screen (necessary when <code>p &gt; n</code>); if NULL, use n/log(n)</p></dd>
+to pre-screen (necessary when <code>p &gt; n</code>); if NULL, use <code>n/log(n)</code></p></dd>
 
 
 <dt id="arg-nsave">nsave<a class="anchor" aria-label="anchor" href="#arg-nsave"></a></dt>
@@ -125,8 +125,8 @@ transformed linear model with sparse g-priors on the regression coefficients.
 The transformation is modeled as unknown and learned jointly
 with the model probabilities. This model applies for real-valued data, positive data, and
 compactly-supported data (the support is automatically deduced from the observed <code>y</code> values).
-By default, <code>fixedX</code> is set to FALSE for smaller datasets (<code>n &lt; 500</code>)
-and TRUE for larger datasets (<code>n &gt;= 500</code>).</p>
+By default, <code>fixedX</code> is set to <code>FALSE</code> for smaller datasets (<code>n &lt; 500</code>)
+and <code>TRUE</code> for larger datasets.</p>
 <p>Enumeration of all possible subsets is computationally demanding and
 should be reserved only for small <code>p</code>. The function will exit for
 <code>p &gt; 15</code> unless <code>override = TRUE</code>.</p>
@@ -161,7 +161,7 @@ non-intercept variables in <code>X</code>.</p>
 <span class="r-in"><span><span class="co"># Fit the semiparametric Bayesian linear model with model selection:</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">=</span> <span class="fu">sblm_modelsel</span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, X <span class="op">=</span> <span class="va">X</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "13 sec remaining"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "6 sec remaining"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "7 sec remaining"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Total time: 18 seconds"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="co"># what is returned</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "post_probs"     "all_models"     "model"          "y"             </span>
@@ -177,7 +177,7 @@ non-intercept variables in <code>X</code>.</p>
 <span class="r-in"><span><span class="co"># Highest probability model:</span></span></span>
 <span class="r-in"><span><span class="va">hpm</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.max</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_probs</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span><span class="op">$</span><span class="va">post_probs</span><span class="op">[</span><span class="va">hpm</span><span class="op">]</span> <span class="co"># probability</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.8489174</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.8207918</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">all_models</span><span class="op">[</span><span class="va">hpm</span>,<span class="op">]</span><span class="op">)</span> <span class="co"># which variables</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> X1 X2 X3 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  1  2  3 </span>

@@ -102,12 +102,12 @@ approximation for the transformation</p></dd>
 
 <dt id="arg-init-screen">init_screen<a class="anchor" aria-label="anchor" href="#arg-init-screen"></a></dt>
 <dd><p>for the initial approximation, number of covariates
-to pre-screen (necessary when <code>p &gt; n</code>); if NULL, use n/log(n)</p></dd>
+to pre-screen (necessary when <code>p &gt; n</code>); if NULL, use <code>n/log(n)</code></p></dd>
 
 
 <dt id="arg-pilot-hs">pilot_hs<a class="anchor" aria-label="anchor" href="#arg-pilot-hs"></a></dt>
 <dd><p>logical; if TRUE, use a short pilot run with a horseshoe
-prior to estimate the marginal CDF of the latent z (otherwise, use Laplace approximation)</p></dd>
+prior to estimate the marginal CDF of the latent z (otherwise, use a sparse Laplace approximation)</p></dd>
 
 
 <dt id="arg-nsave">nsave<a class="anchor" aria-label="anchor" href="#arg-nsave"></a></dt>
@@ -159,16 +159,16 @@ Empirically, the horseshoe prior performs best under sparse regimes,
 i.e., when the number of true signals (nonzero regression coefficients)
 is a small fraction of the total number of variables.</p>
 <p>To learn the transformation, <code>SeBR</code> infers the marginal CDF
-of the latent data model <code>Fz</code> by averaging over the covariates
+of the latent data model <code>Fz</code> by integrating over the covariates
 <code>X</code> and the coefficients <code>theta</code>. When <code>fixedX = TRUE</code>, the
 <code>X</code> averaging is empirical; otherwise it uses the Bayesian bootstrap (<code><a href="bb.html">bb</a></code>).
-By default, <code>fixedX</code> is set to FALSE for smaller datasets (<code>n &lt; 500</code>)
-and TRUE for larger datasets (<code>n &gt;= 500</code>). When <code>pilot_hs = TRUE</code>,
+By default, <code>fixedX</code> is set to <code>FALSE</code> for smaller datasets (<code>n &lt; 500</code>)
+and <code>TRUE</code> for larger datasets. When <code>pilot_hs = TRUE</code>,
 the algorithm fits an initial linear regression model
 with a horseshoe prior (<code><a href="blm_bc_hs.html">blm_bc_hs</a></code>) to transformed data
 (under a preliminary point estimate of the transformation) and
-uses that posterior distribution to marginalize over <code>theta</code>.
-Otherwise, this marginalization is done using a Laplace approximation
+uses that posterior distribution to integrate over <code>theta</code>.
+Otherwise, this marginalization is done using a sparse Laplace approximation
 for speed and simplicity.</p>
     </div>
     <div class="section level2">
@@ -195,7 +195,7 @@ identifiable parameters.</p>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">=</span> <span class="fu">sblm_hs</span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, X <span class="op">=</span> <span class="va">X</span>, X_test <span class="op">=</span> <span class="va">X_test</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "3 sec remaining"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "3 sec remaining"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Total time: 9 seconds"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Total time: 8 seconds"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="co"># what is returned</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "coefficients"  "fitted.values" "post_theta"    "post_ypred"   </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "post_g"        "post_sigma"    "model"         "y"            </span>
@@ -206,11 +206,11 @@ identifiable parameters.</p>
 <span class="r-in"><span><span class="fu"><a href="plot_pptest.html">plot_pptest</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_ypred</span>, <span class="va">y_test</span>,</span></span>
 <span class="r-in"><span>            alpha_level <span class="op">=</span> <span class="fl">0.10</span><span class="op">)</span> <span class="co"># coverage should be about 90%</span></span></span>
 <span class="r-plt img"><img src="sblm_hs-2.png" alt="" width="700" height="433"></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.919</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.873</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Check: correlation with true coefficients</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">beta_true</span>, <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9723582</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9770368</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Compute 95% credible intervals for the coefficients:</span></span></span>
 <span class="r-in"><span><span class="va">ci_theta</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_theta</span>, <span class="fl">2</span>, <span class="va">quantile</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span><span class="op">/</span><span class="fl">2</span>, <span class="fl">1</span> <span class="op">-</span> <span class="fl">0.05</span><span class="op">/</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>

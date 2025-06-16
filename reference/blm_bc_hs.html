@@ -34,7 +34,7 @@ the (possibly high-dimensional) regression coefficients."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Bayesian linear model with a Box-Cox transformation and a horseshoe prior</h1>
-      <small class="dont-index">Source: <a href="https://github.com/drkowal/SeBR/blob/master/R/source_varsel.R" class="external-link"><code>R/source_varsel.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/drkowal/SeBR/blob/master/R/source_compete.R" class="external-link"><code>R/source_compete.R</code></a></small>
       <div class="d-none name"><code>blm_bc_hs.Rd</code></div>
     </div>
 
@@ -151,16 +151,12 @@ under more general transformation models (e.g., <code><a href="sblm_hs.html">sbl
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Simulate data from a transformed (sparse) linear model:</span></span></span>
 <span class="r-in"><span><span class="va">dat</span> <span class="op">=</span> <span class="fu"><a href="simulate_tlm.html">simulate_tlm</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">100</span>, p <span class="op">=</span> <span class="fl">50</span>, g_type <span class="op">=</span> <span class="st">'step'</span>, prop_sig <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">y</span> <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">y</span>; <span class="va">X</span> <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">X</span> <span class="co"># training data</span></span></span>
-<span class="r-in"><span><span class="va">y_test</span> <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">y_test</span>; <span class="va">X_test</span> <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">X_test</span> <span class="co"># testing data</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">y</span>, breaks <span class="op">=</span> <span class="fl">25</span><span class="op">)</span> <span class="co"># marginal distribution</span></span></span>
 <span class="r-plt img"><img src="blm_bc_hs-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Fit the Bayesian linear model with a Box-Cox transformation &amp; a horseshoe prior:</span></span></span>
-<span class="r-in"><span><span class="va">fit</span> <span class="op">=</span> <span class="fu">blm_bc_hs</span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, X <span class="op">=</span> <span class="va">X</span>, X_test <span class="op">=</span> <span class="va">X_test</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "1 sec remaining"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "1 sec remaining"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Total time: 1 seconds"</span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">=</span> <span class="fu">blm_bc_hs</span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, X <span class="op">=</span> <span class="va">X</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="co"># what is returned</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "coefficients"  "fitted.values" "post_theta"    "post_ypred"   </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "post_g"        "post_lambda"   "post_sigma"    "model"        </span>

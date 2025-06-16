@@ -111,7 +111,7 @@ approximation for the transformation</p></dd>
 
 <dt id="arg-init-screen">init_screen<a class="anchor" aria-label="anchor" href="#arg-init-screen"></a></dt>
 <dd><p>for the initial approximation, number of covariates
-to pre-screen (necessary when <code>p &gt; n</code>); if NULL, use n/log(n)</p></dd>
+to pre-screen (necessary when <code>p &gt; n</code>); if NULL, use <code>n/log(n)</code></p></dd>
 
 
 <dt id="arg-a-pi">a_pi<a class="anchor" aria-label="anchor" href="#arg-a-pi"></a></dt>
@@ -142,7 +142,7 @@ to pre-screen (necessary when <code>p &gt; n</code>); if NULL, use n/log(n)</p><
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>a list with the following elements:</p><ul><li><p><code>coefficients</code> the posterior mean of the regression coefficients</p></li>
 <li><p><code>fitted.values</code> the posterior predictive mean at the test points <code>X_test</code></p></li>
-<li><p><code>selected</code>: the variables (indices) selected by the median probability model</p></li>
+<li><p><code>selected</code>: the variables (columns of <code>X</code>) selected by the median probability model</p></li>
 <li><p><code>pip</code>: (marginal) posterior inclusion probabilities for each variable</p></li>
 <li><p><code>post_theta</code>: <code>nsave x p</code> samples from the posterior distribution
 of the regression coefficients</p></li>
@@ -163,8 +163,8 @@ The transformation is modeled as unknown and learned jointly
 with the regression coefficients (unless <code>approx_g</code> = TRUE, which then uses
 a point approximation). This model applies for real-valued data, positive data, and
 compactly-supported data (the support is automatically deduced from the observed <code>y</code> values).
-By default, <code>fixedX</code> is set to FALSE for smaller datasets (<code>n &lt; 500</code>)
-and TRUE for larger datasets (<code>n &gt;= 500</code>).</p>
+By default, <code>fixedX</code> is set to <code>FALSE</code> for smaller datasets (<code>n &lt; 500</code>)
+and <code>TRUE</code> for larger datasets.</p>
 <p>The sparsity prior is especially useful for variable selection. Compared
 to the horseshoe prior version (<code><a href="sblm_hs.html">sblm_hs</a></code>), the sparse g-prior
 is advantageous because 1) it truly allows for sparse (i.e., exactly zero)
@@ -217,11 +217,11 @@ identifiable parameters.</p>
 <span class="r-in"><span><span class="fu"><a href="plot_pptest.html">plot_pptest</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">post_ypred</span>, <span class="va">y_test</span>,</span></span>
 <span class="r-in"><span>            alpha_level <span class="op">=</span> <span class="fl">0.10</span><span class="op">)</span> <span class="co"># coverage should be about 90%</span></span></span>
 <span class="r-plt img"><img src="sblm_ssvs-2.png" alt="" width="700" height="433"></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.973</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.97</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Check: correlation with true coefficients</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">beta_true</span>, <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9100479</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9375642</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Selected coefficients under median probability model:</span></span></span>
 <span class="r-in"><span><span class="va">fit</span><span class="op">$</span><span class="va">selected</span></span></span>
