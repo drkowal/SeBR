@@ -366,7 +366,7 @@ sblm_hs = function(y, X, X_test = X,
 
 
       # Compute the transformation:
-      g = g_fun(y = y0, Fy_eval = Fy_eval,
+      g = g_fun(y = y0, Fy_eval = n/(n+1)*Fy_eval, # scaled by n/(n+1) for boundary issues
                 z = z_grid, Fz_eval = Fz_eval)
 
       # Update z:
@@ -767,7 +767,7 @@ sblm_ssvs = function(y, X, X_test = X,
       } # otherwise, the weights are 1/n (how we initialized)
 
       # Compute the transformation:
-      g = g_fun(y = y0, Fy_eval = Fy_eval,
+      g = g_fun(y = y0, Fy_eval = n/(n+1)*Fy_eval, # scaled by n/(n+1) for boundary issues
                 z = z_grid, Fz_eval = Fz_eval)
 
       # Update z:
@@ -1155,7 +1155,7 @@ sblm_modelsel = function(y, X,
     } # otherwise, the weights are 1/n (how we initialized)
 
     # Compute the transformation:
-    g = g_fun(y = y0, Fy_eval = Fy_eval,
+    g = g_fun(y = y0, Fy_eval = n/(n+1)*Fy_eval, # scaled by n/(n+1) for boundary issues
               z = z_grid, Fz_eval = Fz_eval)
 
     # Update z:

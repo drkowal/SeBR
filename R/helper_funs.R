@@ -175,12 +175,13 @@ bb = function(y){
   weights_y = rgamma(n = n, shape = 1)
   weights_y  = weights_y/sum(weights_y)
 
-  # Key input (with rescaling by n/(n+1) as in the paper for boundary reasons)
-  sum_weights_y = n/(n+1)*cumsum(weights_y)
+  # Key input
+  sum_weights_y = cumsum(weights_y) # n/(n+1)*cumsum(weights_y)
 
-  # Use approxfun() for fast computing (w/ n/(n+1) rescaling as above)
+  # Use approxfun() for fast computing
   Fy = approxfun(y, sum_weights_y,
-                 yleft = 0, yright = n/(n+1),
+                 yleft = 0,
+                 yright = 1, #  n/(n+1),
                  ties = "ordered",
                  method = "constant")
   return(Fy)
@@ -360,13 +361,14 @@ hbb = function(y, groups,
   weights_y = rgamma(n = n, shape = 1)
   weights_y  = weights_y/sum(weights_y)
 
-  # Key input (with rescaling by n/(n+1) as in the paper for boundary reasons)
-  sum_weights_y = n/(n+1)*cumsum(weights_y)
+  # Key input
+  sum_weights_y = cumsum(weights_y) # n/(n+1)*cumsum(weights_y)
 
-  # Use approxfun() for fast computing (w/ n/(n+1) rescaling as above)
+  # Use approxfun() for fast computing
   #   Note: this is never used, so no need to compute it...
   # Fy0 = approxfun(y, sum_weights_y,
-  #                 yleft = 0, yright = n/(n+1),
+  #                 yleft = 0,
+  #                 yright = 1, #  n/(n+1),
   #                 ties = "ordered",
   #                 method = "constant")
   #----------------------------------------------------------------------------
@@ -383,12 +385,13 @@ hbb = function(y, groups,
     weights_yc[c,] = rgamma(n = n, shape = ac)
     weights_yc[c,]  = weights_yc[c,]/sum(weights_yc[c,])
 
-    # Key input (with rescaling by n/(n+1) as in the paper for boundary reasons)
-    sum_weights_yc = n/(n+1)*cumsum(weights_yc[c,])
+    # Key input
+    sum_weights_yc = cumsum(weights_yc[c,]) # n/(n+1)*cumsum(weights_yc[c,])
 
-    # Use approxfun() for fast computing (w/ n/(n+1) rescaling as above)
+    # Use approxfun() for fast computing
     Fyc[[c]] = approxfun(y, sum_weights_yc,
-                         yleft = 0, yright = n/(n+1),
+                         yleft = 0,
+                         yright = 1, # n/(n+1),
                          ties = "ordered",
                          method = "constant")
   }
