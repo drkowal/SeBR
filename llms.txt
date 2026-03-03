@@ -1,0 +1,204 @@
+# SeBR: Semiparametric Bayesian Regression
+
+**Overview.** Data transformations are a useful companion for parametric
+regression models. A well-chosen or learned transformation can greatly
+enhance the applicability of a given model, especially for data with
+irregular marginal features (e.g., multimodality, skewness) or various
+data domains (e.g., real-valued, positive, or compactly-supported data).
+
+Given paired data $\left( x_{i},y_{i} \right)$ for $i = 1,\ldots,n$,
+`SeBR` implements efficient and fully Bayesian inference for
+*semiparametric regression models* that incorporate (1) an unknown data
+transformation
+
+$$g\left( y_{i} \right) = z_{i}$$
+
+and (2) a useful parametric regression model
+
+$$z_{i} = f_{\theta}\left( x_{i} \right) + \sigma\epsilon_{i}$$
+
+with unknown parameters $\theta$ and independent errors $\epsilon_{i}$.
+
+**Examples.** We focus on the following important special cases:
+
+1.  The **linear model** is a natural starting point:
+
+$$z_{i} = x_{i}\prime\theta + \sigma\epsilon_{i},\quad\epsilon_{i}\overset{iid}{\sim}N(0,1)$$
+
+The transformation $g$ broadens the applicability of this useful class
+of models, including for positive or compactly-supported data.
+
+2.  The **quantile regression model** replaces the Gaussian assumption
+    in the linear model with an *asymmetric Laplace* distribution (ALD)
+
+$$z_{i} = x_{i}\prime\theta + \sigma\epsilon_{i},\quad\epsilon_{i}\overset{iid}{\sim}ALD(\tau)$$
+
+to target the $\tau$th quantile of $z$ at $x$, or equivalently, the
+$g^{- 1}(\tau)$th quantile of $y$ at $x$. The ALD is quite often a very
+poor model for real data, especially when $\tau$ is near zero or one.
+The transformation $g$ offers a pathway to significantly improve the
+model adequacy, while still targeting the desired quantile of the data.
+
+3.  The **Gaussian process (GP) model** generalizes the linear model to
+    include a nonparametric regression function,
+
+$$z_{i} = f_{\theta}\left( x_{i} \right) + \sigma\epsilon_{i},\quad\epsilon_{i}\overset{iid}{\sim}N(0,1)$$
+
+where $f_{\theta}$ is a GP and $\theta$ parameterizes the mean and
+covariance functions. Although GPs offer substantial flexibility for the
+regression function $f_{\theta}$, this model may be inadequate when $y$
+has irregular marginal features or a restricted domain (e.g., positive
+or compact).
+
+**Challenges:** The goal is to provide fully Bayesian posterior
+inference for the unknowns $(g,\theta)$ and posterior predictive
+inference for future/unobserved data $\widetilde{y}(x)$. We prefer a
+model and algorithm that offer both (i) flexible modeling of $g$ and
+(ii) efficient posterior and predictive computations.
+
+**Innovations:** Our approach
+(<https://doi.org/10.1080/01621459.2024.2395586>) specifies a
+*nonparametric* model for $g$, yet also provides *Monte Carlo* (not
+MCMC) sampling for the posterior and predictive distributions. As a
+result, we control the approximation accuracy via the number of
+simulations, but do *not* require the lengthy runs, burn-in periods,
+convergence diagnostics, or inefficiency factors that accompany MCMC.
+The Monte Carlo sampling is typically quite fast.
+
+## Using `SeBR`
+
+The package `SeBR` is installed and loaded as follows:
+
+``` r
+# CRAN version:
+# install.packages("SeBR")
+
+# Development version: 
+# devtools::install_github("drkowal/SeBR")
+library(SeBR) 
+```
+
+The main functions in `SeBR` are:
+
+- [`sblm()`](https://drkowal.github.io/SeBR/reference/sblm.md): Monte
+  Carlo sampling for posterior and predictive inference with the
+  *semiparametric Bayesian linear model*;
+
+- [`sbsm()`](https://drkowal.github.io/SeBR/reference/sbsm.md): Monte
+  Carlo sampling for posterior and predictive inference with the
+  *semiparametric Bayesian spline model*, which replaces the linear
+  model with a spline for nonlinear modeling of $x \in {\mathbb{R}}$;
+
+- [`sbqr()`](https://drkowal.github.io/SeBR/reference/sbqr.md): blocked
+  Gibbs sampling for posterior and predictive inference with the
+  *semiparametric Bayesian quantile regression*; and
+
+- [`sbgp()`](https://drkowal.github.io/SeBR/reference/sbgp.md): Monte
+  Carlo sampling for predictive inference with the *semiparametric
+  Bayesian Gaussian process model*.
+
+Each function returns a point estimate of $\theta$ (`coefficients`),
+point predictions at some specified testing points (`fitted.values`),
+posterior samples of the transformation $g$ (`post_g`), and posterior
+predictive samples of $\widetilde{y}(x)$ at the testing points
+(`post_ypred`), as well as other function-specific quantities (e.g.,
+posterior draws of $\theta$, `post_theta`). The calls
+[`coef()`](https://rdrr.io/r/stats/coef.html) and
+[`fitted()`](https://rdrr.io/r/stats/fitted.values.html) extract the
+point estimates and point predictions, respectively.
+
+**Note:** The package also includes Box-Cox variants of these functions,
+i.e., restricting $g$ to the (signed) Box-Cox parametric family
+$g(t;\lambda) = \{\text{sign}(t)|t|^{\lambda} - 1\}/\lambda$ with known
+or unknown $\lambda$. The parametric transformation is less flexible,
+especially for irregular marginals or restricted domains, and requires
+MCMC sampling. These functions (e.g.,
+[`blm_bc()`](https://drkowal.github.io/SeBR/reference/blm_bc.md), etc.)
+are primarily for benchmarking.
+
+Detailed documentation and examples are available at
+<https://drkowal.github.io/SeBR/>.
+
+## References
+
+Kowal, D. and Wu, B. (2024). Monte Carlo inference for semiparametric
+Bayesian regression. *JASA*.
+<https://doi.org/10.1080/01621459.2024.2395586>
+
+# Package index
+
+## All functions
+
+- [`Fz_fun()`](https://drkowal.github.io/SeBR/reference/Fz_fun.md) :
+  Compute the latent data CDF
+- [`SSR_gprior()`](https://drkowal.github.io/SeBR/reference/SSR_gprior.md)
+  : Compute the sum-squared-residuals term under Zellner's g-prior
+- [`all_subsets()`](https://drkowal.github.io/SeBR/reference/all_subsets.md)
+  : Compute all subsets of a set
+- [`bb()`](https://drkowal.github.io/SeBR/reference/bb.md) : Bayesian
+  bootstrap posterior sampler for the CDF
+- [`bgp_bc()`](https://drkowal.github.io/SeBR/reference/bgp_bc.md) :
+  Bayesian Gaussian processes with a Box-Cox transformation
+- [`blm_bc()`](https://drkowal.github.io/SeBR/reference/blm_bc.md) :
+  Bayesian linear model with a Box-Cox transformation
+- [`blm_bc_hs()`](https://drkowal.github.io/SeBR/reference/blm_bc_hs.md)
+  : Bayesian linear model with a Box-Cox transformation and a horseshoe
+  prior
+- [`bqr()`](https://drkowal.github.io/SeBR/reference/bqr.md) : Bayesian
+  quantile regression
+- [`bsm_bc()`](https://drkowal.github.io/SeBR/reference/bsm_bc.md) :
+  Bayesian spline model with a Box-Cox transformation
+- [`computeTimeRemaining()`](https://drkowal.github.io/SeBR/reference/computeTimeRemaining.md)
+  : Estimate the remaining time in the algorithm
+- [`concen_hbb()`](https://drkowal.github.io/SeBR/reference/concen_hbb.md)
+  : Posterior sampling algorithm for the HBB concentration
+  hyperparameters
+- [`contract_grid()`](https://drkowal.github.io/SeBR/reference/contract_grid.md)
+  : Grid contraction
+- [`g_bc()`](https://drkowal.github.io/SeBR/reference/g_bc.md) : Box-Cox
+  transformation
+- [`g_fun()`](https://drkowal.github.io/SeBR/reference/g_fun.md) :
+  Compute the transformation
+- [`g_inv_approx()`](https://drkowal.github.io/SeBR/reference/g_inv_approx.md)
+  : Approximate inverse transformation
+- [`g_inv_bc()`](https://drkowal.github.io/SeBR/reference/g_inv_bc.md) :
+  Inverse Box-Cox transformation
+- [`hbb()`](https://drkowal.github.io/SeBR/reference/hbb.md) :
+  Hierarchical Bayesian bootstrap posterior sampler
+- [`plot_pptest()`](https://drkowal.github.io/SeBR/reference/plot_pptest.md)
+  : Plot point and interval predictions on testing data
+- [`rank_approx()`](https://drkowal.github.io/SeBR/reference/rank_approx.md)
+  : Rank-based estimation of the linear regression coefficients
+- [`sampleFastGaussian()`](https://drkowal.github.io/SeBR/reference/sampleFastGaussian.md)
+  : Sample a Gaussian vector using Bhattacharya et al. (2016)
+- [`sbgp()`](https://drkowal.github.io/SeBR/reference/sbgp.md) :
+  Semiparametric Bayesian Gaussian processes
+- [`sblm()`](https://drkowal.github.io/SeBR/reference/sblm.md) :
+  Semiparametric Bayesian linear model
+- [`sblm_hs()`](https://drkowal.github.io/SeBR/reference/sblm_hs.md) :
+  Semiparametric Bayesian linear model with horseshoe priors for
+  high-dimensional data
+- [`sblm_modelsel()`](https://drkowal.github.io/SeBR/reference/sblm_modelsel.md)
+  : Model selection for semiparametric Bayesian linear regression
+- [`sblm_ssvs()`](https://drkowal.github.io/SeBR/reference/sblm_ssvs.md)
+  : Semiparametric Bayesian linear model with stochastic search variable
+  selection
+- [`sbqr()`](https://drkowal.github.io/SeBR/reference/sbqr.md) :
+  Semiparametric Bayesian quantile regression
+- [`sbsm()`](https://drkowal.github.io/SeBR/reference/sbsm.md) :
+  Semiparametric Bayesian spline model
+- [`simulate_tlm()`](https://drkowal.github.io/SeBR/reference/simulate_tlm.md)
+  : Simulate a transformed linear model
+- [`sir_adjust()`](https://drkowal.github.io/SeBR/reference/sir_adjust.md)
+  : Post-processing with importance sampling
+- [`square_stabilize()`](https://drkowal.github.io/SeBR/reference/square_stabilize.md)
+  : Numerically stabilize the squared elements
+- [`uni.slice()`](https://drkowal.github.io/SeBR/reference/uni.slice.md)
+  : Univariate Slice Sampler from Neal (2008)
+
+# Articles
+
+### All vignettes
+
+- [Introduction to
+  SeBR](https://drkowal.github.io/SeBR/articles/SeBR.md):
