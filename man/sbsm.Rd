@@ -7,7 +7,7 @@
 sbsm(
   y,
   x = NULL,
-  x_test = x,
+  x_test = NULL,
   psi = NULL,
   laplace_approx = TRUE,
   fixedX = (length(y) >= 500),
@@ -22,7 +22,7 @@ sbsm(
 
 \item{x}{\code{n x 1} vector of observation points; if NULL, assume equally-spaced on [0,1]}
 
-\item{x_test}{\code{n_test x 1} vector of testing points; if NULL, assume equal to \code{x}}
+\item{x_test}{\code{n_test x 1} vector of testing points; default is \code{x}}
 
 \item{psi}{prior variance (inverse smoothing parameter); if NULL,
 sample this parameter}

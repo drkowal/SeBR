@@ -362,7 +362,7 @@ sblm = function(y, X, X_test = X,
 #'
 #' @param y \code{n x 1} response vector
 #' @param x \code{n x 1} vector of observation points; if NULL, assume equally-spaced on [0,1]
-#' @param x_test \code{n_test x 1} vector of testing points; if NULL, assume equal to \code{x}
+#' @param x_test \code{n_test x 1} vector of testing points; default is \code{x}
 #' @param psi prior variance (inverse smoothing parameter); if NULL,
 #' sample this parameter
 #' @param laplace_approx logical; if TRUE, use a normal approximation
@@ -427,8 +427,9 @@ sblm = function(y, X, X_test = X,
 #' }
 # #' @importFrom spikeSlabGAM sm
 #' @export
-sbsm = function(y, x = NULL,
-                x_test = x,
+sbsm = function(y,
+                x = NULL,
+                x_test = NULL,
                 psi = NULL,
                 laplace_approx = TRUE,
                 fixedX = (length(y) >= 500),
@@ -451,15 +452,16 @@ sbsm = function(y, x = NULL,
   # Data dimensions:
   n = length(y)
 
-  # Observation points:
+  # Observation points, rescaled to [0,1]
   if(is.null(x)) x = seq(0, 1, length=n)
+  x = (x - min(x))/(max(x) - min(x))
+
+  # Testing points, rescaled to [0,1]
+  if(is.null(x_test)) x_test = x
+  x_test = (x_test - min(x_test))/(max(x_test) - min(x_test))
 
   # Initial checks:
   if(length(x) != n) stop('x and y must have the same number of observations')
-
-  # Recale to [0,1]:
-  x = (x - min(x))/(max(x) - min(x))
-  x_test = (x_test - min(x_test))/(max(x_test) - min(x_test))
 
   # Hyperparameters for Gamma(a_sigma, b_sigma) prior on error precision
   a_sigma = b_sigma = 0.001
@@ -659,7 +661,7 @@ sbsm = function(y, x = NULL,
     post_theta[nsi,] = theta[-1]/sigma_epsilon # omit the intercept & undo scaling (not identified)
 
     # Predictive samples of ytilde:
-    #   Note: it's easier/faster to just smooth for the testing points
+    #   Note: it's easier/faster to just smoothly interpolate on the testing points
     #   (the orthogonalized basis is a pain to recompute)
     ztilde = stats::spline(x = x, y = X%*%theta, xout = x_test)$y +
       sigma_epsilon*rnorm(n = length(x_test))
@@ -683,7 +685,7 @@ sbsm = function(y, x = NULL,
 
   return(list(
     coefficients = colMeans(post_theta),
-    fitted.values = colMeans(post_ypred),
+    fitted.values = stats::smooth.spline(x_test, colMeans(post_ypred))$y, # smooth the fitted values
     post_theta = post_theta,
     post_ypred = post_ypred,
     post_g = post_g,  post_psi = post_psi,
@@ -704,13 +706,12 @@ sbsm = function(y, x = NULL,
 #' @param X_test \code{n_test x p} design matrix for test data;
 #' default is \code{X}
 #' @param nn number of nearest neighbors to use; default is 30
-#' (larger values improve the approximation but increase computing cost)
-#' @param emp_bayes logical; if TRUE, use a (faster!) empirical Bayes
-#' approach for estimating the mean function
+#' (larger values improve the GP approximation but increase computing cost)
 #' @param fixedX logical; if TRUE, treat the design as fixed (non-random) when sampling
 #' the transformation; otherwise treat covariates as random with an unknown distribution
 #' @param approx_g logical; if TRUE, apply large-sample
 #' approximation for the transformation
+#' @param samp_losc logical; if TRUE, apply location-scale sampling adjustment
 #' @param nsave number of Monte Carlo simulations
 #' @param ngrid number of grid points for inverse approximations
 #' @return a list with the following elements:
@@ -729,16 +730,15 @@ sbsm = function(y, x = NULL,
 #'
 #' @details This function provides Bayesian inference for a
 #' transformed Gaussian process model using Monte Carlo (not MCMC) sampling.
-#' The transformation is modeled as unknown and learned jointly
-#' with the regression function (unless \code{approx_g = TRUE}, which then uses
-#' a point approximation). This model applies for real-valued data, positive data, and
+#' The transformation is modeled as unknown (unless \code{approx_g = TRUE},
+#' which then uses a point approximation) and learned jointly
+#' with the regression function. This model applies for real-valued data, positive data, and
 #' compactly-supported data (the support is automatically deduced from the observed \code{y} values).
 #' The results are typically unchanged whether \code{laplace_approx} is TRUE/FALSE;
 #' setting it to TRUE may reduce sensitivity to the prior, while setting it to FALSE
 #' may speed up computations for very large datasets. For computational efficiency,
-#' the Gaussian process parameters are fixed at point estimates, and the latent Gaussian
-#' process is only sampled when \code{emp_bayes = FALSE}. However, the uncertainty
-#' from this term is often negligible compared to the observation errors, and the
+#' the Gaussian process parameters and curve estimates are fixed at point estimates.
+#' However, the accompanying uncertainties are often negligible compared to the observation errors, and the
 #' transformation serves as an additional layer of robustness. By default, \code{fixedX} is
 #' set to FALSE for smaller datasets (\code{n < 500}) and TRUE for larger datasets (\code{n >= 500}).
 #'
@@ -778,14 +778,14 @@ sbgp = function(y, locs,
                 locs_test = locs,
                 X_test = NULL,
                 nn = 30,
-                emp_bayes = TRUE,
                 fixedX = (length(y) >= 500),
                 approx_g = FALSE,
+                samp_losc = TRUE,
                 nsave = 1000,
                 ngrid = 100){
 
   # For testing:
-  # locs = x; X = matrix(1, nrow = length(y)); covfun_name = "matern_isotropic"; locs_test = locs; X_test = X; nn = 30; emp_bayes = TRUE;fixedX = FALSE; approx_g = FALSE; nsave = 1000; ngrid = 100
+  # locs = x; X = matrix(1, nrow = length(y)); covfun_name = "matern_isotropic"; locs_test = locs; X_test = X; nn = 30; fixedX = FALSE; approx_g = FALSE; samp_losc = TRUE; nsave = 1000; ngrid = 100
 
   # Library required here:
   if (!requireNamespace("GpGp", quietly = TRUE)) {
@@ -836,19 +836,21 @@ sbgp = function(y, locs,
   # To avoid errors for small n:
   nn = min(nn, n-1)
 
-  # This is a temporary hack needed for sampling w/ one-dimensional inputs:
-  if(!emp_bayes && d==1){
-    aug = 1e-6*rnorm(n)
-    locs = cbind(locs, aug)
-    locs_test = cbind(locs_test, aug)
-  }
-
-  # Define the CDF of y:
-  Fy = function(t) n/(n+1)*ecdf(y)(t)
+  # As n grows larger, the uncertainty about the GP function becomes
+  #   1) negligible relative to the (latent) error variance and
+  #   2) more costly to compute.
+  # So, we can approximate key terms (Fz, mu, sigma_epsilon) accordingly:
+  use_large_n_approx = (n > 5000)
   #----------------------------------------------------------------------------
   print('Initial GP fit...')
-  # Initial GP fit:
+
+  # Define the (scaled) CDF of y:
+  Fy = function(t) n/(n+1)*ecdf(y)(t)
+
+  # Initial estimate of latent data:
   z = qnorm(Fy(y))
+
+  # Initial GP fit:
   fit_gp = GpGp::fit_model(y = z,
                            locs = locs,
                            X = X,
@@ -857,31 +859,40 @@ sbgp = function(y, locs,
                            silent = TRUE)
 
   # Fitted values for observed data:
-  mu_z = GpGp::predictions(fit = fit_gp,
+  mu_z = f_hat = GpGp::predictions(fit = fit_gp,
                             locs_pred = locs,
                             X_pred  = X)
-  # SD of latent term:
-  # Nugget variance (NOTE: this works for most (but not all!) covariance functions in GpGp)
-  sigma_epsilon = sqrt(fit_gp$covparms[1]*fit_gp$covparms[length(fit_gp$covparms)])
-  if(n < 1000){
 
-    # Compute the covariance matrix, but remove the nugget:
-    K_theta = do.call(covfun_name, list(fit_gp$covparms, locs ))
-    #K_theta = match.fun(covfun_name)(fit_gp$covparms, locs)
-    diag(K_theta) = diag(K_theta) - sigma_epsilon^2
+  # SD of latent term: combine nugget variance w/ diagonal of GP posterior covariance
 
-    # Posterior covariance for mu requires inverses:
-    K_theta_inv = chol2inv(chol(K_theta))
-    Sigma_mu = chol2inv(chol(K_theta_inv + diag(1/sigma_epsilon^2, n)))
+  # Nugget SD (NOTE: this works for most (but not all!) covariance functions in GpGp)
+  sigma_nug = sqrt(fit_gp$covparms[1]*fit_gp$covparms[length(fit_gp$covparms)])
 
-    # Extract the diagonal elements for z:
-    sigma_z = sqrt(sigma_epsilon^2 + diag(Sigma_mu))
+  # Then extract diagonal of GP covariance and combine:
+  if(use_large_n_approx){
+
+    # Fast approximation for large n:
+    sigma_z = rep(sigma_nug, n)
 
   } else {
 
-    # Ignore the uncertainty in the regression function,
-    # which is likely small when n is very large (also much faster...)
-    sigma_z = rep(sigma_epsilon, n)
+    # Compute the covariance matrix:
+    K0 = do.call(covfun_name, list(fit_gp$covparms, locs ))
+    K_theta = K0 # copy then update
+
+    # We write the posterior covariance as sigma_nug^2*K_theta, so we need to
+    #   1) remove the nugget (see ?matern_isotropic or similar: "added to the diagonal of the covariance matrix")
+    diag(K_theta) = diag(K_theta) - sigma_nug^2
+    #   2) rescale by sigma_nug
+    K_theta = K_theta/sigma_nug^2
+
+    # Then take the diagonal of the GP posterior covariance:
+    # diag_Sigma_mu = sigma_nug^2*diag(solve(solve(K_theta) + diag(1, n)))
+    W = forwardsolve(t(chol(K0))/sigma_nug, K_theta)
+    diag_Sigma_mu = sigma_nug^2*(diag(K_theta) - colSums(W^2))
+
+    # Extract the diagonal elements and combine with the nugget:
+    sigma_z = sqrt(sigma_nug^2 + diag_Sigma_mu)
 
   }
   #----------------------------------------------------------------------------
@@ -895,7 +906,7 @@ sbgp = function(y, locs,
     sapply(range(mu_z), function(xtemp){
       qnorm(seq(0.01, 0.99, length.out = ngrid),
             mean = xtemp,
-            sd = sigma_epsilon)
+            sd = sigma_nug)
     })
   ))
 
@@ -921,7 +932,8 @@ sbgp = function(y, locs,
   g_inv = g_inv_approx(g = g, t_grid = y_grid)
   #----------------------------------------------------------------------------
   print('Updated GP fit...')
-  # Now update the GP coefficients:
+
+  # Now update the GP fit:
   fit_gp = GpGp::fit_model(y = z,
                            locs = locs,
                            X = X,
@@ -931,17 +943,17 @@ sbgp = function(y, locs,
                            silent = TRUE)
 
   # Fitted values for observed data:
-  mu_z = GpGp::predictions(fit = fit_gp,
-                           locs_pred = locs,
-                           X_pred  = X,
-                           m = nn)
+  mu_z = f_hat = GpGp::predictions(fit = fit_gp,
+                                   locs_pred = locs,
+                                   X_pred  = X,
+                                   m = nn)
 
   # Fitted values for testing data:
   if(isTRUE(all.equal(X, X_test)) &&
        isTRUE(all.equal(locs, locs_test))){
     # If the testing and training data are identical,
     # then there is no need to apply a separate predict function
-    z_test = mu_z
+    z_test = f_hat
   } else {
     z_test = GpGp::predictions(fit = fit_gp,
                                locs_pred = locs_test,
@@ -949,35 +961,69 @@ sbgp = function(y, locs,
                                m = nn)
   }
 
-  # SD of latent term:
-  # Nugget variance (NOTE: this works for most (but not all!) covariance functions in GpGp!)
-  sigma_epsilon = sqrt(fit_gp$covparms[1]*fit_gp$covparms[length(fit_gp$covparms)])
-  if(n < 1000){
+  # Now repeat code from above to update sigma_z
+  #   (combine nugget variance w/ diagonal of GP posterior covariance)
 
-    # Compute the covariance matrix, but remove the nugget:
-    K_theta = do.call(covfun_name, list(fit_gp$covparms, locs ))
-    #K_theta = match.fun(covfun_name)(fit_gp$covparms, locs)
-    diag(K_theta) = diag(K_theta) - sigma_epsilon^2
+  # Nugget SD (NOTE: this works for most (but not all!) covariance functions in GpGp)
+  sigma_nug = sqrt(fit_gp$covparms[1]*fit_gp$covparms[length(fit_gp$covparms)])
 
-    # Posterior covariance for mu requires inverses:
-    K_theta_inv = chol2inv(chol(K_theta))
-    Sigma_mu = chol2inv(chol(K_theta_inv + diag(1/sigma_epsilon^2, n)))
+  # Then extract diagonal of GP covariance and combine:
+  if(use_large_n_approx){
 
-    # Extract the diagonal elements for z:
-    sigma_z = sqrt(sigma_epsilon^2 + diag(Sigma_mu))
+    # Fast approximation for large n:
+    sigma_z = rep(sigma_nug, n)
 
   } else {
-    # Ignore the uncertainty in the regression function,
-    # which is likely small when n is very large (this is also faster...)
-    sigma_z = rep(sigma_epsilon, n)
+
+    # Compute the covariance matrix:
+    K0 = do.call(covfun_name, list(fit_gp$covparms, locs ))
+    K_theta = K0 # copy then update
+
+    # We write the posterior covariance as sigma_nug^2*K_theta, so we need to
+    #   1) remove the nugget (see ?matern_isotropic or similar: "added to the diagonal of the covariance matrix")
+    diag(K_theta) = diag(K_theta) - sigma_nug^2
+    #   2) rescale by sigma_nug
+    K_theta = K_theta/sigma_nug^2
+
+    # Then take the diagonal of the GP posterior covariance:
+    # diag_Sigma_mu = sigma_nug^2*diag(solve(solve(K_theta) + diag(1, n)))
+    W = forwardsolve(t(chol(K0))/sigma_nug, K_theta)
+    diag_Sigma_mu = sigma_nug^2*(diag(K_theta) - colSums(W^2))
+
+    # Extract the diagonal elements and combine with the nugget:
+    sigma_z = sqrt(sigma_nug^2 + diag_Sigma_mu)
+
   }
 
   # Estimated coefficients:
   theta = fit_gp$betahat
+
+  if(!samp_losc){
+
+    # Don't sample the location-scale (just fix it):
+    mu = 0 # already included in theta
+    sigma_epsilon = sigma_nug # estimated above
+
+  } else {
+
+    # To account for GP covariance in sampling (mu, sigma_epsilon),
+    # need to pre-compute a few terms (only for non-large n cases):
+    if(!use_large_n_approx){
+      # The necessary terms involve the (unscaled) marginal latent covariance
+      #   Sigma_z = diag(n) + solve(solve(K_theta) + diag(1, n))
+      # but that is much too slow and unstable; instead:
+      ones = rep(1,n)
+      chMat = chol(diag(n) + 2*K_theta) # recurring term
+      w0 = backsolve(chMat, forwardsolve(t(chMat), ones)) # solve (I + 2K)w0 = ones
+      w1 = w0 + K_theta %*% w0 # compute w1 = (I + K)w0
+      c_norm = sum(w1) # same role as n in the iid case
+      c_hat =  w1/c_norm # recurring term
+    }
+  }
   #----------------------------------------------------------------------------
   # Store MC output:
-  post_ypred = array(NA, c(nsave, n_test))
-  post_g = array(NA, c(nsave, length(y0)))
+  post_ypred = array(NA, c(nsave, n_test)) # posterior predictive at test points
+  post_g = array(NA, c(nsave, length(y0))) # transformation at unique data points
 
   print('Sampling...')
 
@@ -1017,39 +1063,51 @@ sbgp = function(y, locs,
       g_inv = g_inv_approx(g = g, t_grid = y_grid)
     }
     #----------------------------------------------------------------------------
-    # w/o empirical Bayes approximation:
-    #   update fitted curve (based on z)
-    #   & sample sigma_epsilon
-    if(!emp_bayes){
-      # Block 2: update the fitted GP
-      fit_gp = GpGp::fit_model(y = z,
-                               locs = locs, X = X, covfun_name = covfun_name, start_parms = fit_gp$covparms, m_seq = nn, silent = TRUE)
-      f_hat = GpGp::predictions(fit = fit_gp,
-                                locs_pred = locs,
-                                X_pred = X,
-                                m = nn)
+    # Block 2: sample the location-scale adjustment
+    if(samp_losc){
 
-      # Block 3: sample the scale adjustment (SD)
+      # Residuals from z and fitted GP:
+      z_res = z - f_hat
+
+      # Suff stats for (mu, sigma_epsilon) joint posterior:
+      if(!use_large_n_approx){
+
+        # Account for the GP covariance in sampling (mu, sigma):
+        mu_hat = sum(c_hat*z_res) # like the sample mean, adjusted for covariance
+        z_res_mu = z_res - mu_hat # residualized
+        w0 = backsolve(chMat, forwardsolve(t(chMat), z_res_mu)) # solve (I + 2K)w0 = z_res_mu
+        w1 = w0 + K_theta %*% w0 # compute w1 = (I + K)w0
+        Q_hat = sum(z_res_mu * w1) # equivalently, t(z_res - mu_hat)%*%solve(Sigma_z))%*%(z_res - mu_hat)
+
+      } else {
+
+        # Ignore the GP covariance (likely negligible relative to sigma_epsilon for large n)
+        mu_hat = mean(z_res) # sample mean
+        Q_hat = sum((z_res - mu_hat)^2) # sum of squared residuals
+        c_norm = n # normalizer is just the sample size
+
+      }
+
+      # Joint posterior sampler for scale and location via
+      # marginal scale, then conditional location:
       sigma_epsilon = 1/sqrt(rgamma(n = 1,
-                                    shape = .001 + n/2,
-                                    rate = .001 + sum((z - f_hat)^2)/2))
+                                    shape = .001 + (n-1)/2,
+                                    rate = .001 + Q_hat/2))
+      mu = rnorm(n = 1,
+                 mean = mu_hat,
+                 sd = sigma_epsilon/sqrt(c_norm))
     }
     #----------------------------------------------------------------------------
     # Store the MC:
 
     # Predictive samples of ytilde:
-    if(emp_bayes){
-      ztilde = z_test + sigma_epsilon*rnorm(n = n_test)
-    } else {
-      ztilde = GpGp::cond_sim(fit = fit_gp,
-                              locs_pred = locs_test,
-                              X_pred = X_test,
-                              m = nn)
-    }
+    ztilde = mu + z_test + sigma_epsilon*rnorm(n = n_test)
     post_ypred[nsi,] = g_inv(ztilde)
 
     # Posterior samples of the transformation:
-    post_g[nsi,] = (g(y0) - theta[1])/sigma_epsilon # undo location/scale (not identified)
+    if(samp_losc){
+      post_g[nsi,] = (g(y0) - mu)/(sigma_epsilon/sigma_nug) # undo location/scale (not identified), w/ an adjustment for the initial nugget
+    } else post_g[nsi,] = g(y0)
     #----------------------------------------------------------------------------
   }
   print('Done!')
@@ -1060,7 +1118,7 @@ sbgp = function(y, locs,
     fit_gp = fit_gp,
     post_ypred = post_ypred,
     post_g = post_g,
-    model = 'sbgp', y = y, X = X, X_test = X_test, nn = nn, emp_bayes = emp_bayes, fixedX = fixedX, approx_g = approx_g))
+    model = 'sbgp', y = y, X = X, X_test = X_test, nn = nn, fixedX = fixedX, approx_g = approx_g, samp_losc = samp_losc))
 }
 #' Semiparametric Bayesian quantile regression
 #'

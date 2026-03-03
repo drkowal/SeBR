@@ -404,8 +404,6 @@ fit = sbgp(y = y,
            locs_test = x_test)
 
 names(fit) # what is returned
-
-coef(fit) # estimated regression coefficients (here, just an intercept)
 ```
 
 Evaluate the out-of-sample predictive performance on the testing data:
@@ -436,7 +434,7 @@ lines(x_test, y_test, type='p') # actual values
 lines(x_test, y_hat, lwd = 3) # fitted values
 ```
 
-Unlike the Box-Cox version, `sbgp` respects the support of the data $\mathcal{Y} = [0,1]$, captures the trend, and provides narrower intervals (average widths are `r round(width, 3)` compared to `r round(width_bc,3)`) with better coverage (`r emp_cov` for `sbgp` and `r emp_cov_bc` for Box-Cox). 
+Unlike the Box-Cox version, `sbgp` respects the support of the data $\mathcal{Y} = [0,1]$, captures the trend, and provides narrower intervals (average widths are `r round(width, 3)` compared to `r round(width_bc,3)`) with similar coverage (`r emp_cov` for `sbgp` and `r emp_cov_bc` for Box-Cox). 
 
 Despite the significant complexities in the data, `sbgp` performs quite well out-of-the-box: 
 
