@@ -160,7 +160,7 @@ hist(y, breaks = 25) # marginal distribution
 
 # Fit the semiparametric Bayesian linear model with a horseshoe prior:
 fit = sblm_hs(y = y, X = X, X_test = X_test)
-#> [1] "4 sec remaining"
+#> [1] "3 sec remaining"
 #> [1] "3 sec remaining"
 #> [1] "Total time: 9 seconds"
 names(fit) # what is returned

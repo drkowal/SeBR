@@ -146,7 +146,7 @@ names(fit) # what is returned
 #> [5] "post_g"        "post_lambda"   "model"         "y"            
 #> [9] "X"            
 coef(fit) # estimated regression coefficients (here, just an intercept)
-#> [1] 0.2221118
+#> [1] 0.2221119
 class(fit$fit_gp) # the GpGp object is also returned
 #> [1] "GpGp_fit"
 round(quantile(fit$post_lambda), 3) # summary of unknown Box-Cox parameter

@@ -143,7 +143,7 @@ tau = 0.05
 
 # Fit the semiparametric Bayesian quantile regression model:
 fit = sbqr(y = y, X = X, tau = tau, X_test = X_test)
-#> [1] "3 sec remaining"
+#> [1] "4 sec remaining"
 #> [1] "2 sec remaining"
 #> [1] "0 sec remaining"
 #> [1] "Total time: 6 seconds"

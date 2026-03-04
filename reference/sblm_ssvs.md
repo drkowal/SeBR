@@ -172,7 +172,7 @@ hist(y, breaks = 25) # marginal distribution
 # Fit the semiparametric Bayesian linear model with sparsity priors:
 fit = sblm_ssvs(y = y, X = X, X_test = X_test)
 #> [1] "24 sec remaining"
-#> [1] "14 sec remaining"
+#> [1] "15 sec remaining"
 #> [1] "Total time: 49 seconds"
 names(fit) # what is returned
 #>  [1] "coefficients"  "fitted.values" "selected"      "pip"          

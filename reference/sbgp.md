@@ -52,7 +52,7 @@ sbgp(
 - nn:
 
   number of nearest neighbors to use; default is 30 (larger values
-  improve the approximation but increase computing cost)
+  improve the GP approximation but increase computing cost)
 
 - fixedX:
 
@@ -103,8 +103,8 @@ as well as the arguments passed in.
 
 This function provides Bayesian inference for a transformed Gaussian
 process model using Monte Carlo (not MCMC) sampling. The transformation
-is modeled as unknown and learned jointly with the regression function
-(unless `approx_g = TRUE`, which then uses a point approximation). This
+is modeled as unknown (unless `approx_g = TRUE`, which then uses a point
+approximation) and learned jointly with the regression function. This
 model applies for real-valued data, positive data, and
 compactly-supported data (the support is automatically deduced from the
 observed `y` values). The results are typically unchanged whether
@@ -145,7 +145,7 @@ names(fit) # what is returned
 #>  [9] "X_test"        "nn"            "fixedX"        "approx_g"     
 #> [13] "samp_losc"    
 coef(fit) # estimated regression coefficients (here, just an intercept)
-#> [1] 0.005523798
+#> [1] 0.005523801
 class(fit$fit_gp) # the GpGp object is also returned
 #> [1] "GpGp_fit"
 

@@ -12,7 +12,7 @@ sbsm(
   x = NULL,
   x_test = NULL,
   psi = NULL,
-  laplace_approx = TRUE,
+  nbasis = NULL,
   fixedX = (length(y) >= 500),
   approx_g = FALSE,
   nsave = 1000,
@@ -41,10 +41,10 @@ sbsm(
   prior variance (inverse smoothing parameter); if NULL, sample this
   parameter
 
-- laplace_approx:
+- nbasis:
 
-  logical; if TRUE, use a normal approximation to the posterior in the
-  definition of the transformation; otherwise the prior is used
+  number of spline basis functions; if NULL, use the default from
+  [`spikeSlabGAM::sm`](https://rdrr.io/pkg/spikeSlabGAM/man/sm.html)
 
 - fixedX:
 
@@ -95,16 +95,12 @@ as well as the arguments passed in.
 
 This function provides fully Bayesian inference for a transformed spline
 regression model using Monte Carlo (not MCMC) sampling. The
-transformation is modeled as unknown and learned jointly with the
-regression function (unless `approx_g = TRUE`, which then uses a point
-approximation). This model applies for real-valued data, positive data,
-and compactly-supported data (the support is automatically deduced from
-the observed `y` values). The results are typically unchanged whether
-`laplace_approx` is TRUE/FALSE; setting it to TRUE may reduce
-sensitivity to the prior, while setting it to FALSE may speed up
-computations for very large datasets. By default, `fixedX` is set to
-FALSE for smaller datasets (`n < 500`) and TRUE for larger datasets
-(`n >= 500`).
+transformation is modeled as unknown (unless `approx_g = TRUE`, which
+then uses a point approximation) and learned jointly with the regression
+function. This model applies for real-valued data, positive data, and
+compactly-supported data (the support is automatically deduced from the
+observed `y` values). By default, `fixedX` is set to FALSE for smaller
+datasets (`n < 500`) and TRUE for larger datasets (`n >= 500`).
 
 ## Examples
 
@@ -123,12 +119,11 @@ y = g_inv_bc(
 fit = sbsm(y = y, x = x)
 #> [1] "3 sec remaining"
 #> [1] "2 sec remaining"
-#> [1] "Total time: 4 seconds"
+#> [1] "Total time: 3 seconds"
 names(fit) # what is returned
-#>  [1] "coefficients"   "fitted.values"  "post_theta"     "post_ypred"    
-#>  [5] "post_g"         "post_psi"       "model"          "y"             
-#>  [9] "X"              "sample_psi"     "laplace_approx" "fixedX"        
-#> [13] "approx_g"      
+#>  [1] "coefficients"  "fitted.values" "post_theta"    "post_ypred"   
+#>  [5] "post_g"        "post_psi"      "model"         "y"            
+#>  [9] "X"             "sample_psi"    "fixedX"        "approx_g"     
 
 # Note: this is Monte Carlo sampling...no need for MCMC diagnostics!
 

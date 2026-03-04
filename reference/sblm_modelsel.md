@@ -125,7 +125,7 @@ library(plyr)
 
 # Fit the semiparametric Bayesian linear model with model selection:
 fit = sblm_modelsel(y = y, X = X)
-#> [1] "13 sec remaining"
+#> [1] "12 sec remaining"
 #> [1] "6 sec remaining"
 #> [1] "Total time: 18 seconds"
 names(fit) # what is returned
