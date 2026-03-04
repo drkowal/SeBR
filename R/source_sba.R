@@ -365,13 +365,10 @@ sblm = function(y, X, X_test = X,
 #' @param x_test \code{n_test x 1} vector of testing points; default is \code{x}
 #' @param psi prior variance (inverse smoothing parameter); if NULL,
 #' sample this parameter
-#' @param laplace_approx logical; if TRUE, use a normal approximation
-#' to the posterior in the definition of the transformation;
-#' otherwise the prior is used
+#' @param nbasis number of spline basis functions; if NULL, use the default from \code{spikeSlabGAM::sm}
 #' @param fixedX logical; if TRUE, treat the design as fixed (non-random) when sampling
 #' the transformation; otherwise treat covariates as random with an unknown distribution
-#' @param approx_g logical; if TRUE, apply large-sample
-#' approximation for the transformation
+#' @param approx_g logical; if TRUE, apply large-sample approximation for the transformation
 #' @param nsave number of Monte Carlo simulations
 #' @param ngrid number of grid points for inverse approximations
 #' @param verbose logical; if TRUE, print time remaining
@@ -391,14 +388,12 @@ sblm = function(y, X, X_test = X,
 #'
 #' @details This function provides fully Bayesian inference for a
 #' transformed spline regression model using Monte Carlo (not MCMC) sampling.
-#' The transformation is modeled as unknown and learned jointly
-#' with the regression function (unless \code{approx_g = TRUE}, which then uses
-#' a point approximation). This model applies for real-valued data, positive data, and
-#' compactly-supported data (the support is automatically deduced from the observed \code{y} values).
-#' The results are typically unchanged whether \code{laplace_approx} is TRUE/FALSE;
-#' setting it to TRUE may reduce sensitivity to the prior, while setting it to FALSE
-#' may speed up computations for very large datasets. By default, \code{fixedX} is
-#' set to FALSE for smaller datasets (\code{n < 500}) and TRUE for larger datasets (\code{n >= 500}).
+#' The transformation is modeled as unknown (unless \code{approx_g = TRUE},
+#' which then uses a point approximation) and learned jointly with the regression function.
+#' This model applies for real-valued data, positive data, and compactly-supported data
+#' (the support is automatically deduced from the observed \code{y} values).
+#' By default, \code{fixedX} is set to FALSE for smaller datasets (\code{n < 500})
+#' and TRUE for larger datasets (\code{n >= 500}).
 #'
 #' @examples
 #' \donttest{
@@ -431,7 +426,7 @@ sbsm = function(y,
                 x = NULL,
                 x_test = NULL,
                 psi = NULL,
-                laplace_approx = TRUE,
+                nbasis = NULL,
                 fixedX = (length(y) >= 500),
                 approx_g = FALSE,
                 nsave = 1000,
@@ -439,7 +434,7 @@ sbsm = function(y,
                 verbose = TRUE){
 
   # For testing:
-  # psi = length(y); laplace_approx = TRUE; fixedX = FALSE; approx_g = FALSE; nsave = 1000; verbose = TRUE; ngrid = 100
+  # x_test = NULL; psi = NULL; nbasis = NULL; fixedX = FALSE; approx_g = FALSE; nsave = 1000; verbose = TRUE; ngrid = 100
 
   # Library required here:
   if (!requireNamespace("spikeSlabGAM", quietly = TRUE)) {
@@ -467,26 +462,15 @@ sbsm = function(y,
   a_sigma = b_sigma = 0.001
   #----------------------------------------------------------------------------
   # Orthogonalized P-spline and related quantities:
-  X = cbind(poly(x, 1), spikeSlabGAM::sm(x)) # omit intercept to initialize
-  #X = X/sqrt(sum(diag(crossprod(X))))
+  if(is.null(nbasis)){
+    nbasis = min(length(unique(x)), 20); rankZ = 0.999 # defaults in sm()
+  } else rankZ = nbasis # this stops the rank reduction to preserve the specified nbasis
+  X = cbind(1, poly(x, 1), spikeSlabGAM::sm(x, K = nbasis, rankZ = rankZ))
   diagXtX = colSums(X^2)
-  p = length(diagXtX)
-
-  # Recurring term:
-  xt_Sigma_x = rowSums(X^2) # sapply(1:n, function(i) sum(X[i,]^2/diagXtX))
-
-  # Smoothing parameter:
-  if(is.null(psi)){
-
-    # Flag to sample:
-    sample_psi = TRUE
-
-    # Initialize:
-    psi = n
-
-  } else sample_psi = FALSE
+  p = length(diagXtX) - 1 # omit intercept
   #----------------------------------------------------------------------------
-  # Initialize the transformation:
+  # Define/estimate Fz() and Fz_inv():
+  #   Laplace approximation (LA): [theta | data] ~ N(...)
 
   # Define the CDF of y:
   Fy = function(t) n/(n+1)*ecdf(y)(t)
@@ -495,70 +479,76 @@ sbsm = function(y,
   y0 = sort(unique(y))
   Fy_eval = Fy(y0)
 
-  # Grid of values for the CDF of z:
+  # Initial latent data:
+  z = qnorm(Fy(y))
+
+  # Inverse smoothing parameter: if NULL, then
+  # initialize from method-of-moments (sample later)
+  if(is.null(psi)) {
+    sample_psi = TRUE
+    #psi = mean((crossprod(X[,-(1:2)], z)/diagXtX[-(1:2)])^2) # MoM estimator...
+    psi = median((crossprod(X[,-(1:2)], z)/diagXtX[-(1:2)])^2) # but median is more robust against small diagXtX values
+
+    # Hyperparameters for Gamma(a_psi, b_psi) prior on smoothing prior precision
+    a_psi = b_psi = 0.01
+
+  } else sample_psi = FALSE
+
+  # Diagonal of LA posterior covariance, unscaled by sigma
+  #  The intercept and linear coefficients are unpenalized (zero prior precision)
+  diag_Sigma_hat_unscaled = 1/(diagXtX + c(0,0, rep(1/psi, p-1)))  #diag_Sigma_hat_unscaled = 1/(diagXtX + 1/psi)
+
+  # LA posterior covariance sandwiched by X[i,]
+  xt_Sigma_hat_unscaled_x = colSums(t(X^2)*diag_Sigma_hat_unscaled) # sapply(1:n, function(i) crossprod(X[i,], diag(diag_Sigma_hat_unscaled))%*%X[i,])
+
+  # Point estimate of coefficients:
+  theta = diag_Sigma_hat_unscaled*crossprod(X, z)
+
+  # Moments of Z|X:
+  mu_z = X%*%theta
+  sigma_z = sqrt(1 + xt_Sigma_hat_unscaled_x)
+
+  # Second pass: update g(), then update coefficients
+
+  # To set a grid for Fz, use 100* LA posterior covariance
+  # with empirical averaging over x...
+  #   Roughly, an expanded range of LA posterior covariance, sandwiched by X[i,]
   z_grid = sort(unique(
-    sapply(range(psi*xt_Sigma_x), function(xtemp){
-      qnorm(seq(0.01, 0.99, length.out = ngrid),
-            mean = 0, # assuming prior mean zero
-            sd = sqrt(1 + xtemp))
-    })
+    sapply(range(100*xt_Sigma_hat_unscaled_x), # sapply(range(psi*rowSums(X^2)),
+           function(xtemp){
+             qnorm(seq(0.01, 0.99, length.out = 100),
+                   mean = 0, sd = sqrt(1 + xtemp))
+           })
   ))
 
-  # Define the moments of the CDF of z:
-  if(laplace_approx){
-    # Use a normal approximation for the posterior of theta
+  # CDF of z:
+  Fz_eval = Fz_fun(z = z_grid,
+                   weights = rep(1/n, n),
+                   mean_vec = mu_z,
+                   sd_vec = sigma_z)
 
-    # Recurring terms:
-    diag_Sigma_hat_unscaled = 1/(diagXtX + 1/psi)
-    xt_Sigma_hat_unscaled_x = colSums(t(X^2)*diag_Sigma_hat_unscaled)
-    #xt_Sigma_hat_unscaled_x = sapply(1:n, function(i)
-    #  crossprod(X[i,], diag(diag_Sigma_hat_unscaled))%*%X[i,])
+  # Check: update the grid if needed
+  zcon = contract_grid(z = z_grid,
+                       Fz = Fz_eval,
+                       lower = 0.001, upper =  0.999)
+  z_grid = zcon$z; Fz_eval = zcon$Fz
 
-    # First pass: fix Fz() = qnorm(), initialize coefficients
-    z = qnorm(Fy(y))
-    theta_hat = diag_Sigma_hat_unscaled*crossprod(X, z) # point estimate
+  # Transformation:
+  g = g_fun(y = y0,
+            Fy_eval = Fy_eval,
+            z = z_grid,
+            Fz_eval = Fz_eval)
 
-    # Second pass: update g(), then update coefficients
-    # Moments of Z|X:
-    mu_z = X%*%theta_hat
-    sigma_z = sqrt(1 + xt_Sigma_hat_unscaled_x)
 
-    # CDF of z:
-    Fz_eval = Fz_fun(z = z_grid,
-                     weights = rep(1/n, n),
-                     mean_vec = mu_z,
-                     sd_vec = sigma_z)
+  # Updated coefficients:
+  z = g(y) # latent data
+  theta = diag_Sigma_hat_unscaled*crossprod(X, z) # point estimate
 
-    # Check: update the grid if needed
-    zcon = contract_grid(z = z_grid,
-                         Fz = Fz_eval,
-                         lower = 0.001, upper =  0.999)
-    z_grid = zcon$z; Fz_eval = zcon$Fz
+  # Moments of Z|X:
+  mu_z = X%*%theta
+  # sigma_z is unchanged
 
-    # Transformation:
-    g = g_fun(y = y0,
-              Fy_eval = Fy_eval,
-              z = z_grid,
-              Fz_eval = Fz_eval)
-
-    # Updated coefficients:
-    z = g(y) # update latent data
-    theta_hat = diag_Sigma_hat_unscaled*crossprod(X, z) # updated coefficients
-
-    # Moments of Z|X:
-    mu_z = X%*%theta_hat
-    #sigma_z = sqrt(1 + xt_Sigma_hat_unscaled_x)
-
-  } else {
-
-    # Prior mean is zero:
-    mu_z = rep(0, n)
-
-    # Marginal SD based on prior:
-    sigma_z = sqrt(1 + psi*xt_Sigma_x)
-  }
-
-  # Define the CDF of z:
+  # Updated CDF of z:
   Fz_eval = Fz_fun(z = z_grid,
                    weights = rep(1/n, n),
                    mean_vec = mu_z,
@@ -574,8 +564,13 @@ sbsm = function(y,
   g = g_fun(y = y0, Fy_eval = Fy_eval,
             z = z_grid, Fz_eval = Fz_eval)
 
-  # Latent data:
-  z = g(y)
+  # If the transformation is fixed at this approximation,
+  # then the latent data z (and X'z) won't change so fix them here:
+  if(approx_g){
+    # Latent data:
+    z = g(y)
+    Xtz = crossprod(X, z) # recurring term
+  }
 
   # Define the grid for approximations using equally-spaced + quantile points:
   y_grid = sort(unique(c(
@@ -584,11 +579,6 @@ sbsm = function(y,
 
   # Inverse transformation function:
   g_inv = g_inv_approx(g = g, t_grid = y_grid)
-  #----------------------------------------------------------------------------
-  # Add an intercept:
-  X = cbind(1/sqrt(n), X)
-  diagXtX = c(1, diagXtX)  # update
-  Xtz = crossprod(X, z) # changes w/ z (unless approx_g = TRUE)
   #----------------------------------------------------------------------------
   # Store MC output:
   post_theta = array(NA, c(nsave, p))
@@ -635,24 +625,29 @@ sbsm = function(y,
     }
     #----------------------------------------------------------------------------
     # Block 2: sample the scale adjustment (SD)
-    # SSR_psi = sum(z^2) - crossprod(z, X%*%solve(crossprod(X) + diag(1/psi, p+1))%*%crossprod(X,z))
-    SSR_psi = sum(z^2) - crossprod(1/sqrt(diagXtX + 1/psi)*Xtz)
+    SSR_psi = drop(sum(z^2) - crossprod(sqrt(diag_Sigma_hat_unscaled)*Xtz)) # sum(z^2) - crossprod(z, X%*%solve(crossprod(X) + diag(c(0,0, rep(1/psi, p-1))))%*%crossprod(X,z))
     sigma_epsilon = 1/sqrt(rgamma(n = 1,
                                   shape = a_sigma + n/2,
                                   rate = b_sigma + SSR_psi/2))
     #----------------------------------------------------------------------------
     # Block 3: sample the regression coefficients
-    Q_theta = 1/sigma_epsilon^2*(diagXtX + 1/psi)
-    ell_theta = 1/sigma_epsilon^2*Xtz
-    theta = rnorm(n = p+1,
-                 mean = Q_theta^-1*ell_theta,
-                 sd = sqrt(Q_theta^-1))
+    mean_theta = diag_Sigma_hat_unscaled*Xtz
+    sd_theta = sigma_epsilon*sqrt(diag_Sigma_hat_unscaled)
+    theta = rnorm(n = p + 1,
+                  mean = mean_theta,
+                  sd = sd_theta)
     #----------------------------------------------------------------------------
     # Block 4: sample the smoothing parameter
     if(sample_psi){
+
+      # Smoothing parameter only for non-(1,x) basis elements:
       psi = 1/rgamma(n = 1,
-                     shape = 0.01 + (p+1)/2,
-                     rate = 0.01 + sum(theta^2)/(2*sigma_epsilon^2))
+                     shape = a_psi + (p-1)/2,
+                     rate = b_psi + sum(theta[-(1:2)]^2)/(2*sigma_epsilon^2))
+
+      # update unscaled posterior covariance (the intercept and linear terms are unchanged)
+      diag_Sigma_hat_unscaled[-(1:2)] = 1/(diagXtX[-(1:2)] + 1/psi)
+
     }
     #----------------------------------------------------------------------------
     # Store the MC:
@@ -689,7 +684,7 @@ sbsm = function(y,
     post_theta = post_theta,
     post_ypred = post_ypred,
     post_g = post_g,  post_psi = post_psi,
-    model = 'sbsm', y = y, X = X[,-1], sample_psi = sample_psi, laplace_approx = laplace_approx, fixedX = fixedX, approx_g = approx_g))
+    model = 'sbsm', y = y, X = X[,-1], sample_psi = sample_psi, fixedX = fixedX, approx_g = approx_g))
 }
 #---------------------------------------------------------------
 #' Semiparametric Bayesian Gaussian processes
@@ -1630,7 +1625,7 @@ sir_adjust = function(fit,
     # Sample:
     prior_theta = matrix(rnorm(n = p*nsims_prior,
                                mean = 0,
-                               sd = sigma_epsilon*sqrt(fit$psi)),
+                               sd = sigma_epsilon*mean(sqrt(fit$post_psi))),
                          nrow = nsims_prior)
   }
 
@@ -1642,9 +1637,15 @@ sir_adjust = function(fit,
     # Extract g(y), properly matched:
     z = fit$post_g[nsi, ind_y]
 
-    # Dirichlet(1) weights for x:
-    weights_x = rgamma(n = n, shape = 1)
-    weights_x  = weights_x/sum(weights_x)
+    # Weights for x:
+    if(fit$fixedX){
+      # Fixed x, so weights are all 1/n
+      weights_x = rep(1/n, n)
+    } else {
+      # Dirichlet(1) weights for x:
+      weights_x = rgamma(n = n, shape = 1)
+      weights_x  = weights_x/sum(weights_x)
+    }
 
     # The numerator can be unconditional or conditional on x
     if(marg_x){

@@ -9,7 +9,7 @@ sbsm(
   x = NULL,
   x_test = NULL,
   psi = NULL,
-  laplace_approx = TRUE,
+  nbasis = NULL,
   fixedX = (length(y) >= 500),
   approx_g = FALSE,
   nsave = 1000,
@@ -27,15 +27,12 @@ sbsm(
 \item{psi}{prior variance (inverse smoothing parameter); if NULL,
 sample this parameter}
 
-\item{laplace_approx}{logical; if TRUE, use a normal approximation
-to the posterior in the definition of the transformation;
-otherwise the prior is used}
+\item{nbasis}{number of spline basis functions; if NULL, use the default from \code{spikeSlabGAM::sm}}
 
 \item{fixedX}{logical; if TRUE, treat the design as fixed (non-random) when sampling
 the transformation; otherwise treat covariates as random with an unknown distribution}
 
-\item{approx_g}{logical; if TRUE, apply large-sample
-approximation for the transformation}
+\item{approx_g}{logical; if TRUE, apply large-sample approximation for the transformation}
 
 \item{nsave}{number of Monte Carlo simulations}
 
@@ -66,14 +63,12 @@ used with a prior that penalizes roughness.
 \details{
 This function provides fully Bayesian inference for a
 transformed spline regression model using Monte Carlo (not MCMC) sampling.
-The transformation is modeled as unknown and learned jointly
-with the regression function (unless \code{approx_g = TRUE}, which then uses
-a point approximation). This model applies for real-valued data, positive data, and
-compactly-supported data (the support is automatically deduced from the observed \code{y} values).
-The results are typically unchanged whether \code{laplace_approx} is TRUE/FALSE;
-setting it to TRUE may reduce sensitivity to the prior, while setting it to FALSE
-may speed up computations for very large datasets. By default, \code{fixedX} is
-set to FALSE for smaller datasets (\code{n < 500}) and TRUE for larger datasets (\code{n >= 500}).
+The transformation is modeled as unknown (unless \code{approx_g = TRUE},
+which then uses a point approximation) and learned jointly with the regression function.
+This model applies for real-valued data, positive data, and compactly-supported data
+(the support is automatically deduced from the observed \code{y} values).
+By default, \code{fixedX} is set to FALSE for smaller datasets (\code{n < 500})
+and TRUE for larger datasets (\code{n >= 500}).
 }
 \examples{
 \donttest{
